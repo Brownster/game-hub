@@ -1,0 +1,954 @@
+:root {
+  color-scheme: light;
+  --wood-light: #d4b08a;
+  --wood-dark: #8b5e3c;
+  --ink: #1b120b;
+  --accent: #ffb23f;
+  --accent-deep: #d98314;
+  --board-green: #6e9e00;
+  --board-frame: #2c1b10;
+  --panel: rgba(255, 248, 235, 0.85);
+  --panel-strong: rgba(255, 248, 235, 0.96);
+  --shadow-strong: 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Archivo Black", "DM Serif Display", serif;
+  color: var(--ink);
+  min-height: 100vh;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent 45%),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.08) 8px, transparent 8px, transparent 18px),
+    linear-gradient(160deg, var(--wood-light), var(--wood-dark));
+  padding: 24px 16px 48px;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.app-shell {
+  max-width: 980px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.reversi-title {
+  text-align: center;
+  font-size: clamp(42px, 7vw, 72px);
+  letter-spacing: 6px;
+  text-transform: uppercase;
+}
+
+.reversi-title span {
+  text-shadow: 1px 1px 0 #000, 2px 2px 0 #000, 4px 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.reversi-title .light {
+  color: #f5f5f5;
+}
+
+.reversi-title .dark {
+  color: #2d2d2d;
+}
+
+.panel {
+  background: var(--panel);
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: var(--shadow-strong);
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(6px);
+}
+
+.panel-title {
+  font-size: 20px;
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+
+.menu {
+  display: grid;
+  gap: 16px;
+}
+
+.menu button,
+.menu input {
+  width: 100%;
+}
+
+.button {
+  padding: 14px 18px;
+  font-size: 18px;
+  border: none;
+  border-radius: 14px;
+  font-family: "DM Serif Display", serif;
+  cursor: pointer;
+  background: linear-gradient(180deg, var(--accent), var(--accent-deep));
+  color: #1c1207;
+  letter-spacing: 1px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.button.secondary {
+  background: linear-gradient(180deg, #f7f1e6, #e6d8c7);
+  color: #2b1b10;
+}
+
+.button:active {
+  transform: translateY(2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.input {
+  padding: 12px 14px;
+  font-size: 18px;
+  border-radius: 12px;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.8);
+  font-family: "Indie Flower", cursive;
+  letter-spacing: 2px;
+  text-align: center;
+}
+
+.subtle {
+  font-family: "Indie Flower", cursive;
+  font-size: 18px;
+}
+
+.lobby-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.join-code {
+  font-size: 32px;
+  letter-spacing: 8px;
+  background: rgba(0, 0, 0, 0.07);
+  padding: 10px 24px;
+  border-radius: 12px;
+}
+
+.share-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.scoreboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.score-card {
+  background: var(--panel-strong);
+  border-radius: 18px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.08);
+}
+
+.score-card.active {
+  box-shadow: 0 0 20px rgba(255, 210, 96, 0.8), inset 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+.score-name {
+  font-family: "Indie Flower", cursive;
+  font-size: 20px;
+  letter-spacing: 2px;
+}
+
+.score-count {
+  font-size: 42px;
+}
+
+.piece {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.piece.black {
+  background: linear-gradient(140deg, #4f4f4f, #111);
+}
+
+.piece.white {
+  background: linear-gradient(140deg, #ffffff, #cfcfcf);
+}
+
+.board-frame {
+  background: var(--board-frame);
+  padding: 18px;
+  border-radius: 20px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 4px;
+  background: #1f3d12;
+  padding: 6px;
+  border-radius: 16px;
+  aspect-ratio: 1;
+  width: min(90vw, 520px);
+}
+
+.cell {
+  background: var(--board-green);
+  position: relative;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.1s ease, background 0.2s ease;
+}
+
+.cell:hover {
+  background: #7ab510;
+}
+
+.cell.disabled {
+  cursor: default;
+}
+
+.cell.legal::after {
+  content: "";
+  width: 34%;
+  height: 34%;
+  border-radius: 50%;
+  border: 2px dashed rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.cell.last-move {
+  box-shadow: inset 0 0 0 3px rgba(255, 215, 0, 0.7);
+}
+
+.toast {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  padding: 12px 22px;
+  border-radius: 12px;
+  font-family: "DM Serif Display", serif;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 700px) {
+  body {
+    padding: 16px 12px 40px;
+  }
+
+  .score-card {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .board {
+    width: min(94vw, 500px);
+  }
+}
+
+/* Slither (Serpent.io) */
+body.slither-mode {
+  padding: 0;
+  margin: 0;
+  background: #0a0a0a;
+  color: #00ffff;
+  overflow: hidden;
+  font-family: "Rajdhani", sans-serif;
+  cursor: none;
+}
+
+body.slither-mode #root {
+  min-height: 100vh;
+}
+
+.slither-root {
+  position: fixed;
+  inset: 0;
+}
+
+.slither-canvas {
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  display: block;
+}
+
+.slither-cursor {
+  position: fixed;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #00ffff;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10000;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 10px #00ffff, inset 0 0 10px #00ffff;
+}
+
+.slither-cursor.active {
+  width: 30px;
+  height: 30px;
+  border-color: #ff00ff;
+  box-shadow: 0 0 20px #ff00ff, inset 0 0 20px #ff00ff;
+}
+
+.slither-start {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at 50% 50%, #1a0a1a, #0a0a0a);
+  z-index: 1000;
+  animation: slitherPulse 4s ease-in-out infinite;
+}
+
+@keyframes slitherPulse {
+  0%, 100% { background: radial-gradient(circle at 50% 50%, #1a0a1a, #0a0a0a); }
+  50% { background: radial-gradient(circle at 50% 50%, #0a1a1a, #0a0a0a); }
+}
+
+.slither-start h1 {
+  font-family: "Orbitron", sans-serif;
+  font-size: clamp(48px, 10vw, 120px);
+  font-weight: 900;
+  letter-spacing: 0.5rem;
+  text-transform: uppercase;
+  background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: slitherGradient 3s ease infinite, slitherGlitch 5s infinite;
+  text-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+@keyframes slitherGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes slitherGlitch {
+  0%, 90%, 100% { transform: translate(0); }
+  92% { transform: translate(-2px, 2px); }
+  94% { transform: translate(2px, -2px); }
+  96% { transform: translate(-2px, -2px); }
+  98% { transform: translate(2px, 2px); }
+}
+
+.slither-input input {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 1.5rem;
+  padding: 1rem 2rem;
+  background: transparent;
+  border: 3px solid #00ffff;
+  color: #00ffff;
+  text-align: center;
+  letter-spacing: 0.2rem;
+  text-transform: uppercase;
+  outline: none;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3), inset 0 0 20px rgba(0, 255, 255, 0.1);
+  transition: all 0.3s;
+}
+
+.slither-input input:focus {
+  border-color: #ff00ff;
+  box-shadow: 0 0 30px rgba(255, 0, 255, 0.5), inset 0 0 20px rgba(255, 0, 255, 0.2);
+  transform: scale(1.05);
+}
+
+.slither-start-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.slither-button {
+  font-family: "Orbitron", sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  padding: 1rem 2.5rem;
+  background: transparent;
+  border: 3px solid #ff00ff;
+  color: #ff00ff;
+  text-transform: uppercase;
+  letter-spacing: 0.2rem;
+  cursor: pointer;
+  box-shadow: 0 0 30px rgba(255, 0, 255, 0.4);
+  transition: all 0.3s;
+}
+
+.slither-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 50px rgba(255, 0, 255, 0.8);
+}
+
+.slither-button.alt {
+  border-color: #00ffff;
+  color: #00ffff;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+}
+
+.slither-hud {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+  z-index: 100;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.slither-hud-section {
+  background: rgba(10, 10, 10, 0.8);
+  border: 2px solid #00ffff;
+  padding: 1rem 2rem;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.slither-player-name {
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.slither-score {
+  font-family: "Orbitron", sans-serif;
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #ffff00;
+  text-shadow: 0 0 10px #ffff00;
+  letter-spacing: 0.2rem;
+}
+
+.slither-leaderboard {
+  position: fixed;
+  left: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(10, 10, 10, 0.9);
+  border: 2px solid #ff00ff;
+  padding: 1rem;
+  min-width: 240px;
+  box-shadow: 0 0 20px rgba(255, 0, 255, 0.3);
+  pointer-events: auto;
+}
+
+.slither-leaderboard h3 {
+  font-family: "Orbitron", sans-serif;
+  font-size: 1.2rem;
+  color: #ff00ff;
+  margin-bottom: 1rem;
+  text-align: center;
+  letter-spacing: 0.2rem;
+}
+
+.slither-leaderboard-entry {
+  font-size: 1rem;
+  color: #00ffff;
+  padding: 0.4rem 0.2rem;
+  border-left: 3px solid #00ffff;
+  padding-left: 0.8rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.slither-leaderboard-entry.you {
+  background: rgba(255, 0, 255, 0.1);
+  border-left-color: #ff00ff;
+  color: #ff00ff;
+}
+
+.slither-exit {
+  pointer-events: auto;
+  background: rgba(10, 10, 10, 0.85);
+  border: 2px solid #00ffff;
+  color: #00ffff;
+  padding: 0.6rem 1.4rem;
+  font-family: "Orbitron", sans-serif;
+  letter-spacing: 0.1rem;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+}
+
+.slither-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: auto;
+}
+
+.slither-exit.alt {
+  border-color: #ff00ff;
+  color: #ff00ff;
+  box-shadow: 0 0 20px rgba(255, 0, 255, 0.3);
+}
+
+.slither-death {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.95);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 500;
+  animation: slitherFadeIn 0.5s;
+}
+
+@keyframes slitherFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.slither-death h2 {
+  font-family: "Orbitron", sans-serif;
+  font-size: clamp(36px, 8vw, 80px);
+  color: #ff00ff;
+  text-shadow: 0 0 30px #ff00ff;
+  letter-spacing: 0.4rem;
+  margin-bottom: 2rem;
+  animation: slitherGlitch 1s infinite;
+}
+
+.slither-final-score {
+  font-size: 1.5rem;
+  color: #00ffff;
+  margin-bottom: 2rem;
+}
+
+body.slither-mode::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 255, 255, 0.03) 0px,
+    transparent 1px,
+    transparent 2px,
+    rgba(0, 255, 255, 0.03) 3px
+  );
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.5;
+}
+
+/* Wordle */
+.wordle-root {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #0a0e1a 0%, #1a1535 100%);
+  color: #e8f7ff;
+  font-family: "VT323", "Courier New", monospace;
+  position: relative;
+  overflow: hidden;
+}
+
+body.wordle-mode {
+  padding: 0;
+  margin: 0;
+  background: #0a0e1a;
+}
+
+.wordle-ambient,
+.wordle-grid,
+.wordle-crt {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.wordle-ambient {
+  background: radial-gradient(circle, transparent 40%, rgba(10, 14, 26, 0.8) 100%);
+  z-index: 1;
+}
+
+.wordle-grid {
+  background-image: linear-gradient(rgba(0, 255, 170, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 170, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+  opacity: 0.35;
+  z-index: 1;
+}
+
+.wordle-crt {
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 255, 170, 0.03) 0px,
+    transparent 1px,
+    transparent 2px,
+    rgba(0, 255, 170, 0.03) 3px
+  );
+  z-index: 2;
+}
+
+.wordle-shell {
+  position: relative;
+  z-index: 3;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 48px 20px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.wordle-header {
+  text-align: center;
+}
+
+.wordle-header.compact {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: left;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.wordle-title {
+  font-family: "Orbitron", sans-serif;
+  font-size: clamp(44px, 7vw, 80px);
+  letter-spacing: 6px;
+  margin: 0;
+  background: linear-gradient(135deg, #00ffaa 0%, #00d4ff 50%, #ff00ea 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 30px rgba(0, 255, 170, 0.5);
+}
+
+.wordle-subtitle {
+  font-family: "Rajdhani", sans-serif;
+  font-size: 20px;
+  margin: 8px 0 0;
+  color: #98f7ff;
+}
+
+.wordle-panel {
+  background: rgba(10, 14, 26, 0.7);
+  border: 2px solid rgba(0, 212, 255, 0.3);
+  padding: 20px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 30px rgba(0, 255, 170, 0.15);
+}
+
+.wordle-panel-title {
+  font-family: "Orbitron", sans-serif;
+  font-size: 18px;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+  color: #00ffaa;
+}
+
+.wordle-input {
+  width: 100%;
+  font-family: "VT323", monospace;
+  font-size: 26px;
+  padding: 12px 14px;
+  background: transparent;
+  border: 2px solid rgba(0, 212, 255, 0.4);
+  color: #00d4ff;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  border-radius: 8px;
+  outline: none;
+}
+
+.wordle-actions {
+  display: grid;
+  gap: 12px;
+}
+
+.wordle-button {
+  font-family: "Orbitron", sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #00ffaa 0%, #00d4ff 100%);
+  border: none;
+  color: #0a0e1a;
+  cursor: pointer;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  box-shadow: 0 0 20px rgba(0, 255, 170, 0.5);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.wordle-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(0, 255, 170, 0.8);
+}
+
+.wordle-button.secondary {
+  background: rgba(0, 212, 255, 0.12);
+  color: #00d4ff;
+  border: 2px solid rgba(0, 212, 255, 0.4);
+  box-shadow: none;
+}
+
+.wordle-button.ghost {
+  background: transparent;
+  color: #00d4ff;
+  border: 2px solid rgba(0, 212, 255, 0.5);
+  box-shadow: none;
+}
+
+.wordle-message {
+  text-align: center;
+  font-size: 22px;
+  color: #00d4ff;
+}
+
+.wordle-message.error {
+  color: #ff0055;
+}
+
+.wordle-board {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0 auto;
+}
+
+.wordle-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.wordle-row.shake {
+  animation: wordleShake 0.5s;
+}
+
+.wordle-cell {
+  width: clamp(48px, 12vw, 70px);
+  height: clamp(48px, 12vw, 70px);
+  border: 2px solid rgba(0, 255, 170, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(28px, 7vw, 42px);
+  font-weight: bold;
+  color: #00ffaa;
+  text-transform: uppercase;
+  background: rgba(10, 14, 26, 0.5);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.wordle-cell.correct {
+  border-color: #00ffaa;
+  background: rgba(0, 255, 170, 0.2);
+  box-shadow: 0 0 20px rgba(0, 255, 170, 0.5);
+  color: #fff;
+}
+
+.wordle-cell.present {
+  border-color: #ffd000;
+  background: rgba(255, 208, 0, 0.2);
+  box-shadow: 0 0 20px rgba(255, 208, 0, 0.5);
+  color: #fff;
+}
+
+.wordle-cell.absent {
+  border-color: #ff0055;
+  background: rgba(255, 0, 85, 0.2);
+  box-shadow: 0 0 20px rgba(255, 0, 85, 0.3);
+  color: #fff;
+}
+
+.wordle-cell.filled {
+  border-color: #00d4ff;
+  color: #00d4ff;
+}
+
+.wordle-scoreboard {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-family: "Orbitron", sans-serif;
+}
+
+.wordle-score-label {
+  font-size: 14px;
+  color: #98f7ff;
+}
+
+.wordle-score-value {
+  font-size: 28px;
+  color: #00ffaa;
+}
+
+.wordle-score-name {
+  font-size: 14px;
+  color: #00d4ff;
+}
+
+.wordle-keyboard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.wordle-keyboard-row {
+  display: flex;
+  gap: 6px;
+}
+
+.wordle-key {
+  font-family: "VT323", monospace;
+  font-size: 24px;
+  padding: 12px 10px;
+  min-width: 40px;
+  background: rgba(0, 212, 255, 0.1);
+  border: 2px solid rgba(0, 212, 255, 0.3);
+  color: #00d4ff;
+  cursor: pointer;
+  border-radius: 6px;
+  text-transform: uppercase;
+  transition: transform 0.1s ease, filter 0.1s ease;
+}
+
+.wordle-key.special {
+  min-width: 65px;
+  font-size: 18px;
+}
+
+.wordle-key.correct {
+  background: rgba(0, 255, 170, 0.3);
+  border-color: #00ffaa;
+  color: #00ffaa;
+  box-shadow: 0 0 15px rgba(0, 255, 170, 0.4);
+}
+
+.wordle-key.present {
+  background: rgba(255, 208, 0, 0.3);
+  border-color: #ffd000;
+  color: #ffd000;
+  box-shadow: 0 0 15px rgba(255, 208, 0, 0.4);
+}
+
+.wordle-key.absent {
+  background: rgba(255, 0, 85, 0.2);
+  border-color: #ff0055;
+  color: #ff0055;
+  box-shadow: 0 0 15px rgba(255, 0, 85, 0.3);
+}
+
+.wordle-key:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.2);
+}
+
+.wordle-leaderboard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wordle-leaderboard-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: "Rajdhani", sans-serif;
+  font-size: 18px;
+  color: #98f7ff;
+}
+
+@keyframes wordleShake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+@media (max-width: 700px) {
+  .wordle-shell {
+    padding: 36px 16px 50px;
+  }
+
+  .wordle-header.compact {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .wordle-scoreboard {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 700px) {
+  body.slither-mode {
+    cursor: auto;
+  }
+
+  .slither-cursor {
+    display: none;
+  }
+
+  .slither-hud {
+    padding: 16px;
+  }
+
+  .slither-leaderboard {
+    position: static;
+    transform: none;
+    width: 100%;
+    order: 2;
+  }
+
+  .slither-hud-section {
+    order: 1;
+  }
+
+  .slither-controls {
+    order: 3;
+  }
+}

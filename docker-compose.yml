@@ -1,0 +1,29 @@
+services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
+  hub:
+    build:
+      context: ./services/hub
+    restart: unless-stopped
+    environment:
+      REDIS_URL: redis://redis:6379
+      AI_DELAY_MS: 300
+      ROOM_TTL_SECONDS: 86400
+    depends_on:
+      - redis
+
+  web:
+    build:
+      context: ./services/web
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    depends_on:
+      - hub
+
+volumes:
+  redis_data:

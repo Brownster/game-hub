@@ -1,0 +1,17 @@
+{
+  "name": "gamehub-hub",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "fastify": "^4.27.0",
+    "ioredis": "^5.4.1",
+    "nanoid": "^5.0.7",
+    "socket.io": "^4.7.5"
+  }
+}
