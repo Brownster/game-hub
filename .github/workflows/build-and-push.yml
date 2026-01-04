@@ -44,5 +44,5 @@ jobs:
           context: .
           push: ${{ inputs.push }}
           tags: |
-            ghcr.io/${{ github.repository }}/gamehub:${{ inputs.tag }}
-            ghcr.io/${{ github.repository }}/gamehub:${{ github.sha }}
+            ghcr.io/${{ toLower(github.repository) }}/gamehub:${{ inputs.tag }}
+            ghcr.io/${{ toLower(github.repository) }}/gamehub:${{ github.sha }}
