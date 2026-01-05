@@ -1,6 +1,6 @@
 # Family Game Hub
 
-A LAN-friendly game hub that runs on your Pi NAS. Includes Reversi (Othello) with room codes, Wordle (daily/free/VS), and an open-arena SERPENT.IO mode.
+A LAN-friendly game hub that runs on your Pi NAS. Includes Reversi (Othello) with room codes, Wordle (daily/free/VS), Draw & Guess (party), and an open-arena SERPENT.IO mode.
 
 ## Quick start
 

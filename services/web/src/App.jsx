@@ -7,6 +7,8 @@ import Game from "./pages/Game.jsx";
 import Slither from "./pages/Slither.jsx";
 import WordleHome from "./pages/WordleHome.jsx";
 import WordleGame from "./pages/WordleGame.jsx";
+import DrawHome from "./pages/DrawHome.jsx";
+import DrawGame from "./pages/DrawGame.jsx";
 
 export default function App() {
   return (
@@ -20,6 +22,8 @@ export default function App() {
       <Route path="/wordle/daily" element={<WordleGame mode="daily" />} />
       <Route path="/wordle/free" element={<WordleGame mode="free" />} />
       <Route path="/wordle/vs/:code" element={<WordleGame mode="vs" />} />
+      <Route path="/draw" element={<DrawHome />} />
+      <Route path="/draw/:code" element={<DrawGame />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

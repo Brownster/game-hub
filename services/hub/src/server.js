@@ -21,12 +21,13 @@ fastify.post("/api/rooms", async (request, reply) => {
     return reply.code(400).send({ error: "GAME_REQUIRED" });
   }
 
-  if (!normalizedMode || !["PVP", "AI"].includes(normalizedMode)) {
+  const defaultMode = normalizedGame === "draw" ? "PARTY" : normalizedMode;
+  if (!defaultMode || !["PVP", "AI", "PARTY"].includes(defaultMode)) {
     return reply.code(400).send({ error: "MODE_REQUIRED" });
   }
 
-  const state = createInitialState(normalizedGame, normalizedMode);
-  const room = await createRoom({ gameKey: normalizedGame, mode: normalizedMode, state });
+  const state = createInitialState(normalizedGame, defaultMode);
+  const room = await createRoom({ gameKey: normalizedGame, mode: defaultMode, state });
 
   return {
     roomId: room.roomId,

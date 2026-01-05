@@ -32,6 +32,12 @@ export default function HubHome() {
     navigate("/wordle");
   };
 
+  const goToDraw = () => {
+    unlockAudio();
+    playSound("beep");
+    navigate("/draw");
+  };
+
   return (
     <div className="app-shell">
       <header className="reversi-title">
@@ -50,6 +56,9 @@ export default function HubHome() {
           </button>
           <button className="button" onClick={goToWordle}>
             Wordle (Daily / Free / VS)
+          </button>
+          <button className="button" onClick={goToDraw}>
+            Draw & Guess (Party)
           </button>
           <button className="button" onClick={goToSerpent}>
             SERPENT.IO Arena

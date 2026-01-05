@@ -3,6 +3,7 @@ import { getRoomByCode, getRoom, saveRoom } from "./rooms/roomService.js";
 import { assignPlayersAndMaybeStart, handleMove, scheduleAiIfNeeded } from "./games/reversi/reversiService.js";
 import { registerSlitherNamespace } from "./games/slither/slitherSocket.js";
 import { allReady, applyVsGuess, assignWordlePlayer, ensurePlayerState, finalizeRound, prepareNextRound, roundFinished, sanitizeWordleState, setReady, startRound } from "./games/wordle/wordleVs.js";
+import { addFeed, addPlayer as addDrawPlayer, addStroke, advanceTurn, applyGuess as applyDrawGuess, endRound as endDrawRound, removePlayer as removeDrawPlayer, sanitizeState as sanitizeDrawState, startRound as startDrawRound } from "./games/draw/drawService.js";
 
 function roomChannel(roomId) {
   return `room:${roomId}`;
@@ -15,6 +16,8 @@ export function registerSocketHandlers(httpServer) {
 
   registerSlitherNamespace(io);
   const wordleCountdowns = new Map();
+  const drawTimers = new Map();
+  const playerSockets = new Map();
 
   async function scheduleWordleCountdown(roomId) {
     if (wordleCountdowns.has(roomId)) return;
@@ -46,6 +49,57 @@ export function registerSocketHandlers(httpServer) {
     wordleCountdowns.set(roomId, timeoutId);
   }
 
+  function scheduleDrawTimer(roomId, state) {
+    if (drawTimers.has(roomId)) return;
+    const ms = Math.max(0, state.roundEndsAt - Date.now());
+    const timeoutId = setTimeout(async () => {
+      drawTimers.delete(roomId);
+      const room = await getRoom(roomId);
+      if (!room || room.gameKey !== "draw") return;
+      if (room.state.phase !== "DRAWING") return;
+      endDrawRound(room.state, "timeout");
+      await saveRoom(room);
+      broadcastDrawState(room);
+      scheduleReveal(roomId, room.state);
+    }, ms);
+    drawTimers.set(roomId, timeoutId);
+  }
+
+  function scheduleReveal(roomId, state) {
+    const ms = Math.max(0, state.revealEndsAt - Date.now());
+    setTimeout(async () => {
+      const room = await getRoom(roomId);
+      if (!room || room.gameKey !== "draw") return;
+      if (room.state.phase !== "REVEAL") return;
+      advanceTurn(room.state);
+      startDrawRound(room.state);
+      scheduleDrawTimer(roomId, room.state);
+      await saveRoom(room);
+      broadcastDrawState(room);
+      io.to(roomChannel(roomId)).emit("draw:clear");
+    }, ms);
+  }
+
+  function broadcastDrawState(room) {
+    const hidden = sanitizeDrawState(room.state, null);
+    io.to(roomChannel(room.roomId)).emit("draw:state", { roomId: room.roomId, state: hidden });
+
+    if (room.state.drawerId) {
+      emitToPlayer(room.state.drawerId, "draw:state", {
+        roomId: room.roomId,
+        state: sanitizeDrawState(room.state, room.state.drawerId)
+      });
+    }
+  }
+
+  function emitToPlayer(playerId, event, payload) {
+    const sockets = playerSockets.get(playerId);
+    if (!sockets) return;
+    sockets.forEach((socketId) => {
+      io.to(socketId).emit(event, payload);
+    });
+  }
+
   io.on("connection", (socket) => {
     let session = null;
     let currentRoomId = null;
@@ -54,6 +108,9 @@ export function registerSocketHandlers(httpServer) {
     socket.on("session:hello", (payload) => {
       if (!payload?.playerId || !payload?.displayName) return;
       session = { playerId: payload.playerId, displayName: payload.displayName };
+      const existing = playerSockets.get(session.playerId) || new Set();
+      existing.add(socket.id);
+      playerSockets.set(session.playerId, existing);
     });
 
     socket.on("room:join", async ({ joinCode }) => {
@@ -166,6 +223,73 @@ export function registerSocketHandlers(httpServer) {
       }
     });
 
+    socket.on("draw:join", async ({ joinCode }) => {
+      if (!session) {
+        return socket.emit("draw:error", { code: "NO_SESSION", message: "Session required" });
+      }
+
+      const room = await getRoomByCode(String(joinCode || "").toUpperCase());
+      if (!room || room.gameKey !== "draw") {
+        return socket.emit("draw:error", { code: "ROOM_NOT_FOUND", message: "Room not found" });
+      }
+
+      addDrawPlayer(room.state, session);
+
+      if (room.state.phase === "LOBBY" && room.state.players.length >= 2) {
+        startDrawRound(room.state);
+        scheduleDrawTimer(room.roomId, room.state);
+      }
+
+      await saveRoom(room);
+      socket.join(roomChannel(room.roomId));
+      broadcastDrawState(room);
+    });
+
+    socket.on("draw:stroke", async ({ roomId, stroke }) => {
+      if (!session || !roomId || !stroke) return;
+      const room = await getRoom(roomId);
+      if (!room || room.gameKey !== "draw") return;
+      if (room.state.phase !== "DRAWING") return;
+      if (room.state.drawerId !== session.playerId) return;
+
+      addStroke(room.state, stroke);
+      await saveRoom(room);
+      socket.to(roomChannel(roomId)).emit("draw:stroke", stroke);
+    });
+
+    socket.on("draw:guess", async ({ roomId, guess }) => {
+      if (!session || !roomId || !guess) return;
+      const room = await getRoom(roomId);
+      if (!room || room.gameKey !== "draw") return;
+      if (room.state.phase !== "DRAWING") return;
+
+      const outcome = applyDrawGuess(room.state, session.playerId, guess);
+
+      if (outcome.correct) {
+        if (drawTimers.has(roomId)) {
+          clearTimeout(drawTimers.get(roomId));
+          drawTimers.delete(roomId);
+        }
+        scheduleReveal(room.roomId, room.state);
+      }
+
+      await saveRoom(room);
+      broadcastDrawState(room);
+    });
+
+    socket.on("draw:leave", async ({ roomId }) => {
+      if (!roomId) return;
+      const room = await getRoom(roomId);
+      if (!room || room.gameKey !== "draw") return;
+      removeDrawPlayer(room.state, session?.playerId);
+      if (room.state.players.length < 2) {
+        room.state.phase = "LOBBY";
+      }
+      await saveRoom(room);
+      socket.leave(roomChannel(roomId));
+      broadcastDrawState(room);
+    });
+
     socket.on("game:action", async ({ roomId, action }) => {
       if (!session || !roomId || !action) return;
       if (currentRoomId !== roomId) return;
@@ -216,6 +340,18 @@ export function registerSocketHandlers(httpServer) {
       if (currentRoomId === roomId) {
         socket.leave(roomChannel(roomId));
         currentRoomId = null;
+      }
+    });
+
+    socket.on("disconnect", () => {
+      if (session?.playerId) {
+        const set = playerSockets.get(session.playerId);
+        if (set) {
+          set.delete(socket.id);
+          if (set.size === 0) {
+            playerSockets.delete(session.playerId);
+          }
+        }
       }
     });
   });
