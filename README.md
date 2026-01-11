@@ -1,6 +1,6 @@
 # Family Game Hub
 
-A LAN-friendly game hub that runs on your Pi NAS. Includes Reversi (Othello) with room codes, Wordle (daily/free/VS), Draw & Guess (party), and an open-arena SERPENT.IO mode.
+A LAN-friendly game hub that runs on your Pi NAS. Includes Reversi (Othello), Connect 4, Cribbage, Catan, UNO, Crazy Eights, Fibbage, Chess, Wordle (daily/free/VS), Draw & Guess (party), Charades, and an open-arena SERPENT.IO mode.
 
 ## Quick start
 
@@ -18,6 +18,7 @@ Open `http://<pi-ip>:8081` from any phone or desktop on your LAN.
 - Audio assets live in `services/web/public/audio` and play after the first user interaction.
 - SERPENT.IO is served from the same hub via the `/slither` Socket.IO namespace.
 - Wordle daily and VS modes use server-backed state + LAN leaderboards.
+- Chess uses `chess.js` for validation; AI mode uses a simple minimax bot.
 
 ## Local development (optional)
 
