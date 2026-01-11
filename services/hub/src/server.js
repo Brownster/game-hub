@@ -1,6 +1,5 @@
 import Fastify from "fastify";
 import { createRoom, getRoomByCode } from "./rooms/roomService.js";
-import { createInitialState } from "./games/registry.js";
 import { registerSocketHandlers } from "./socket.js";
 import { createVsState } from "./games/wordle/wordleVs.js";
 import { getDailyStatus, getRandomFreeWord, startDailySession, submitDailyGuess } from "./games/wordle/wordleDaily.js";
@@ -12,29 +11,21 @@ const fastify = Fastify({ logger: true });
 
 fastify.get("/api/health", async () => ({ ok: true }));
 
+/**
+ * Create a new room (game-agnostic)
+ * Players join rooms first, then select games via socket
+ */
 fastify.post("/api/rooms", async (request, reply) => {
-  const { gameKey, mode } = request.body || {};
-  const normalizedGame = String(gameKey || "").toLowerCase();
-  const normalizedMode = String(mode || "").toUpperCase();
+  const { maxPlayers } = request.body || {};
+  const safeMaxPlayers = Math.min(Math.max(Number(maxPlayers) || 2, 2), 12);
 
-  if (!normalizedGame) {
-    return reply.code(400).send({ error: "GAME_REQUIRED" });
-  }
-
-  const defaultMode = normalizedGame === "draw" ? "PARTY" : normalizedMode;
-  if (!defaultMode || !["PVP", "AI", "PARTY"].includes(defaultMode)) {
-    return reply.code(400).send({ error: "MODE_REQUIRED" });
-  }
-
-  const state = createInitialState(normalizedGame, defaultMode);
-  const room = await createRoom({ gameKey: normalizedGame, mode: defaultMode, state });
+  const room = await createRoom({ maxPlayers: safeMaxPlayers });
 
   return {
     roomId: room.roomId,
     joinCode: room.joinCode,
-    joinUrl: `/lobby/${room.joinCode}`,
-    gameKey: room.gameKey,
-    mode: room.mode
+    joinUrl: `/room/${room.joinCode}`,
+    maxPlayers: room.maxPlayers,
   };
 });
 
@@ -50,9 +41,10 @@ fastify.get("/api/rooms/by-code/:code", async (request, reply) => {
   return {
     roomId: room.roomId,
     joinCode: room.joinCode,
-    gameKey: room.gameKey,
-    mode: room.mode,
-    status: room.status
+    playerCount: room.players.length,
+    maxPlayers: room.maxPlayers,
+    hasGame: room.currentGame !== null,
+    gameKey: room.currentGame?.gameKey || null,
   };
 });
 

@@ -1,6 +1,9 @@
-import { applyMove, countDiscs, getLegalMoves, newBoard } from "./reversiRules.js";
-import { pickMove } from "./reversiAI.js";
+import { applyMove as applyMoveInternal, countDiscs, getLegalMoves, newBoard } from "./reversiRules.js";
+import { pickMove as pickMoveInternal } from "./reversiAI.js";
 import { getRoom, saveRoom } from "../../rooms/roomService.js";
+
+// Re-export for unified socket handler
+export { applyMoveInternal as applyMove, pickMoveInternal as pickMove };
 
 const AI_DELAY_MS = Number(process.env.AI_DELAY_MS || 300);
 const pendingAi = new Set();
@@ -66,7 +69,7 @@ export async function handleMove(roomId, side, r, c) {
   if (room.status !== "IN_PROGRESS") throw new Error("GAME_NOT_IN_PROGRESS");
   if (room.gameKey !== "reversi") throw new Error("INVALID_GAME");
 
-  const nextState = applyMove(room.state, side, r, c);
+  const nextState = applyMoveInternal(room.state, side, r, c);
   room.state = nextState;
 
   if (nextState.status === "FINISHED") {
@@ -100,10 +103,10 @@ export async function scheduleAiIfNeeded(roomId, io) {
       if (latest.status !== "IN_PROGRESS") return;
       if (latestState.turn !== latestState.ai.side) return;
 
-      const move = pickMove(latestState);
+      const move = pickMoveInternal(latestState);
       if (!move) return;
 
-      const updatedState = applyMove(latestState, latestState.turn, move.r, move.c);
+      const updatedState = applyMoveInternal(latestState, latestState.turn, move.r, move.c);
       latest.state = updatedState;
       if (updatedState.status === "FINISHED") {
         latest.status = "FINISHED";
