@@ -38,11 +38,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set lowercase image repo
+        run: echo "IMAGE_REPO=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+
       - name: Build and push image
         uses: docker/build-push-action@v6
         with:
           context: .
           push: ${{ inputs.push }}
           tags: |
-            ghcr.io/${{ toLower(github.repository) }}/gamehub:${{ inputs.tag }}
-            ghcr.io/${{ toLower(github.repository) }}/gamehub:${{ github.sha }}
+            ${{ env.IMAGE_REPO }}/gamehub:${{ inputs.tag }}
+            ${{ env.IMAGE_REPO }}/gamehub:${{ github.sha }}
