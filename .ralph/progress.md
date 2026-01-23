@@ -86,7 +86,7 @@ Run summary: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: 6a66fa6 test: expand catan resources and scoring coverage
-- Post-commit status: pending
+- Post-commit status: dirty (.ralph/runs/run-20260123-011054-971908-iter-2.log)
 - Verification:
   - Command: npm test -> PASS (services/hub)
   - Command: npm test -> FAIL (services/web/src/App.test.jsx expected "GAME HUB")
