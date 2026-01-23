@@ -78,3 +78,42 @@ Run summary: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123
   - Useful context
     - Activity logger helper missing at /home/marc/Documents/github/ralph/game-hub/ralph; manual logging used.
 ---
+## [2026-01-23 01:27:12] - TST-003: Expand Catan resources and scoring unit tests
+Thread: 
+Run: 20260123-011054-971908 (iteration 2)
+Run log: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-2.log
+Run summary: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-2.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 6a66fa6 test: expand catan resources and scoring coverage
+- Post-commit status: pending
+- Verification:
+  - Command: npm test -> PASS (services/hub)
+  - Command: npm test -> FAIL (services/web/src/App.test.jsx expected "GAME HUB")
+  - Command: npm run build -> PASS (services/web)
+- Files changed:
+  - .agents/tasks/prd-gamehub-tests.json
+  - .ralph/.tmp/prompt-20260123-011054-971908-2.md
+  - .ralph/.tmp/story-20260123-011054-971908-2.json
+  - .ralph/.tmp/story-20260123-011054-971908-2.md
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - .ralph/runs/run-20260123-011054-971908-iter-1.log
+  - .ralph/runs/run-20260123-011054-971908-iter-1.md
+  - .ralph/runs/run-20260123-011054-971908-iter-2.log
+  - services/hub/test/catanResources.test.js
+  - services/hub/test/catanScoring.test.js
+  - services/web/dist/assets/index-D07VNSu9.js
+  - services/web/dist/index.html
+  - services/web/node_modules/.vite/vitest/da39a3ee5e6b4b0d3255bfef95601890afd80709/results.json
+- What was implemented
+  - Added Catan resource tests for bundle math, discard validation, trade offer validation, bank trade ratios, and dev card effects.
+  - Added Catan scoring tests for victory point totals and longest road holder edge cases.
+- **Learnings for future iterations:**
+  - Patterns discovered
+    - Longest road DFS uses canonical corner keys; test helpers must generate canonical edge/corner ids.
+  - Gotchas encountered
+    - services/web App.test.jsx fails due to header text rendered as letter spans rather than "GAME HUB".
+  - Useful context
+    - Activity logger helper missing at /home/marc/Documents/github/ralph/game-hub/ralph; manual logging used.
+---
