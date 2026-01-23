@@ -104,13 +104,13 @@
         "Win and lose outcomes update stats and leaderboard entries.",
         "`getDailyStatus` returns expected fields for player and anonymous queries."
       ],
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "TST-002"
       ],
       "startedAt": "2026-01-23T01:47:28.336639+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-01-23T01:47:28.336650+00:00"
+      "completedAt": "2026-01-23T01:54:30.246866+00:00",
+      "updatedAt": "2026-01-23T01:54:30.246855+00:00"
     },
     {
       "id": "TST-007",
@@ -121,10 +121,13 @@
         "Tests cover Wordle daily start/guess errors and `/api/wordle/free/word` response shape.",
         "Server can be instantiated in tests without starting a real listener."
       ],
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "TST-002"
-      ]
+      ],
+      "startedAt": "2026-01-23T01:54:32.320786+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-01-23T01:54:32.320797+00:00"
     },
     {
       "id": "TST-008",
