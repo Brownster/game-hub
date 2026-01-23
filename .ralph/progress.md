@@ -117,3 +117,32 @@ Run summary: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123
   - Useful context
     - Activity logger helper missing at /home/marc/Documents/github/ralph/game-hub/ralph; manual logging used.
 ---
+## [2026-01-23 01:38:03] - TST-004: Add UNO service unit tests
+Thread: 
+Run: 20260123-011054-971908 (iteration 3)
+Run log: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-3.log
+Run summary: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-3.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: fce9da5 test: add uno service unit tests
+- Post-commit status: pending
+- Verification:
+  - Command: npm test -> PASS
+- Files changed:
+  - .agents/tasks/prd-gamehub-tests.json
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - .ralph/progress.md
+  - .ralph/.tmp/prompt-20260123-011054-971908-3.md
+  - .ralph/.tmp/story-20260123-011054-971908-3.json
+  - .ralph/.tmp/story-20260123-011054-971908-3.md
+  - .ralph/runs/run-20260123-011054-971908-iter-2.md
+  - .ralph/runs/run-20260123-011054-971908-iter-3.log
+  - services/hub/test/unoService.test.js
+- What was implemented
+  - Added UNO service unit tests for start flow, action effects (skip/reverse/draw2/draw4/wild), pending draw rules, UNO call penalties, invalid actions, and win detection.
+- **Learnings for future iterations:**
+  - Patterns discovered: disable `unoCall` in draw/stacking tests to avoid penalty side effects.
+  - Gotchas encountered: pending UNO penalties can drain the draw pile and affect draw counts.
+  - Useful context: stub `Math.random` for deterministic starter card validation.
+---

@@ -3153,4 +3153,756 @@ thinking
 
 I'll create a second commit adding the updated run log file with a message like "chore: update run log" and reference the latest commit in the progress entry.
 exec
-/bin/bash -lc 'git add /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-3.log' in /home/marc/Documents/github/ralph/game-hub
+/bin/bash -lc 'git add /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-3.log' in /home/marc/Documents/github/ralph/game-hub succeeded in 463ms:
+
+file update:
+diff --git a/services/hub/test/unoService.test.js b/services/hub/test/unoService.test.js
+index a24f80f2227db63f1e85cca4d464a060f8fc6fa0..ef6f50c941a1a100b56f2eeba49478136e628b14
+--- a/services/hub/test/unoService.test.js
++++ b/services/hub/test/unoService.test.js
+@@ -92,7 +92,10 @@
+     { playerId: "p2", displayName: "P2" },
+     { playerId: "p3", displayName: "P3" },
+   ]);
+-  state.hands.p1 = [makeCard({ id: "skip", color: "red", type: CARD_TYPES.SKIP, value: "skip" })];
++  state.hands.p1 = [
++    makeCard({ id: "skip", color: "red", type: CARD_TYPES.SKIP, value: "skip" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
++  ];
+ 
+   const result = processAction(state, "p1", { type: ACTIONS.PLAY_CARD, cardId: "skip" });
+   assert.equal(result.ok, true);
+@@ -118,8 +121,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
++  state.rules.unoCall = false;
+   state.hands.p1 = [
+     makeCard({ id: "d2", color: "red", type: CARD_TYPES.DRAW2, value: "draw2" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
+   ];
+   state.hands.p2 = [
+     makeCard({ id: "n1", color: "yellow", type: CARD_TYPES.NUMBER, value: "1" }),
+@@ -149,8 +154,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
++  state.rules.unoCall = false;
+   state.hands.p1 = [
+     makeCard({ id: "d4", color: "wild", type: CARD_TYPES.DRAW4, value: "draw4" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
+   ];
+   state.hands.p2 = [makeCard({ id: "n1", color: "yellow", type: CARD_TYPES.NUMBER, value: "1" })];
+   state.drawPile = [
+@@ -186,7 +193,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
+-  state.hands.p1 = [makeCard({ id: "w1", color: "wild", type: CARD_TYPES.WILD, value: "wild" })];
++  state.hands.p1 = [
++    makeCard({ id: "w1", color: "wild", type: CARD_TYPES.WILD, value: "wild" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
++  ];
+ 
+   const played = processAction(state, "p1", { type: ACTIONS.PLAY_CARD, cardId: "w1" });
+   assert.equal(played.ok, true);
+@@ -247,7 +257,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
+-  state.hands.p1 = [makeCard({ id: "n9", color: "yellow", type: CARD_TYPES.NUMBER, value: "9" })];
++  state.hands.p1 = [
++    makeCard({ id: "n9", color: "yellow", type: CARD_TYPES.NUMBER, value: "9" }),
++    makeCard({ id: "n5", color: "red", type: CARD_TYPES.NUMBER, value: "5" }),
++  ];
+   state.hands.p2 = [makeCard({ id: "n1", color: "red", type: CARD_TYPES.NUMBER, value: "1" })];
+ 
+   const notYourTurn = processAction(state, "p2", { type: ACTIONS.PLAY_CARD, cardId: "n1" });
+
+
+thinking
+**Committing changes**
+exec
+/bin/bash -lc 'git commit -m "chore: update run log"' in /home/marc/Documents/github/ralph/game-hub succeeded in 505ms:
+[main f11159f] chore: update run log
+ 1 file changed, 227 insertions(+), 1 deletion(-)
+file update:
+diff --git a/services/hub/test/unoService.test.js b/services/hub/test/unoService.test.js
+index a24f80f2227db63f1e85cca4d464a060f8fc6fa0..ef6f50c941a1a100b56f2eeba49478136e628b14
+--- a/services/hub/test/unoService.test.js
++++ b/services/hub/test/unoService.test.js
+@@ -92,7 +92,10 @@
+     { playerId: "p2", displayName: "P2" },
+     { playerId: "p3", displayName: "P3" },
+   ]);
+-  state.hands.p1 = [makeCard({ id: "skip", color: "red", type: CARD_TYPES.SKIP, value: "skip" })];
++  state.hands.p1 = [
++    makeCard({ id: "skip", color: "red", type: CARD_TYPES.SKIP, value: "skip" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
++  ];
+ 
+   const result = processAction(state, "p1", { type: ACTIONS.PLAY_CARD, cardId: "skip" });
+   assert.equal(result.ok, true);
+@@ -118,8 +121,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
++  state.rules.unoCall = false;
+   state.hands.p1 = [
+     makeCard({ id: "d2", color: "red", type: CARD_TYPES.DRAW2, value: "draw2" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
+   ];
+   state.hands.p2 = [
+     makeCard({ id: "n1", color: "yellow", type: CARD_TYPES.NUMBER, value: "1" }),
+@@ -149,8 +154,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
++  state.rules.unoCall = false;
+   state.hands.p1 = [
+     makeCard({ id: "d4", color: "wild", type: CARD_TYPES.DRAW4, value: "draw4" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
+   ];
+   state.hands.p2 = [makeCard({ id: "n1", color: "yellow", type: CARD_TYPES.NUMBER, value: "1" })];
+   state.drawPile = [
+@@ -186,7 +193,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
+-  state.hands.p1 = [makeCard({ id: "w1", color: "wild", type: CARD_TYPES.WILD, value: "wild" })];
++  state.hands.p1 = [
++    makeCard({ id: "w1", color: "wild", type: CARD_TYPES.WILD, value: "wild" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
++  ];
+ 
+   const played = processAction(state, "p1", { type: ACTIONS.PLAY_CARD, cardId: "w1" });
+   assert.equal(played.ok, true);
+@@ -247,7 +257,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
+-  state.hands.p1 = [makeCard({ id: "n9", color: "yellow", type: CARD_TYPES.NUMBER, value: "9" })];
++  state.hands.p1 = [
++    makeCard({ id: "n9", color: "yellow", type: CARD_TYPES.NUMBER, value: "9" }),
++    makeCard({ id: "n5", color: "red", type: CARD_TYPES.NUMBER, value: "5" }),
++  ];
+   state.hands.p2 = [makeCard({ id: "n1", color: "red", type: CARD_TYPES.NUMBER, value: "1" })];
+ 
+   const notYourTurn = processAction(state, "p2", { type: ACTIONS.PLAY_CARD, cardId: "n1" });
+
+
+thinking
+**Checking git status**
+exec
+/bin/bash -lc 'git status --porcelain' in /home/marc/Documents/github/ralph/game-hub succeeded in 455ms:
+ M .ralph/runs/run-20260123-011054-971908-iter-3.log
+file update:
+diff --git a/services/hub/test/unoService.test.js b/services/hub/test/unoService.test.js
+index a24f80f2227db63f1e85cca4d464a060f8fc6fa0..ef6f50c941a1a100b56f2eeba49478136e628b14
+--- a/services/hub/test/unoService.test.js
++++ b/services/hub/test/unoService.test.js
+@@ -92,7 +92,10 @@
+     { playerId: "p2", displayName: "P2" },
+     { playerId: "p3", displayName: "P3" },
+   ]);
+-  state.hands.p1 = [makeCard({ id: "skip", color: "red", type: CARD_TYPES.SKIP, value: "skip" })];
++  state.hands.p1 = [
++    makeCard({ id: "skip", color: "red", type: CARD_TYPES.SKIP, value: "skip" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
++  ];
+ 
+   const result = processAction(state, "p1", { type: ACTIONS.PLAY_CARD, cardId: "skip" });
+   assert.equal(result.ok, true);
+@@ -118,8 +121,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
++  state.rules.unoCall = false;
+   state.hands.p1 = [
+     makeCard({ id: "d2", color: "red", type: CARD_TYPES.DRAW2, value: "draw2" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
+   ];
+   state.hands.p2 = [
+     makeCard({ id: "n1", color: "yellow", type: CARD_TYPES.NUMBER, value: "1" }),
+@@ -149,8 +154,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
++  state.rules.unoCall = false;
+   state.hands.p1 = [
+     makeCard({ id: "d4", color: "wild", type: CARD_TYPES.DRAW4, value: "draw4" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
+   ];
+   state.hands.p2 = [makeCard({ id: "n1", color: "yellow", type: CARD_TYPES.NUMBER, value: "1" })];
+   state.drawPile = [
+@@ -186,7 +193,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
+-  state.hands.p1 = [makeCard({ id: "w1", color: "wild", type: CARD_TYPES.WILD, value: "wild" })];
++  state.hands.p1 = [
++    makeCard({ id: "w1", color: "wild", type: CARD_TYPES.WILD, value: "wild" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
++  ];
+ 
+   const played = processAction(state, "p1", { type: ACTIONS.PLAY_CARD, cardId: "w1" });
+   assert.equal(played.ok, true);
+@@ -247,7 +257,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
+-  state.hands.p1 = [makeCard({ id: "n9", color: "yellow", type: CARD_TYPES.NUMBER, value: "9" })];
++  state.hands.p1 = [
++    makeCard({ id: "n9", color: "yellow", type: CARD_TYPES.NUMBER, value: "9" }),
++    makeCard({ id: "n5", color: "red", type: CARD_TYPES.NUMBER, value: "5" }),
++  ];
+   state.hands.p2 = [makeCard({ id: "n1", color: "red", type: CARD_TYPES.NUMBER, value: "1" })];
+ 
+   const notYourTurn = processAction(state, "p2", { type: ACTIONS.PLAY_CARD, cardId: "n1" });
+
+
+
+thinking
+**Evaluating log update timing**
+
+The run log auto-updates during git operations and progress/activity log edits, causing continuous changes; I need to sequence commits to occur after all log updates to avoid repeated modifications.
+thinking
+**Clarifying commit and log update sequencing**
+
+The best approach is to commit code changes first, then update progress and activity logs, and perform a final commit that includes these logs; progress entries will reference the main code commit, allowing multiple commits while ensuring all changes are included and the working tree is clean.
+exec
+/bin/bash -lc 'date "+%Y-%m-%d %H:%M:%S"' in /home/marc/Documents/github/ralph/game-hub succeeded in 486ms:
+2026-01-23 01:38:03
+file update:
+diff --git a/services/hub/test/unoService.test.js b/services/hub/test/unoService.test.js
+index a24f80f2227db63f1e85cca4d464a060f8fc6fa0..ef6f50c941a1a100b56f2eeba49478136e628b14
+--- a/services/hub/test/unoService.test.js
++++ b/services/hub/test/unoService.test.js
+@@ -92,7 +92,10 @@
+     { playerId: "p2", displayName: "P2" },
+     { playerId: "p3", displayName: "P3" },
+   ]);
+-  state.hands.p1 = [makeCard({ id: "skip", color: "red", type: CARD_TYPES.SKIP, value: "skip" })];
++  state.hands.p1 = [
++    makeCard({ id: "skip", color: "red", type: CARD_TYPES.SKIP, value: "skip" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
++  ];
+ 
+   const result = processAction(state, "p1", { type: ACTIONS.PLAY_CARD, cardId: "skip" });
+   assert.equal(result.ok, true);
+@@ -118,8 +121,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
++  state.rules.unoCall = false;
+   state.hands.p1 = [
+     makeCard({ id: "d2", color: "red", type: CARD_TYPES.DRAW2, value: "draw2" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
+   ];
+   state.hands.p2 = [
+     makeCard({ id: "n1", color: "yellow", type: CARD_TYPES.NUMBER, value: "1" }),
+@@ -149,8 +154,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
++  state.rules.unoCall = false;
+   state.hands.p1 = [
+     makeCard({ id: "d4", color: "wild", type: CARD_TYPES.DRAW4, value: "draw4" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
+   ];
+   state.hands.p2 = [makeCard({ id: "n1", color: "yellow", type: CARD_TYPES.NUMBER, value: "1" })];
+   state.drawPile = [
+@@ -186,7 +193,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
+-  state.hands.p1 = [makeCard({ id: "w1", color: "wild", type: CARD_TYPES.WILD, value: "wild" })];
++  state.hands.p1 = [
++    makeCard({ id: "w1", color: "wild", type: CARD_TYPES.WILD, value: "wild" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
++  ];
+ 
+   const played = processAction(state, "p1", { type: ACTIONS.PLAY_CARD, cardId: "w1" });
+   assert.equal(played.ok, true);
+@@ -247,7 +257,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
+-  state.hands.p1 = [makeCard({ id: "n9", color: "yellow", type: CARD_TYPES.NUMBER, value: "9" })];
++  state.hands.p1 = [
++    makeCard({ id: "n9", color: "yellow", type: CARD_TYPES.NUMBER, value: "9" }),
++    makeCard({ id: "n5", color: "red", type: CARD_TYPES.NUMBER, value: "5" }),
++  ];
+   state.hands.p2 = [makeCard({ id: "n1", color: "red", type: CARD_TYPES.NUMBER, value: "1" })];
+ 
+   const notYourTurn = processAction(state, "p2", { type: ACTIONS.PLAY_CARD, cardId: "n1" });
+
+
+
+thinking
+**Listing main changed files for progress entry**
+thinking
+**Preparing commit verification details for progress entry**
+
+I'm including test run results with `npm test` passing, noting no uncommitted changes after final commit fce9da5, and marking post-commit status as clean before appending the progress entry.
+exec
+/bin/bash -lc "cat <<'EOF' >> /home/marc/Documents/github/ralph/game-hub/.ralph/progress.md
+## [2026-01-23 01:38:03] - TST-004: Add UNO service unit tests
+Thread: 
+Run: 20260123-011054-971908 (iteration 3)
+Run log: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-3.log
+Run summary: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-3.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: fce9da5 test: add uno service unit tests
+- Post-commit status: pending
+- Verification:
+  - Command: npm test -> PASS
+- Files changed:
+  - .agents/tasks/prd-gamehub-tests.json
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - .ralph/progress.md
+  - .ralph/.tmp/prompt-20260123-011054-971908-3.md
+  - .ralph/.tmp/story-20260123-011054-971908-3.json
+  - .ralph/.tmp/story-20260123-011054-971908-3.md
+  - .ralph/runs/run-20260123-011054-971908-iter-2.md
+  - .ralph/runs/run-20260123-011054-971908-iter-3.log
+  - services/hub/test/unoService.test.js
+- What was implemented
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - Gotchas encountered
+  - Useful context
+---
+EOF
+" in /home/marc/Documents/github/ralph/game-hub succeeded in 407ms:
+
+file update:
+diff --git a/services/hub/test/unoService.test.js b/services/hub/test/unoService.test.js
+index a24f80f2227db63f1e85cca4d464a060f8fc6fa0..ef6f50c941a1a100b56f2eeba49478136e628b14
+--- a/services/hub/test/unoService.test.js
++++ b/services/hub/test/unoService.test.js
+@@ -92,7 +92,10 @@
+     { playerId: "p2", displayName: "P2" },
+     { playerId: "p3", displayName: "P3" },
+   ]);
+-  state.hands.p1 = [makeCard({ id: "skip", color: "red", type: CARD_TYPES.SKIP, value: "skip" })];
++  state.hands.p1 = [
++    makeCard({ id: "skip", color: "red", type: CARD_TYPES.SKIP, value: "skip" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
++  ];
+ 
+   const result = processAction(state, "p1", { type: ACTIONS.PLAY_CARD, cardId: "skip" });
+   assert.equal(result.ok, true);
+@@ -118,8 +121,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
++  state.rules.unoCall = false;
+   state.hands.p1 = [
+     makeCard({ id: "d2", color: "red", type: CARD_TYPES.DRAW2, value: "draw2" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
+   ];
+   state.hands.p2 = [
+     makeCard({ id: "n1", color: "yellow", type: CARD_TYPES.NUMBER, value: "1" }),
+@@ -149,8 +154,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
++  state.rules.unoCall = false;
+   state.hands.p1 = [
+     makeCard({ id: "d4", color: "wild", type: CARD_TYPES.DRAW4, value: "draw4" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
+   ];
+   state.hands.p2 = [makeCard({ id: "n1", color: "yellow", type: CARD_TYPES.NUMBER, value: "1" })];
+   state.drawPile = [
+@@ -186,7 +193,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
+-  state.hands.p1 = [makeCard({ id: "w1", color: "wild", type: CARD_TYPES.WILD, value: "wild" })];
++  state.hands.p1 = [
++    makeCard({ id: "w1", color: "wild", type: CARD_TYPES.WILD, value: "wild" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
++  ];
+ 
+   const played = processAction(state, "p1", { type: ACTIONS.PLAY_CARD, cardId: "w1" });
+   assert.equal(played.ok, true);
+@@ -247,7 +257,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
+-  state.hands.p1 = [makeCard({ id: "n9", color: "yellow", type: CARD_TYPES.NUMBER, value: "9" })];
++  state.hands.p1 = [
++    makeCard({ id: "n9", color: "yellow", type: CARD_TYPES.NUMBER, value: "9" }),
++    makeCard({ id: "n5", color: "red", type: CARD_TYPES.NUMBER, value: "5" }),
++  ];
+   state.hands.p2 = [makeCard({ id: "n1", color: "red", type: CARD_TYPES.NUMBER, value: "1" })];
+ 
+   const notYourTurn = processAction(state, "p2", { type: ACTIONS.PLAY_CARD, cardId: "n1" });
+
+
+thinking
+**Filling implementation and learnings details**
+
+I'm preparing a patch to replace placeholders with concrete info on implemented features and learnings, including test coverage for UNO service and key test insights formatted as bullet points under future iterations.
+file update
+M /home/marc/Documents/github/ralph/game-hub/.ralph/progress.md
+@@ -142,6 +142,7 @@
+ - What was implemented
++  - Added UNO service unit tests for start flow, action effects (skip/reverse/draw2/draw4/wild), pending draw rules, UNO call penalties, invalid actions, and win detection.
+ - **Learnings for future iterations:**
+-  - Patterns discovered
+-  - Gotchas encountered
+-  - Useful context
++  - Patterns discovered: disable `unoCall` in draw/stacking tests to avoid penalty side effects.
++  - Gotchas encountered: pending UNO penalties can drain the draw pile and affect draw counts.
++  - Useful context: stub `Math.random` for deterministic starter card validation.
+ ---
+apply_patch(auto_approved=true) exited 0 in 6ms:
+Success. Updated the following files:
+M /home/marc/Documents/github/ralph/game-hub/.ralph/progress.md
+file update:
+diff --git a/.ralph/progress.md b/.ralph/progress.md
+index 2fe50384a5daae3406e3fbbe89e552bf908b342a..0deffeabcd150c4dcf65e4d55809f8ce399315e5
+--- a/.ralph/progress.md
++++ b/.ralph/progress.md
+@@ -140,8 +140,9 @@
+   - .ralph/runs/run-20260123-011054-971908-iter-3.log
+   - services/hub/test/unoService.test.js
+ - What was implemented
++  - Added UNO service unit tests for start flow, action effects (skip/reverse/draw2/draw4/wild), pending draw rules, UNO call penalties, invalid actions, and win detection.
+ - **Learnings for future iterations:**
+-  - Patterns discovered
+-  - Gotchas encountered
+-  - Useful context
++  - Patterns discovered: disable `unoCall` in draw/stacking tests to avoid penalty side effects.
++  - Gotchas encountered: pending UNO penalties can drain the draw pile and affect draw counts.
++  - Useful context: stub `Math.random` for deterministic starter card validation.
+ ---
+diff --git a/services/hub/test/unoService.test.js b/services/hub/test/unoService.test.js
+index a24f80f2227db63f1e85cca4d464a060f8fc6fa0..ef6f50c941a1a100b56f2eeba49478136e628b14
+--- a/services/hub/test/unoService.test.js
++++ b/services/hub/test/unoService.test.js
+@@ -92,7 +92,10 @@
+     { playerId: "p2", displayName: "P2" },
+     { playerId: "p3", displayName: "P3" },
+   ]);
+-  state.hands.p1 = [makeCard({ id: "skip", color: "red", type: CARD_TYPES.SKIP, value: "skip" })];
++  state.hands.p1 = [
++    makeCard({ id: "skip", color: "red", type: CARD_TYPES.SKIP, value: "skip" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
++  ];
+ 
+   const result = processAction(state, "p1", { type: ACTIONS.PLAY_CARD, cardId: "skip" });
+   assert.equal(result.ok, true);
+@@ -118,8 +121,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
++  state.rules.unoCall = false;
+   state.hands.p1 = [
+     makeCard({ id: "d2", color: "red", type: CARD_TYPES.DRAW2, value: "draw2" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
+   ];
+   state.hands.p2 = [
+     makeCard({ id: "n1", color: "yellow", type: CARD_TYPES.NUMBER, value: "1" }),
+@@ -149,8 +154,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
++  state.rules.unoCall = false;
+   state.hands.p1 = [
+     makeCard({ id: "d4", color: "wild", type: CARD_TYPES.DRAW4, value: "draw4" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
+   ];
+   state.hands.p2 = [makeCard({ id: "n1", color: "yellow", type: CARD_TYPES.NUMBER, value: "1" })];
+   state.drawPile = [
+@@ -186,7 +193,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
+-  state.hands.p1 = [makeCard({ id: "w1", color: "wild", type: CARD_TYPES.WILD, value: "wild" })];
++  state.hands.p1 = [
++    makeCard({ id: "w1", color: "wild", type: CARD_TYPES.WILD, value: "wild" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
++  ];
+ 
+   const played = processAction(state, "p1", { type: ACTIONS.PLAY_CARD, cardId: "w1" });
+   assert.equal(played.ok, true);
+@@ -247,7 +257,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
+-  state.hands.p1 = [makeCard({ id: "n9", color: "yellow", type: CARD_TYPES.NUMBER, value: "9" })];
++  state.hands.p1 = [
++    makeCard({ id: "n9", color: "yellow", type: CARD_TYPES.NUMBER, value: "9" }),
++    makeCard({ id: "n5", color: "red", type: CARD_TYPES.NUMBER, value: "5" }),
++  ];
+   state.hands.p2 = [makeCard({ id: "n1", color: "red", type: CARD_TYPES.NUMBER, value: "1" })];
+ 
+   const notYourTurn = processAction(state, "p2", { type: ACTIONS.PLAY_CARD, cardId: "n1" });
+
+file update:
+diff --git a/.ralph/progress.md b/.ralph/progress.md
+index 2fe50384a5daae3406e3fbbe89e552bf908b342a..0deffeabcd150c4dcf65e4d55809f8ce399315e5
+--- a/.ralph/progress.md
++++ b/.ralph/progress.md
+@@ -140,8 +140,9 @@
+   - .ralph/runs/run-20260123-011054-971908-iter-3.log
+   - services/hub/test/unoService.test.js
+ - What was implemented
++  - Added UNO service unit tests for start flow, action effects (skip/reverse/draw2/draw4/wild), pending draw rules, UNO call penalties, invalid actions, and win detection.
+ - **Learnings for future iterations:**
+-  - Patterns discovered
+-  - Gotchas encountered
+-  - Useful context
++  - Patterns discovered: disable `unoCall` in draw/stacking tests to avoid penalty side effects.
++  - Gotchas encountered: pending UNO penalties can drain the draw pile and affect draw counts.
++  - Useful context: stub `Math.random` for deterministic starter card validation.
+ ---
+diff --git a/services/hub/test/unoService.test.js b/services/hub/test/unoService.test.js
+index a24f80f2227db63f1e85cca4d464a060f8fc6fa0..ef6f50c941a1a100b56f2eeba49478136e628b14
+--- a/services/hub/test/unoService.test.js
++++ b/services/hub/test/unoService.test.js
+@@ -92,7 +92,10 @@
+     { playerId: "p2", displayName: "P2" },
+     { playerId: "p3", displayName: "P3" },
+   ]);
+-  state.hands.p1 = [makeCard({ id: "skip", color: "red", type: CARD_TYPES.SKIP, value: "skip" })];
++  state.hands.p1 = [
++    makeCard({ id: "skip", color: "red", type: CARD_TYPES.SKIP, value: "skip" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
++  ];
+ 
+   const result = processAction(state, "p1", { type: ACTIONS.PLAY_CARD, cardId: "skip" });
+   assert.equal(result.ok, true);
+@@ -118,8 +121,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
++  state.rules.unoCall = false;
+   state.hands.p1 = [
+     makeCard({ id: "d2", color: "red", type: CARD_TYPES.DRAW2, value: "draw2" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
+   ];
+   state.hands.p2 = [
+     makeCard({ id: "n1", color: "yellow", type: CARD_TYPES.NUMBER, value: "1" }),
+@@ -149,8 +154,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
++  state.rules.unoCall = false;
+   state.hands.p1 = [
+     makeCard({ id: "d4", color: "wild", type: CARD_TYPES.DRAW4, value: "draw4" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
+   ];
+   state.hands.p2 = [makeCard({ id: "n1", color: "yellow", type: CARD_TYPES.NUMBER, value: "1" })];
+   state.drawPile = [
+@@ -186,7 +193,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
+-  state.hands.p1 = [makeCard({ id: "w1", color: "wild", type: CARD_TYPES.WILD, value: "wild" })];
++  state.hands.p1 = [
++    makeCard({ id: "w1", color: "wild", type: CARD_TYPES.WILD, value: "wild" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
++  ];
+ 
+   const played = processAction(state, "p1", { type: ACTIONS.PLAY_CARD, cardId: "w1" });
+   assert.equal(played.ok, true);
+@@ -247,7 +257,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
+-  state.hands.p1 = [makeCard({ id: "n9", color: "yellow", type: CARD_TYPES.NUMBER, value: "9" })];
++  state.hands.p1 = [
++    makeCard({ id: "n9", color: "yellow", type: CARD_TYPES.NUMBER, value: "9" }),
++    makeCard({ id: "n5", color: "red", type: CARD_TYPES.NUMBER, value: "5" }),
++  ];
+   state.hands.p2 = [makeCard({ id: "n1", color: "red", type: CARD_TYPES.NUMBER, value: "1" })];
+ 
+   const notYourTurn = processAction(state, "p2", { type: ACTIONS.PLAY_CARD, cardId: "n1" });
+
+
+thinking
+**Adding logging after progress update**
+exec
+/bin/bash -lc 'ralph log "Updated progress log for TST-004"' in /home/marc/Documents/github/ralph/game-hub succeeded in 906ms:
+Using bundled templates: /home/marc/.nvm/versions/node/v22.14.0/lib/node_modules/@iannuttall/ralph/.agents/ralph
+file update:
+diff --git a/.ralph/progress.md b/.ralph/progress.md
+index 2fe50384a5daae3406e3fbbe89e552bf908b342a..0deffeabcd150c4dcf65e4d55809f8ce399315e5
+--- a/.ralph/progress.md
++++ b/.ralph/progress.md
+@@ -140,8 +140,9 @@
+   - .ralph/runs/run-20260123-011054-971908-iter-3.log
+   - services/hub/test/unoService.test.js
+ - What was implemented
++  - Added UNO service unit tests for start flow, action effects (skip/reverse/draw2/draw4/wild), pending draw rules, UNO call penalties, invalid actions, and win detection.
+ - **Learnings for future iterations:**
+-  - Patterns discovered
+-  - Gotchas encountered
+-  - Useful context
++  - Patterns discovered: disable `unoCall` in draw/stacking tests to avoid penalty side effects.
++  - Gotchas encountered: pending UNO penalties can drain the draw pile and affect draw counts.
++  - Useful context: stub `Math.random` for deterministic starter card validation.
+ ---
+diff --git a/services/hub/test/unoService.test.js b/services/hub/test/unoService.test.js
+index a24f80f2227db63f1e85cca4d464a060f8fc6fa0..ef6f50c941a1a100b56f2eeba49478136e628b14
+--- a/services/hub/test/unoService.test.js
++++ b/services/hub/test/unoService.test.js
+@@ -92,7 +92,10 @@
+     { playerId: "p2", displayName: "P2" },
+     { playerId: "p3", displayName: "P3" },
+   ]);
+-  state.hands.p1 = [makeCard({ id: "skip", color: "red", type: CARD_TYPES.SKIP, value: "skip" })];
++  state.hands.p1 = [
++    makeCard({ id: "skip", color: "red", type: CARD_TYPES.SKIP, value: "skip" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
++  ];
+ 
+   const result = processAction(state, "p1", { type: ACTIONS.PLAY_CARD, cardId: "skip" });
+   assert.equal(result.ok, true);
+@@ -118,8 +121,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
++  state.rules.unoCall = false;
+   state.hands.p1 = [
+     makeCard({ id: "d2", color: "red", type: CARD_TYPES.DRAW2, value: "draw2" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
+   ];
+   state.hands.p2 = [
+     makeCard({ id: "n1", color: "yellow", type: CARD_TYPES.NUMBER, value: "1" }),
+@@ -149,8 +154,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
++  state.rules.unoCall = false;
+   state.hands.p1 = [
+     makeCard({ id: "d4", color: "wild", type: CARD_TYPES.DRAW4, value: "draw4" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
+   ];
+   state.hands.p2 = [makeCard({ id: "n1", color: "yellow", type: CARD_TYPES.NUMBER, value: "1" })];
+   state.drawPile = [
+@@ -186,7 +193,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
+-  state.hands.p1 = [makeCard({ id: "w1", color: "wild", type: CARD_TYPES.WILD, value: "wild" })];
++  state.hands.p1 = [
++    makeCard({ id: "w1", color: "wild", type: CARD_TYPES.WILD, value: "wild" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
++  ];
+ 
+   const played = processAction(state, "p1", { type: ACTIONS.PLAY_CARD, cardId: "w1" });
+   assert.equal(played.ok, true);
+@@ -247,7 +257,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
+-  state.hands.p1 = [makeCard({ id: "n9", color: "yellow", type: CARD_TYPES.NUMBER, value: "9" })];
++  state.hands.p1 = [
++    makeCard({ id: "n9", color: "yellow", type: CARD_TYPES.NUMBER, value: "9" }),
++    makeCard({ id: "n5", color: "red", type: CARD_TYPES.NUMBER, value: "5" }),
++  ];
+   state.hands.p2 = [makeCard({ id: "n1", color: "red", type: CARD_TYPES.NUMBER, value: "1" })];
+ 
+   const notYourTurn = processAction(state, "p2", { type: ACTIONS.PLAY_CARD, cardId: "n1" });
+
+
+thinking
+**Preparing final review and staging**
+exec
+/bin/bash -lc 'git status --porcelain' in /home/marc/Documents/github/ralph/game-hub succeeded in 478ms:
+ M .ralph/activity.log
+ M .ralph/progress.md
+ M .ralph/runs/run-20260123-011054-971908-iter-3.log
+file update:
+diff --git a/.ralph/progress.md b/.ralph/progress.md
+index 2fe50384a5daae3406e3fbbe89e552bf908b342a..0deffeabcd150c4dcf65e4d55809f8ce399315e5
+--- a/.ralph/progress.md
++++ b/.ralph/progress.md
+@@ -140,8 +140,9 @@
+   - .ralph/runs/run-20260123-011054-971908-iter-3.log
+   - services/hub/test/unoService.test.js
+ - What was implemented
++  - Added UNO service unit tests for start flow, action effects (skip/reverse/draw2/draw4/wild), pending draw rules, UNO call penalties, invalid actions, and win detection.
+ - **Learnings for future iterations:**
+-  - Patterns discovered
+-  - Gotchas encountered
+-  - Useful context
++  - Patterns discovered: disable `unoCall` in draw/stacking tests to avoid penalty side effects.
++  - Gotchas encountered: pending UNO penalties can drain the draw pile and affect draw counts.
++  - Useful context: stub `Math.random` for deterministic starter card validation.
+ ---
+diff --git a/services/hub/test/unoService.test.js b/services/hub/test/unoService.test.js
+index a24f80f2227db63f1e85cca4d464a060f8fc6fa0..ef6f50c941a1a100b56f2eeba49478136e628b14
+--- a/services/hub/test/unoService.test.js
++++ b/services/hub/test/unoService.test.js
+@@ -92,7 +92,10 @@
+     { playerId: "p2", displayName: "P2" },
+     { playerId: "p3", displayName: "P3" },
+   ]);
+-  state.hands.p1 = [makeCard({ id: "skip", color: "red", type: CARD_TYPES.SKIP, value: "skip" })];
++  state.hands.p1 = [
++    makeCard({ id: "skip", color: "red", type: CARD_TYPES.SKIP, value: "skip" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
++  ];
+ 
+   const result = processAction(state, "p1", { type: ACTIONS.PLAY_CARD, cardId: "skip" });
+   assert.equal(result.ok, true);
+@@ -118,8 +121,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
++  state.rules.unoCall = false;
+   state.hands.p1 = [
+     makeCard({ id: "d2", color: "red", type: CARD_TYPES.DRAW2, value: "draw2" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
+   ];
+   state.hands.p2 = [
+     makeCard({ id: "n1", color: "yellow", type: CARD_TYPES.NUMBER, value: "1" }),
+@@ -149,8 +154,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
++  state.rules.unoCall = false;
+   state.hands.p1 = [
+     makeCard({ id: "d4", color: "wild", type: CARD_TYPES.DRAW4, value: "draw4" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
+   ];
+   state.hands.p2 = [makeCard({ id: "n1", color: "yellow", type: CARD_TYPES.NUMBER, value: "1" })];
+   state.drawPile = [
+@@ -186,7 +193,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
+-  state.hands.p1 = [makeCard({ id: "w1", color: "wild", type: CARD_TYPES.WILD, value: "wild" })];
++  state.hands.p1 = [
++    makeCard({ id: "w1", color: "wild", type: CARD_TYPES.WILD, value: "wild" }),
++    makeCard({ id: "n7", color: "blue", type: CARD_TYPES.NUMBER, value: "7" }),
++  ];
+ 
+   const played = processAction(state, "p1", { type: ACTIONS.PLAY_CARD, cardId: "w1" });
+   assert.equal(played.ok, true);
+@@ -247,7 +257,10 @@
+     { playerId: "p1", displayName: "P1" },
+     { playerId: "p2", displayName: "P2" },
+   ]);
+-  state.hands.p1 = [makeCard({ id: "n9", color: "yellow", type: CARD_TYPES.NUMBER, value: "9" })];
++  state.hands.p1 = [
++    makeCard({ id: "n9", color: "yellow", type: CARD_TYPES.NUMBER, value: "9" }),
++    makeCard({ id: "n5", color: "red", type: CARD_TYPES.NUMBER, value: "5" }),
++  ];
+   state.hands.p2 = [makeCard({ id: "n1", color: "red", type: CARD_TYPES.NUMBER, value: "1" })];
+ 
+   const notYourTurn = processAction(state, "p2", { type: ACTIONS.PLAY_CARD, cardId: "n1" });
+
+
+thinking
+**Staging all changes**
+exec
+/bin/bash -lc 'git add -A' in /home/marc/Documents/github/ralph/game-hub
