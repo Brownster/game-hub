@@ -3996,4 +3996,739 @@ thinking
 
 I'm performing a quick manual security, performance, and regression review confirming no vulnerabilities or production impact, then staging all changes before committing and planning to log major actions after commit and progress update.
 exec
-/bin/bash -lc 'git add -A' in /home/marc/Documents/github/ralph/game-hub
+/bin/bash -lc 'git add -A' in /home/marc/Documents/github/ralph/game-hub succeeded in 455ms:
+
+file update:
+diff --git a/services/hub/src/redis.js b/services/hub/src/redis.js
+index d310d010a95a6dbd481db7c6c2708663cebd7b81..d024d1981d0e565ded5537bc219f0ba2c1b88339
+--- a/services/hub/src/redis.js
++++ b/services/hub/src/redis.js
+@@ -1,11 +1,16 @@
+ import Redis from "ioredis";
+ 
+ const redisUrl = process.env.REDIS_URL || "redis://redis:6379";
++const testRedis = globalThis.__TEST_REDIS__;
+ 
+-export const redis = new Redis(redisUrl, {
+-  maxRetriesPerRequest: 3
+-});
++export const redis =
++  testRedis ||
++  new Redis(redisUrl, {
++    maxRetriesPerRequest: 3,
++  });
+ 
+-redis.on("error", (err) => {
+-  console.error("[redis] error", err);
+-});
++if (!testRedis) {
++  redis.on("error", (err) => {
++    console.error("[redis] error", err);
++  });
++}
+diff --git a/services/hub/test/helpers/redisTestHelper.js b/services/hub/test/helpers/redisTestHelper.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..a4484ff4efb377a7ea2aa767d6dfef42ec9ab1ca
+--- /dev/null
++++ b/services/hub/test/helpers/redisTestHelper.js
+@@ -0,0 +1,93 @@
++export function createInMemoryRedis() {
++  const store = new Map();
++  const expirations = new Map();
++  const zsets = new Map();
++
++  function isExpired(key) {
++    const expiresAt = expirations.get(key);
++    if (expiresAt && expiresAt <= Date.now()) {
++      expirations.delete(key);
++      store.delete(key);
++      zsets.delete(key);
++      return true;
++    }
++    return false;
++  }
++
++  function setExpiry(key, ttlSeconds) {
++    if (typeof ttlSeconds === "number" && Number.isFinite(ttlSeconds)) {
++      expirations.set(key, Date.now() + ttlSeconds * 1000);
++    }
++  }
++
++  return {
++    async get(key) {
++      if (isExpired(key)) return null;
++      return store.has(key) ? store.get(key) : null;
++    },
++    async set(key, value, ...args) {
++      store.set(key, String(value));
++      if (args.length >= 2 && args[0] === "EX") {
++        setExpiry(key, Number(args[1]));
++      }
++      return "OK";
++    },
++    async del(...keys) {
++      let removed = 0;
++      for (const key of keys) {
++        if (store.delete(key) || zsets.delete(key) || expirations.delete(key)) {
++          removed += 1;
++        }
++      }
++      return removed;
++    },
++    async exists(key) {
++      if (isExpired(key)) return 0;
++      return store.has(key) || zsets.has(key) ? 1 : 0;
++    },
++    async zadd(key, score, member) {
++      const numericScore = Number(score);
++      if (!Number.isFinite(numericScore)) {
++        throw new Error("zadd score must be a number");
++      }
++      let zset = zsets.get(key);
++      if (!zset) {
++        zset = new Map();
++        zsets.set(key, zset);
++      }
++      zset.set(String(member), numericScore);
++      return 1;
++    },
++    async zrange(key, start, stop) {
++      const zset = zsets.get(key);
++      if (!zset) return [];
++      const members = [...zset.entries()]
++        .sort((a, b) => {
++          if (a[1] !== b[1]) return a[1] - b[1];
++          return a[0].localeCompare(b[0]);
++        })
++        .map(([member]) => member);
++      const lastIndex = members.length - 1;
++      const normalizedStop = stop < 0 ? lastIndex : stop;
++      return members.slice(start, normalizedStop + 1);
++    },
++    on() {},
++    disconnect() {},
++  };
++}
++
++export function installRedisMock() {
++  const redis = createInMemoryRedis();
++  const previous = globalThis.__TEST_REDIS__;
++  globalThis.__TEST_REDIS__ = redis;
++  return {
++    redis,
++    restore() {
++      if (previous === undefined) {
++        delete globalThis.__TEST_REDIS__;
++      } else {
++        globalThis.__TEST_REDIS__ = previous;
++      }
++    },
++  };
++}
+diff --git a/services/hub/test/helpers/timeTestHelper.js b/services/hub/test/helpers/timeTestHelper.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..2b849e81e408fc8f7915660d464ebacaa37c20d0
+--- /dev/null
++++ b/services/hub/test/helpers/timeTestHelper.js
+@@ -0,0 +1,30 @@
++export function useFixedTime(isoString) {
++  const fixedTime = new Date(isoString).getTime();
++  if (!Number.isFinite(fixedTime)) {
++    throw new Error("useFixedTime requires a valid date string");
++  }
++  const OriginalDate = globalThis.Date;
++
++  class MockDate extends OriginalDate {
++    constructor(...args) {
++      if (args.length === 0) {
++        super(fixedTime);
++      } else {
++        super(...args);
++      }
++    }
++
++    static now() {
++      return fixedTime;
++    }
++  }
++
++  MockDate.UTC = OriginalDate.UTC;
++  MockDate.parse = OriginalDate.parse;
++
++  globalThis.Date = MockDate;
++
++  return () => {
++    globalThis.Date = OriginalDate;
++  };
++}
+diff --git a/services/hub/test/roomService.test.js b/services/hub/test/roomService.test.js
+index 2ca5b16ad6d2edb09d4793f4de9b0c66251e9f84..0ce12ce81f16799831e58aadd3c329c1cc3142e3
+--- a/services/hub/test/roomService.test.js
++++ b/services/hub/test/roomService.test.js
+@@ -1,5 +1,6 @@
+ import test from "node:test";
+ import assert from "node:assert/strict";
++import { installRedisMock } from "./helpers/redisTestHelper.js";
+ 
+ function createRoomFixture() {
+   return {
+@@ -12,35 +13,15 @@
+     currentGame: null,
+   };
+ }
+-
+-let redisClient = null;
+ 
+-test.after(() => {
+-  if (redisClient) {
+-    redisClient.disconnect();
+-    redisClient = null;
+-  }
+-});
++installRedisMock();
+ 
+-async function loadRoomService(t) {
+-  try {
+-    if (!redisClient) {
+-      const redisModule = await import("../src/redis.js");
+-      redisClient = redisModule.redis;
+-    }
+-    return await import("../src/rooms/roomService.js");
+-  } catch (err) {
+-    if (err?.code === "ERR_MODULE_NOT_FOUND") {
+-      t.skip("redis dependency not installed");
+-      return null;
+-    }
+-    throw err;
+-  }
++async function loadRoomService() {
++  return import("../src/rooms/roomService.js");
+ }
+ 
+ test("roomService: add/remove players assigns host and updates on removal", async (t) => {
+-  const roomService = await loadRoomService(t);
+-  if (!roomService) return;
++  const roomService = await loadRoomService();
+   const { addPlayer, getHost, removePlayer } = roomService;
+   const room = createRoomFixture();
+ 
+@@ -58,8 +39,7 @@
+ });
+ 
+ test("roomService: chat messages trim and cap size", async (t) => {
+-  const roomService = await loadRoomService(t);
+-  if (!roomService) return;
++  const roomService = await loadRoomService();
+   const { addChatMessage, addPlayer } = roomService;
+   const room = createRoomFixture();
+   addPlayer(room, { playerId: "p1", displayName: "Player 1" });
+@@ -77,8 +57,7 @@
+ });
+ 
+ test("roomService: start/reset/end/clear game and readiness helpers", async (t) => {
+-  const roomService = await loadRoomService(t);
+-  if (!roomService) return;
++  const roomService = await loadRoomService();
+   const {
+     addPlayer,
+     clearCurrentGame,
+
+
+thinking
+**Committing test helpers**
+
+Adding a commit message for new hub test helpers related to Redis mock and time control before committing.
+exec
+/bin/bash -lc 'git commit -m "Add hub test helpers for redis and time"' in /home/marc/Documents/github/ralph/game-hub succeeded in 430ms:
+[main 96323f1] Add hub test helpers for redis and time
+ 14 files changed, 4928 insertions(+), 41 deletions(-)
+ create mode 100644 .ralph/.tmp/prompt-20260123-011054-971908-1.md
+ create mode 100644 .ralph/.tmp/story-20260123-011054-971908-1.json
+ create mode 100644 .ralph/.tmp/story-20260123-011054-971908-1.md
+ create mode 100644 .ralph/runs/run-20260123-004522-945259-iter-1.md
+ create mode 100644 .ralph/runs/run-20260123-011054-971908-iter-1.log
+ create mode 100644 services/hub/test/helpers/redisTestHelper.js
+ create mode 100644 services/hub/test/helpers/timeTestHelper.js
+file update:
+diff --git a/services/hub/src/redis.js b/services/hub/src/redis.js
+index d310d010a95a6dbd481db7c6c2708663cebd7b81..d024d1981d0e565ded5537bc219f0ba2c1b88339
+--- a/services/hub/src/redis.js
++++ b/services/hub/src/redis.js
+@@ -1,11 +1,16 @@
+ import Redis from "ioredis";
+ 
+ const redisUrl = process.env.REDIS_URL || "redis://redis:6379";
++const testRedis = globalThis.__TEST_REDIS__;
+ 
+-export const redis = new Redis(redisUrl, {
+-  maxRetriesPerRequest: 3
+-});
++export const redis =
++  testRedis ||
++  new Redis(redisUrl, {
++    maxRetriesPerRequest: 3,
++  });
+ 
+-redis.on("error", (err) => {
+-  console.error("[redis] error", err);
+-});
++if (!testRedis) {
++  redis.on("error", (err) => {
++    console.error("[redis] error", err);
++  });
++}
+diff --git a/services/hub/test/helpers/redisTestHelper.js b/services/hub/test/helpers/redisTestHelper.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..a4484ff4efb377a7ea2aa767d6dfef42ec9ab1ca
+--- /dev/null
++++ b/services/hub/test/helpers/redisTestHelper.js
+@@ -0,0 +1,93 @@
++export function createInMemoryRedis() {
++  const store = new Map();
++  const expirations = new Map();
++  const zsets = new Map();
++
++  function isExpired(key) {
++    const expiresAt = expirations.get(key);
++    if (expiresAt && expiresAt <= Date.now()) {
++      expirations.delete(key);
++      store.delete(key);
++      zsets.delete(key);
++      return true;
++    }
++    return false;
++  }
++
++  function setExpiry(key, ttlSeconds) {
++    if (typeof ttlSeconds === "number" && Number.isFinite(ttlSeconds)) {
++      expirations.set(key, Date.now() + ttlSeconds * 1000);
++    }
++  }
++
++  return {
++    async get(key) {
++      if (isExpired(key)) return null;
++      return store.has(key) ? store.get(key) : null;
++    },
++    async set(key, value, ...args) {
++      store.set(key, String(value));
++      if (args.length >= 2 && args[0] === "EX") {
++        setExpiry(key, Number(args[1]));
++      }
++      return "OK";
++    },
++    async del(...keys) {
++      let removed = 0;
++      for (const key of keys) {
++        if (store.delete(key) || zsets.delete(key) || expirations.delete(key)) {
++          removed += 1;
++        }
++      }
++      return removed;
++    },
++    async exists(key) {
++      if (isExpired(key)) return 0;
++      return store.has(key) || zsets.has(key) ? 1 : 0;
++    },
++    async zadd(key, score, member) {
++      const numericScore = Number(score);
++      if (!Number.isFinite(numericScore)) {
++        throw new Error("zadd score must be a number");
++      }
++      let zset = zsets.get(key);
++      if (!zset) {
++        zset = new Map();
++        zsets.set(key, zset);
++      }
++      zset.set(String(member), numericScore);
++      return 1;
++    },
++    async zrange(key, start, stop) {
++      const zset = zsets.get(key);
++      if (!zset) return [];
++      const members = [...zset.entries()]
++        .sort((a, b) => {
++          if (a[1] !== b[1]) return a[1] - b[1];
++          return a[0].localeCompare(b[0]);
++        })
++        .map(([member]) => member);
++      const lastIndex = members.length - 1;
++      const normalizedStop = stop < 0 ? lastIndex : stop;
++      return members.slice(start, normalizedStop + 1);
++    },
++    on() {},
++    disconnect() {},
++  };
++}
++
++export function installRedisMock() {
++  const redis = createInMemoryRedis();
++  const previous = globalThis.__TEST_REDIS__;
++  globalThis.__TEST_REDIS__ = redis;
++  return {
++    redis,
++    restore() {
++      if (previous === undefined) {
++        delete globalThis.__TEST_REDIS__;
++      } else {
++        globalThis.__TEST_REDIS__ = previous;
++      }
++    },
++  };
++}
+diff --git a/services/hub/test/helpers/timeTestHelper.js b/services/hub/test/helpers/timeTestHelper.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..2b849e81e408fc8f7915660d464ebacaa37c20d0
+--- /dev/null
++++ b/services/hub/test/helpers/timeTestHelper.js
+@@ -0,0 +1,30 @@
++export function useFixedTime(isoString) {
++  const fixedTime = new Date(isoString).getTime();
++  if (!Number.isFinite(fixedTime)) {
++    throw new Error("useFixedTime requires a valid date string");
++  }
++  const OriginalDate = globalThis.Date;
++
++  class MockDate extends OriginalDate {
++    constructor(...args) {
++      if (args.length === 0) {
++        super(fixedTime);
++      } else {
++        super(...args);
++      }
++    }
++
++    static now() {
++      return fixedTime;
++    }
++  }
++
++  MockDate.UTC = OriginalDate.UTC;
++  MockDate.parse = OriginalDate.parse;
++
++  globalThis.Date = MockDate;
++
++  return () => {
++    globalThis.Date = OriginalDate;
++  };
++}
+diff --git a/services/hub/test/roomService.test.js b/services/hub/test/roomService.test.js
+index 2ca5b16ad6d2edb09d4793f4de9b0c66251e9f84..0ce12ce81f16799831e58aadd3c329c1cc3142e3
+--- a/services/hub/test/roomService.test.js
++++ b/services/hub/test/roomService.test.js
+@@ -1,5 +1,6 @@
+ import test from "node:test";
+ import assert from "node:assert/strict";
++import { installRedisMock } from "./helpers/redisTestHelper.js";
+ 
+ function createRoomFixture() {
+   return {
+@@ -12,35 +13,15 @@
+     currentGame: null,
+   };
+ }
+-
+-let redisClient = null;
+ 
+-test.after(() => {
+-  if (redisClient) {
+-    redisClient.disconnect();
+-    redisClient = null;
+-  }
+-});
++installRedisMock();
+ 
+-async function loadRoomService(t) {
+-  try {
+-    if (!redisClient) {
+-      const redisModule = await import("../src/redis.js");
+-      redisClient = redisModule.redis;
+-    }
+-    return await import("../src/rooms/roomService.js");
+-  } catch (err) {
+-    if (err?.code === "ERR_MODULE_NOT_FOUND") {
+-      t.skip("redis dependency not installed");
+-      return null;
+-    }
+-    throw err;
+-  }
++async function loadRoomService() {
++  return import("../src/rooms/roomService.js");
+ }
+ 
+ test("roomService: add/remove players assigns host and updates on removal", async (t) => {
+-  const roomService = await loadRoomService(t);
+-  if (!roomService) return;
++  const roomService = await loadRoomService();
+   const { addPlayer, getHost, removePlayer } = roomService;
+   const room = createRoomFixture();
+ 
+@@ -58,8 +39,7 @@
+ });
+ 
+ test("roomService: chat messages trim and cap size", async (t) => {
+-  const roomService = await loadRoomService(t);
+-  if (!roomService) return;
++  const roomService = await loadRoomService();
+   const { addChatMessage, addPlayer } = roomService;
+   const room = createRoomFixture();
+   addPlayer(room, { playerId: "p1", displayName: "Player 1" });
+@@ -77,8 +57,7 @@
+ });
+ 
+ test("roomService: start/reset/end/clear game and readiness helpers", async (t) => {
+-  const roomService = await loadRoomService(t);
+-  if (!roomService) return;
++  const roomService = await loadRoomService();
+   const {
+     addPlayer,
+     clearCurrentGame,
+
+
+thinking
+**Verifying clean git status**
+exec
+/bin/bash -lc 'git status --porcelain' in /home/marc/Documents/github/ralph/game-hub succeeded in 435ms:
+ M .ralph/runs/run-20260123-011054-971908-iter-1.log
+file update:
+diff --git a/services/hub/src/redis.js b/services/hub/src/redis.js
+index d310d010a95a6dbd481db7c6c2708663cebd7b81..d024d1981d0e565ded5537bc219f0ba2c1b88339
+--- a/services/hub/src/redis.js
++++ b/services/hub/src/redis.js
+@@ -1,11 +1,16 @@
+ import Redis from "ioredis";
+ 
+ const redisUrl = process.env.REDIS_URL || "redis://redis:6379";
++const testRedis = globalThis.__TEST_REDIS__;
+ 
+-export const redis = new Redis(redisUrl, {
+-  maxRetriesPerRequest: 3
+-});
++export const redis =
++  testRedis ||
++  new Redis(redisUrl, {
++    maxRetriesPerRequest: 3,
++  });
+ 
+-redis.on("error", (err) => {
+-  console.error("[redis] error", err);
+-});
++if (!testRedis) {
++  redis.on("error", (err) => {
++    console.error("[redis] error", err);
++  });
++}
+diff --git a/services/hub/test/helpers/redisTestHelper.js b/services/hub/test/helpers/redisTestHelper.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..a4484ff4efb377a7ea2aa767d6dfef42ec9ab1ca
+--- /dev/null
++++ b/services/hub/test/helpers/redisTestHelper.js
+@@ -0,0 +1,93 @@
++export function createInMemoryRedis() {
++  const store = new Map();
++  const expirations = new Map();
++  const zsets = new Map();
++
++  function isExpired(key) {
++    const expiresAt = expirations.get(key);
++    if (expiresAt && expiresAt <= Date.now()) {
++      expirations.delete(key);
++      store.delete(key);
++      zsets.delete(key);
++      return true;
++    }
++    return false;
++  }
++
++  function setExpiry(key, ttlSeconds) {
++    if (typeof ttlSeconds === "number" && Number.isFinite(ttlSeconds)) {
++      expirations.set(key, Date.now() + ttlSeconds * 1000);
++    }
++  }
++
++  return {
++    async get(key) {
++      if (isExpired(key)) return null;
++      return store.has(key) ? store.get(key) : null;
++    },
++    async set(key, value, ...args) {
++      store.set(key, String(value));
++      if (args.length >= 2 && args[0] === "EX") {
++        setExpiry(key, Number(args[1]));
++      }
++      return "OK";
++    },
++    async del(...keys) {
++      let removed = 0;
++      for (const key of keys) {
++        if (store.delete(key) || zsets.delete(key) || expirations.delete(key)) {
++          removed += 1;
++        }
++      }
++      return removed;
++    },
++    async exists(key) {
++      if (isExpired(key)) return 0;
++      return store.has(key) || zsets.has(key) ? 1 : 0;
++    },
++    async zadd(key, score, member) {
++      const numericScore = Number(score);
++      if (!Number.isFinite(numericScore)) {
++        throw new Error("zadd score must be a number");
++      }
++      let zset = zsets.get(key);
++      if (!zset) {
++        zset = new Map();
++        zsets.set(key, zset);
++      }
++      zset.set(String(member), numericScore);
++      return 1;
++    },
++    async zrange(key, start, stop) {
++      const zset = zsets.get(key);
++      if (!zset) return [];
++      const members = [...zset.entries()]
++        .sort((a, b) => {
++          if (a[1] !== b[1]) return a[1] - b[1];
++          return a[0].localeCompare(b[0]);
++        })
++        .map(([member]) => member);
++      const lastIndex = members.length - 1;
++      const normalizedStop = stop < 0 ? lastIndex : stop;
++      return members.slice(start, normalizedStop + 1);
++    },
++    on() {},
++    disconnect() {},
++  };
++}
++
++export function installRedisMock() {
++  const redis = createInMemoryRedis();
++  const previous = globalThis.__TEST_REDIS__;
++  globalThis.__TEST_REDIS__ = redis;
++  return {
++    redis,
++    restore() {
++      if (previous === undefined) {
++        delete globalThis.__TEST_REDIS__;
++      } else {
++        globalThis.__TEST_REDIS__ = previous;
++      }
++    },
++  };
++}
+diff --git a/services/hub/test/helpers/timeTestHelper.js b/services/hub/test/helpers/timeTestHelper.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..2b849e81e408fc8f7915660d464ebacaa37c20d0
+--- /dev/null
++++ b/services/hub/test/helpers/timeTestHelper.js
+@@ -0,0 +1,30 @@
++export function useFixedTime(isoString) {
++  const fixedTime = new Date(isoString).getTime();
++  if (!Number.isFinite(fixedTime)) {
++    throw new Error("useFixedTime requires a valid date string");
++  }
++  const OriginalDate = globalThis.Date;
++
++  class MockDate extends OriginalDate {
++    constructor(...args) {
++      if (args.length === 0) {
++        super(fixedTime);
++      } else {
++        super(...args);
++      }
++    }
++
++    static now() {
++      return fixedTime;
++    }
++  }
++
++  MockDate.UTC = OriginalDate.UTC;
++  MockDate.parse = OriginalDate.parse;
++
++  globalThis.Date = MockDate;
++
++  return () => {
++    globalThis.Date = OriginalDate;
++  };
++}
+diff --git a/services/hub/test/roomService.test.js b/services/hub/test/roomService.test.js
+index 2ca5b16ad6d2edb09d4793f4de9b0c66251e9f84..0ce12ce81f16799831e58aadd3c329c1cc3142e3
+--- a/services/hub/test/roomService.test.js
++++ b/services/hub/test/roomService.test.js
+@@ -1,5 +1,6 @@
+ import test from "node:test";
+ import assert from "node:assert/strict";
++import { installRedisMock } from "./helpers/redisTestHelper.js";
+ 
+ function createRoomFixture() {
+   return {
+@@ -12,35 +13,15 @@
+     currentGame: null,
+   };
+ }
+-
+-let redisClient = null;
+ 
+-test.after(() => {
+-  if (redisClient) {
+-    redisClient.disconnect();
+-    redisClient = null;
+-  }
+-});
++installRedisMock();
+ 
+-async function loadRoomService(t) {
+-  try {
+-    if (!redisClient) {
+-      const redisModule = await import("../src/redis.js");
+-      redisClient = redisModule.redis;
+-    }
+-    return await import("../src/rooms/roomService.js");
+-  } catch (err) {
+-    if (err?.code === "ERR_MODULE_NOT_FOUND") {
+-      t.skip("redis dependency not installed");
+-      return null;
+-    }
+-    throw err;
+-  }
++async function loadRoomService() {
++  return import("../src/rooms/roomService.js");
+ }
+ 
+ test("roomService: add/remove players assigns host and updates on removal", async (t) => {
+-  const roomService = await loadRoomService(t);
+-  if (!roomService) return;
++  const roomService = await loadRoomService();
+   const { addPlayer, getHost, removePlayer } = roomService;
+   const room = createRoomFixture();
+ 
+@@ -58,8 +39,7 @@
+ });
+ 
+ test("roomService: chat messages trim and cap size", async (t) => {
+-  const roomService = await loadRoomService(t);
+-  if (!roomService) return;
++  const roomService = await loadRoomService();
+   const { addChatMessage, addPlayer } = roomService;
+   const room = createRoomFixture();
+   addPlayer(room, { playerId: "p1", displayName: "Player 1" });
+@@ -77,8 +57,7 @@
+ });
+ 
+ test("roomService: start/reset/end/clear game and readiness helpers", async (t) => {
+-  const roomService = await loadRoomService(t);
+-  if (!roomService) return;
++  const roomService = await loadRoomService();
+   const {
+     addPlayer,
+     clearCurrentGame,
+
+
+thinking
+**Committing run log changes**
+
+The run log updates after the initial commit must be included in a new commit to keep the working tree clean, complying with the no-amend rule and ensuring all run-time changes are committed.
+exec
+/bin/bash -lc 'git add /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-1.log' in /home/marc/Documents/github/ralph/game-hub
