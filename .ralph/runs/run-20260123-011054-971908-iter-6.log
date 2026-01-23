@@ -4919,4 +4919,1190 @@ thinking
 
 I'll stage and commit the run log as a final step, then run `git show` and `git status` to confirm commit hash and clean state, accepting that the run log may update on some commands but minimizing further actions to keep the repo clean.
 exec
-/bin/bash -lc 'git add -A' in /home/marc/Documents/github/ralph/game-hub
+/bin/bash -lc 'git add -A' in /home/marc/Documents/github/ralph/game-hub succeeded in 428ms:
+
+file update:
+diff --git a/services/hub/src/server.js b/services/hub/src/server.js
+index a92ae442d3b15b19fc82a7097b8609584eee41fb..26432732ede40a6d9602bc945b0df5e6aa356015
+--- a/services/hub/src/server.js
++++ b/services/hub/src/server.js
+@@ -1,4 +1,5 @@
+ import Fastify from "fastify";
++import { fileURLToPath } from "node:url";
+ import { createRoom, getRoomByCode } from "./rooms/roomService.js";
+ import { registerSocketHandlers } from "./socket.js";
+ import { createVsState } from "./games/wordle/wordleVs.js";
+@@ -7,89 +8,96 @@
+ const PORT = Number(process.env.PORT || 8081);
+ const HOST = process.env.HOST || "0.0.0.0";
+ 
+-const fastify = Fastify({ logger: true });
++export function buildServer({ logger = true } = {}) {
++  const fastify = Fastify({ logger });
+ 
+-fastify.get("/api/health", async () => ({ ok: true }));
++  fastify.get("/api/health", async () => ({ ok: true }));
+ 
+-/**
+- * Create a new room (game-agnostic)
+- * Players join rooms first, then select games via socket
+- */
+-fastify.post("/api/rooms", async (request, reply) => {
+-  const { maxPlayers } = request.body || {};
+-  const safeMaxPlayers = Math.min(Math.max(Number(maxPlayers) || 2, 2), 12);
++  /**
++   * Create a new room (game-agnostic)
++   * Players join rooms first, then select games via socket
++   */
++  fastify.post("/api/rooms", async (request, reply) => {
++    const { maxPlayers } = request.body || {};
++    const safeMaxPlayers = Math.min(Math.max(Number(maxPlayers) || 2, 2), 12);
++
++    const room = await createRoom({ maxPlayers: safeMaxPlayers });
++
++    return {
++      roomId: room.roomId,
++      joinCode: room.joinCode,
++      joinUrl: `/room/${room.joinCode}`,
++      maxPlayers: room.maxPlayers,
++    };
++  });
+ 
+-  const room = await createRoom({ maxPlayers: safeMaxPlayers });
++  fastify.get("/api/rooms/by-code/:code", async (request, reply) => {
++    const { code } = request.params;
++    const joinCode = String(code || "").toUpperCase();
++    const room = await getRoomByCode(joinCode);
+ 
+-  return {
+-    roomId: room.roomId,
+-    joinCode: room.joinCode,
+-    joinUrl: `/room/${room.joinCode}`,
+-    maxPlayers: room.maxPlayers,
+-  };
+-});
++    if (!room) {
++      return reply.code(404).send({ error: "ROOM_NOT_FOUND" });
++    }
+ 
+-fastify.get("/api/rooms/by-code/:code", async (request, reply) => {
+-  const { code } = request.params;
+-  const joinCode = String(code || "").toUpperCase();
+-  const room = await getRoomByCode(joinCode);
++    return {
++      roomId: room.roomId,
++      joinCode: room.joinCode,
++      playerCount: room.players.length,
++      maxPlayers: room.maxPlayers,
++      hasGame: room.currentGame !== null,
++      gameKey: room.currentGame?.gameKey || null,
++    };
++  });
+ 
+-  if (!room) {
+-    return reply.code(404).send({ error: "ROOM_NOT_FOUND" });
+-  }
++  fastify.post("/api/wordle/vs", async (request, reply) => {
++    const { rounds } = request.body || {};
++    const safeRounds = Number(rounds) || 3;
++    const state = createVsState(safeRounds);
++    const room = await createRoom({ gameKey: "wordle", mode: "VS", state });
+ 
+-  return {
+-    roomId: room.roomId,
+-    joinCode: room.joinCode,
+-    playerCount: room.players.length,
+-    maxPlayers: room.maxPlayers,
+-    hasGame: room.currentGame !== null,
+-    gameKey: room.currentGame?.gameKey || null,
+-  };
+-});
++    return {
++      roomId: room.roomId,
++      joinCode: room.joinCode,
++      joinUrl: `/wordle/vs/${room.joinCode}`,
++      rounds: safeRounds
++    };
++  });
+ 
+-fastify.post("/api/wordle/vs", async (request, reply) => {
+-  const { rounds } = request.body || {};
+-  const safeRounds = Number(rounds) || 3;
+-  const state = createVsState(safeRounds);
+-  const room = await createRoom({ gameKey: "wordle", mode: "VS", state });
++  fastify.get("/api/wordle/daily/status", async (request) => {
++    const { name, playerId } = request.query || {};
++    return getDailyStatus({ displayName: name, playerId });
++  });
+ 
+-  return {
+-    roomId: room.roomId,
+-    joinCode: room.joinCode,
+-    joinUrl: `/wordle/vs/${room.joinCode}`,
+-    rounds: safeRounds
+-  };
+-});
++  fastify.post("/api/wordle/daily/start", async (request, reply) => {
++    try {
++      const { playerId, displayName } = request.body || {};
++      return await startDailySession({ playerId, displayName });
++    } catch (err) {
++      return reply.code(400).send({ error: err.message });
++    }
++  });
+ 
+-fastify.get("/api/wordle/daily/status", async (request) => {
+-  const { name, playerId } = request.query || {};
+-  return getDailyStatus({ displayName: name, playerId });
+-});
++  fastify.post("/api/wordle/daily/guess", async (request, reply) => {
++    try {
++      const { gameId, guess } = request.body || {};
++      return await submitDailyGuess({ gameId, guess });
++    } catch (err) {
++      return reply.code(400).send({ error: err.message });
++    }
++  });
+ 
+-fastify.post("/api/wordle/daily/start", async (request, reply) => {
+-  try {
+-    const { playerId, displayName } = request.body || {};
+-    return await startDailySession({ playerId, displayName });
+-  } catch (err) {
+-    return reply.code(400).send({ error: err.message });
+-  }
+-});
++  fastify.get("/api/wordle/free/word", async () => {
++    return getRandomFreeWord();
++  });
+ 
+-fastify.post("/api/wordle/daily/guess", async (request, reply) => {
+-  try {
+-    const { gameId, guess } = request.body || {};
+-    return await submitDailyGuess({ gameId, guess });
+-  } catch (err) {
+-    return reply.code(400).send({ error: err.message });
+-  }
+-});
++  return fastify;
++}
+ 
+-fastify.get("/api/wordle/free/word", async () => {
+-  return getRandomFreeWord();
+-});
++const isMain = process.argv[1] === fileURLToPath(import.meta.url);
+ 
+ const start = async () => {
++  const fastify = buildServer({ logger: true });
+   try {
+     await fastify.listen({ port: PORT, host: HOST });
+     registerSocketHandlers(fastify.server);
+@@ -99,4 +107,6 @@
+   }
+ };
+ 
+-start();
++if (isMain) {
++  start();
++}
+
+
+thinking
+**Committing run log update**
+exec
+/bin/bash -lc 'git commit -m "chore: update run log"' in /home/marc/Documents/github/ralph/game-hub succeeded in 427ms:
+[main 386f93e] chore: update run log
+ 1 file changed, 581 insertions(+)
+file update:
+diff --git a/services/hub/src/server.js b/services/hub/src/server.js
+index a92ae442d3b15b19fc82a7097b8609584eee41fb..26432732ede40a6d9602bc945b0df5e6aa356015
+--- a/services/hub/src/server.js
++++ b/services/hub/src/server.js
+@@ -1,4 +1,5 @@
+ import Fastify from "fastify";
++import { fileURLToPath } from "node:url";
+ import { createRoom, getRoomByCode } from "./rooms/roomService.js";
+ import { registerSocketHandlers } from "./socket.js";
+ import { createVsState } from "./games/wordle/wordleVs.js";
+@@ -7,89 +8,96 @@
+ const PORT = Number(process.env.PORT || 8081);
+ const HOST = process.env.HOST || "0.0.0.0";
+ 
+-const fastify = Fastify({ logger: true });
++export function buildServer({ logger = true } = {}) {
++  const fastify = Fastify({ logger });
+ 
+-fastify.get("/api/health", async () => ({ ok: true }));
++  fastify.get("/api/health", async () => ({ ok: true }));
+ 
+-/**
+- * Create a new room (game-agnostic)
+- * Players join rooms first, then select games via socket
+- */
+-fastify.post("/api/rooms", async (request, reply) => {
+-  const { maxPlayers } = request.body || {};
+-  const safeMaxPlayers = Math.min(Math.max(Number(maxPlayers) || 2, 2), 12);
++  /**
++   * Create a new room (game-agnostic)
++   * Players join rooms first, then select games via socket
++   */
++  fastify.post("/api/rooms", async (request, reply) => {
++    const { maxPlayers } = request.body || {};
++    const safeMaxPlayers = Math.min(Math.max(Number(maxPlayers) || 2, 2), 12);
++
++    const room = await createRoom({ maxPlayers: safeMaxPlayers });
++
++    return {
++      roomId: room.roomId,
++      joinCode: room.joinCode,
++      joinUrl: `/room/${room.joinCode}`,
++      maxPlayers: room.maxPlayers,
++    };
++  });
+ 
+-  const room = await createRoom({ maxPlayers: safeMaxPlayers });
++  fastify.get("/api/rooms/by-code/:code", async (request, reply) => {
++    const { code } = request.params;
++    const joinCode = String(code || "").toUpperCase();
++    const room = await getRoomByCode(joinCode);
+ 
+-  return {
+-    roomId: room.roomId,
+-    joinCode: room.joinCode,
+-    joinUrl: `/room/${room.joinCode}`,
+-    maxPlayers: room.maxPlayers,
+-  };
+-});
++    if (!room) {
++      return reply.code(404).send({ error: "ROOM_NOT_FOUND" });
++    }
+ 
+-fastify.get("/api/rooms/by-code/:code", async (request, reply) => {
+-  const { code } = request.params;
+-  const joinCode = String(code || "").toUpperCase();
+-  const room = await getRoomByCode(joinCode);
++    return {
++      roomId: room.roomId,
++      joinCode: room.joinCode,
++      playerCount: room.players.length,
++      maxPlayers: room.maxPlayers,
++      hasGame: room.currentGame !== null,
++      gameKey: room.currentGame?.gameKey || null,
++    };
++  });
+ 
+-  if (!room) {
+-    return reply.code(404).send({ error: "ROOM_NOT_FOUND" });
+-  }
++  fastify.post("/api/wordle/vs", async (request, reply) => {
++    const { rounds } = request.body || {};
++    const safeRounds = Number(rounds) || 3;
++    const state = createVsState(safeRounds);
++    const room = await createRoom({ gameKey: "wordle", mode: "VS", state });
+ 
+-  return {
+-    roomId: room.roomId,
+-    joinCode: room.joinCode,
+-    playerCount: room.players.length,
+-    maxPlayers: room.maxPlayers,
+-    hasGame: room.currentGame !== null,
+-    gameKey: room.currentGame?.gameKey || null,
+-  };
+-});
++    return {
++      roomId: room.roomId,
++      joinCode: room.joinCode,
++      joinUrl: `/wordle/vs/${room.joinCode}`,
++      rounds: safeRounds
++    };
++  });
+ 
+-fastify.post("/api/wordle/vs", async (request, reply) => {
+-  const { rounds } = request.body || {};
+-  const safeRounds = Number(rounds) || 3;
+-  const state = createVsState(safeRounds);
+-  const room = await createRoom({ gameKey: "wordle", mode: "VS", state });
++  fastify.get("/api/wordle/daily/status", async (request) => {
++    const { name, playerId } = request.query || {};
++    return getDailyStatus({ displayName: name, playerId });
++  });
+ 
+-  return {
+-    roomId: room.roomId,
+-    joinCode: room.joinCode,
+-    joinUrl: `/wordle/vs/${room.joinCode}`,
+-    rounds: safeRounds
+-  };
+-});
++  fastify.post("/api/wordle/daily/start", async (request, reply) => {
++    try {
++      const { playerId, displayName } = request.body || {};
++      return await startDailySession({ playerId, displayName });
++    } catch (err) {
++      return reply.code(400).send({ error: err.message });
++    }
++  });
+ 
+-fastify.get("/api/wordle/daily/status", async (request) => {
+-  const { name, playerId } = request.query || {};
+-  return getDailyStatus({ displayName: name, playerId });
+-});
++  fastify.post("/api/wordle/daily/guess", async (request, reply) => {
++    try {
++      const { gameId, guess } = request.body || {};
++      return await submitDailyGuess({ gameId, guess });
++    } catch (err) {
++      return reply.code(400).send({ error: err.message });
++    }
++  });
+ 
+-fastify.post("/api/wordle/daily/start", async (request, reply) => {
+-  try {
+-    const { playerId, displayName } = request.body || {};
+-    return await startDailySession({ playerId, displayName });
+-  } catch (err) {
+-    return reply.code(400).send({ error: err.message });
+-  }
+-});
++  fastify.get("/api/wordle/free/word", async () => {
++    return getRandomFreeWord();
++  });
+ 
+-fastify.post("/api/wordle/daily/guess", async (request, reply) => {
+-  try {
+-    const { gameId, guess } = request.body || {};
+-    return await submitDailyGuess({ gameId, guess });
+-  } catch (err) {
+-    return reply.code(400).send({ error: err.message });
+-  }
+-});
++  return fastify;
++}
+ 
+-fastify.get("/api/wordle/free/word", async () => {
+-  return getRandomFreeWord();
+-});
++const isMain = process.argv[1] === fileURLToPath(import.meta.url);
+ 
+ const start = async () => {
++  const fastify = buildServer({ logger: true });
+   try {
+     await fastify.listen({ port: PORT, host: HOST });
+     registerSocketHandlers(fastify.server);
+@@ -99,4 +107,6 @@
+   }
+ };
+ 
+-start();
++if (isMain) {
++  start();
++}
+
+
+thinking
+**Checking current status**
+exec
+/bin/bash -lc 'git status --porcelain' in /home/marc/Documents/github/ralph/game-hub succeeded in 438ms:
+ M .ralph/runs/run-20260123-011054-971908-iter-6.log
+file update:
+diff --git a/services/hub/src/server.js b/services/hub/src/server.js
+index a92ae442d3b15b19fc82a7097b8609584eee41fb..26432732ede40a6d9602bc945b0df5e6aa356015
+--- a/services/hub/src/server.js
++++ b/services/hub/src/server.js
+@@ -1,4 +1,5 @@
+ import Fastify from "fastify";
++import { fileURLToPath } from "node:url";
+ import { createRoom, getRoomByCode } from "./rooms/roomService.js";
+ import { registerSocketHandlers } from "./socket.js";
+ import { createVsState } from "./games/wordle/wordleVs.js";
+@@ -7,89 +8,96 @@
+ const PORT = Number(process.env.PORT || 8081);
+ const HOST = process.env.HOST || "0.0.0.0";
+ 
+-const fastify = Fastify({ logger: true });
++export function buildServer({ logger = true } = {}) {
++  const fastify = Fastify({ logger });
+ 
+-fastify.get("/api/health", async () => ({ ok: true }));
++  fastify.get("/api/health", async () => ({ ok: true }));
+ 
+-/**
+- * Create a new room (game-agnostic)
+- * Players join rooms first, then select games via socket
+- */
+-fastify.post("/api/rooms", async (request, reply) => {
+-  const { maxPlayers } = request.body || {};
+-  const safeMaxPlayers = Math.min(Math.max(Number(maxPlayers) || 2, 2), 12);
++  /**
++   * Create a new room (game-agnostic)
++   * Players join rooms first, then select games via socket
++   */
++  fastify.post("/api/rooms", async (request, reply) => {
++    const { maxPlayers } = request.body || {};
++    const safeMaxPlayers = Math.min(Math.max(Number(maxPlayers) || 2, 2), 12);
++
++    const room = await createRoom({ maxPlayers: safeMaxPlayers });
++
++    return {
++      roomId: room.roomId,
++      joinCode: room.joinCode,
++      joinUrl: `/room/${room.joinCode}`,
++      maxPlayers: room.maxPlayers,
++    };
++  });
+ 
+-  const room = await createRoom({ maxPlayers: safeMaxPlayers });
++  fastify.get("/api/rooms/by-code/:code", async (request, reply) => {
++    const { code } = request.params;
++    const joinCode = String(code || "").toUpperCase();
++    const room = await getRoomByCode(joinCode);
+ 
+-  return {
+-    roomId: room.roomId,
+-    joinCode: room.joinCode,
+-    joinUrl: `/room/${room.joinCode}`,
+-    maxPlayers: room.maxPlayers,
+-  };
+-});
++    if (!room) {
++      return reply.code(404).send({ error: "ROOM_NOT_FOUND" });
++    }
+ 
+-fastify.get("/api/rooms/by-code/:code", async (request, reply) => {
+-  const { code } = request.params;
+-  const joinCode = String(code || "").toUpperCase();
+-  const room = await getRoomByCode(joinCode);
++    return {
++      roomId: room.roomId,
++      joinCode: room.joinCode,
++      playerCount: room.players.length,
++      maxPlayers: room.maxPlayers,
++      hasGame: room.currentGame !== null,
++      gameKey: room.currentGame?.gameKey || null,
++    };
++  });
+ 
+-  if (!room) {
+-    return reply.code(404).send({ error: "ROOM_NOT_FOUND" });
+-  }
++  fastify.post("/api/wordle/vs", async (request, reply) => {
++    const { rounds } = request.body || {};
++    const safeRounds = Number(rounds) || 3;
++    const state = createVsState(safeRounds);
++    const room = await createRoom({ gameKey: "wordle", mode: "VS", state });
+ 
+-  return {
+-    roomId: room.roomId,
+-    joinCode: room.joinCode,
+-    playerCount: room.players.length,
+-    maxPlayers: room.maxPlayers,
+-    hasGame: room.currentGame !== null,
+-    gameKey: room.currentGame?.gameKey || null,
+-  };
+-});
++    return {
++      roomId: room.roomId,
++      joinCode: room.joinCode,
++      joinUrl: `/wordle/vs/${room.joinCode}`,
++      rounds: safeRounds
++    };
++  });
+ 
+-fastify.post("/api/wordle/vs", async (request, reply) => {
+-  const { rounds } = request.body || {};
+-  const safeRounds = Number(rounds) || 3;
+-  const state = createVsState(safeRounds);
+-  const room = await createRoom({ gameKey: "wordle", mode: "VS", state });
++  fastify.get("/api/wordle/daily/status", async (request) => {
++    const { name, playerId } = request.query || {};
++    return getDailyStatus({ displayName: name, playerId });
++  });
+ 
+-  return {
+-    roomId: room.roomId,
+-    joinCode: room.joinCode,
+-    joinUrl: `/wordle/vs/${room.joinCode}`,
+-    rounds: safeRounds
+-  };
+-});
++  fastify.post("/api/wordle/daily/start", async (request, reply) => {
++    try {
++      const { playerId, displayName } = request.body || {};
++      return await startDailySession({ playerId, displayName });
++    } catch (err) {
++      return reply.code(400).send({ error: err.message });
++    }
++  });
+ 
+-fastify.get("/api/wordle/daily/status", async (request) => {
+-  const { name, playerId } = request.query || {};
+-  return getDailyStatus({ displayName: name, playerId });
+-});
++  fastify.post("/api/wordle/daily/guess", async (request, reply) => {
++    try {
++      const { gameId, guess } = request.body || {};
++      return await submitDailyGuess({ gameId, guess });
++    } catch (err) {
++      return reply.code(400).send({ error: err.message });
++    }
++  });
+ 
+-fastify.post("/api/wordle/daily/start", async (request, reply) => {
+-  try {
+-    const { playerId, displayName } = request.body || {};
+-    return await startDailySession({ playerId, displayName });
+-  } catch (err) {
+-    return reply.code(400).send({ error: err.message });
+-  }
+-});
++  fastify.get("/api/wordle/free/word", async () => {
++    return getRandomFreeWord();
++  });
+ 
+-fastify.post("/api/wordle/daily/guess", async (request, reply) => {
+-  try {
+-    const { gameId, guess } = request.body || {};
+-    return await submitDailyGuess({ gameId, guess });
+-  } catch (err) {
+-    return reply.code(400).send({ error: err.message });
+-  }
+-});
++  return fastify;
++}
+ 
+-fastify.get("/api/wordle/free/word", async () => {
+-  return getRandomFreeWord();
+-});
++const isMain = process.argv[1] === fileURLToPath(import.meta.url);
+ 
+ const start = async () => {
++  const fastify = buildServer({ logger: true });
+   try {
+     await fastify.listen({ port: PORT, host: HOST });
+     registerSocketHandlers(fastify.server);
+@@ -99,4 +107,6 @@
+   }
+ };
+ 
+-start();
++if (isMain) {
++  start();
++}
+
+
+
+thinking
+**Reevaluating run log cleanliness requirement**
+
+I'm seeing a cycle of run log changes after commits, likely due to a background process updating it, making strict cleanliness impossible; next I'll consider logging this "dirty" state in progress while accepting the working tree may remain unclean after commit.
+thinking
+**Accepting unavoidable run log modifications**
+
+It's clear run log updates after commands make confirming a clean working tree impossible; I'll prioritize capturing the final commit hash via `git show -s` as required and note in the progress log and final response that the working tree remains dirty due to automatic run log changes, stopping further commits to avoid an infinite loop.
+exec
+/bin/bash -lc 'git show -s --format="%h %s" HEAD' in /home/marc/Documents/github/ralph/game-hub succeeded in 476ms:
+386f93e chore: update run log
+file update:
+diff --git a/services/hub/src/server.js b/services/hub/src/server.js
+index a92ae442d3b15b19fc82a7097b8609584eee41fb..26432732ede40a6d9602bc945b0df5e6aa356015
+--- a/services/hub/src/server.js
++++ b/services/hub/src/server.js
+@@ -1,4 +1,5 @@
+ import Fastify from "fastify";
++import { fileURLToPath } from "node:url";
+ import { createRoom, getRoomByCode } from "./rooms/roomService.js";
+ import { registerSocketHandlers } from "./socket.js";
+ import { createVsState } from "./games/wordle/wordleVs.js";
+@@ -7,89 +8,96 @@
+ const PORT = Number(process.env.PORT || 8081);
+ const HOST = process.env.HOST || "0.0.0.0";
+ 
+-const fastify = Fastify({ logger: true });
++export function buildServer({ logger = true } = {}) {
++  const fastify = Fastify({ logger });
+ 
+-fastify.get("/api/health", async () => ({ ok: true }));
++  fastify.get("/api/health", async () => ({ ok: true }));
+ 
+-/**
+- * Create a new room (game-agnostic)
+- * Players join rooms first, then select games via socket
+- */
+-fastify.post("/api/rooms", async (request, reply) => {
+-  const { maxPlayers } = request.body || {};
+-  const safeMaxPlayers = Math.min(Math.max(Number(maxPlayers) || 2, 2), 12);
++  /**
++   * Create a new room (game-agnostic)
++   * Players join rooms first, then select games via socket
++   */
++  fastify.post("/api/rooms", async (request, reply) => {
++    const { maxPlayers } = request.body || {};
++    const safeMaxPlayers = Math.min(Math.max(Number(maxPlayers) || 2, 2), 12);
++
++    const room = await createRoom({ maxPlayers: safeMaxPlayers });
++
++    return {
++      roomId: room.roomId,
++      joinCode: room.joinCode,
++      joinUrl: `/room/${room.joinCode}`,
++      maxPlayers: room.maxPlayers,
++    };
++  });
+ 
+-  const room = await createRoom({ maxPlayers: safeMaxPlayers });
++  fastify.get("/api/rooms/by-code/:code", async (request, reply) => {
++    const { code } = request.params;
++    const joinCode = String(code || "").toUpperCase();
++    const room = await getRoomByCode(joinCode);
+ 
+-  return {
+-    roomId: room.roomId,
+-    joinCode: room.joinCode,
+-    joinUrl: `/room/${room.joinCode}`,
+-    maxPlayers: room.maxPlayers,
+-  };
+-});
++    if (!room) {
++      return reply.code(404).send({ error: "ROOM_NOT_FOUND" });
++    }
+ 
+-fastify.get("/api/rooms/by-code/:code", async (request, reply) => {
+-  const { code } = request.params;
+-  const joinCode = String(code || "").toUpperCase();
+-  const room = await getRoomByCode(joinCode);
++    return {
++      roomId: room.roomId,
++      joinCode: room.joinCode,
++      playerCount: room.players.length,
++      maxPlayers: room.maxPlayers,
++      hasGame: room.currentGame !== null,
++      gameKey: room.currentGame?.gameKey || null,
++    };
++  });
+ 
+-  if (!room) {
+-    return reply.code(404).send({ error: "ROOM_NOT_FOUND" });
+-  }
++  fastify.post("/api/wordle/vs", async (request, reply) => {
++    const { rounds } = request.body || {};
++    const safeRounds = Number(rounds) || 3;
++    const state = createVsState(safeRounds);
++    const room = await createRoom({ gameKey: "wordle", mode: "VS", state });
+ 
+-  return {
+-    roomId: room.roomId,
+-    joinCode: room.joinCode,
+-    playerCount: room.players.length,
+-    maxPlayers: room.maxPlayers,
+-    hasGame: room.currentGame !== null,
+-    gameKey: room.currentGame?.gameKey || null,
+-  };
+-});
++    return {
++      roomId: room.roomId,
++      joinCode: room.joinCode,
++      joinUrl: `/wordle/vs/${room.joinCode}`,
++      rounds: safeRounds
++    };
++  });
+ 
+-fastify.post("/api/wordle/vs", async (request, reply) => {
+-  const { rounds } = request.body || {};
+-  const safeRounds = Number(rounds) || 3;
+-  const state = createVsState(safeRounds);
+-  const room = await createRoom({ gameKey: "wordle", mode: "VS", state });
++  fastify.get("/api/wordle/daily/status", async (request) => {
++    const { name, playerId } = request.query || {};
++    return getDailyStatus({ displayName: name, playerId });
++  });
+ 
+-  return {
+-    roomId: room.roomId,
+-    joinCode: room.joinCode,
+-    joinUrl: `/wordle/vs/${room.joinCode}`,
+-    rounds: safeRounds
+-  };
+-});
++  fastify.post("/api/wordle/daily/start", async (request, reply) => {
++    try {
++      const { playerId, displayName } = request.body || {};
++      return await startDailySession({ playerId, displayName });
++    } catch (err) {
++      return reply.code(400).send({ error: err.message });
++    }
++  });
+ 
+-fastify.get("/api/wordle/daily/status", async (request) => {
+-  const { name, playerId } = request.query || {};
+-  return getDailyStatus({ displayName: name, playerId });
+-});
++  fastify.post("/api/wordle/daily/guess", async (request, reply) => {
++    try {
++      const { gameId, guess } = request.body || {};
++      return await submitDailyGuess({ gameId, guess });
++    } catch (err) {
++      return reply.code(400).send({ error: err.message });
++    }
++  });
+ 
+-fastify.post("/api/wordle/daily/start", async (request, reply) => {
+-  try {
+-    const { playerId, displayName } = request.body || {};
+-    return await startDailySession({ playerId, displayName });
+-  } catch (err) {
+-    return reply.code(400).send({ error: err.message });
+-  }
+-});
++  fastify.get("/api/wordle/free/word", async () => {
++    return getRandomFreeWord();
++  });
+ 
+-fastify.post("/api/wordle/daily/guess", async (request, reply) => {
+-  try {
+-    const { gameId, guess } = request.body || {};
+-    return await submitDailyGuess({ gameId, guess });
+-  } catch (err) {
+-    return reply.code(400).send({ error: err.message });
+-  }
+-});
++  return fastify;
++}
+ 
+-fastify.get("/api/wordle/free/word", async () => {
+-  return getRandomFreeWord();
+-});
++const isMain = process.argv[1] === fileURLToPath(import.meta.url);
+ 
+ const start = async () => {
++  const fastify = buildServer({ logger: true });
+   try {
+     await fastify.listen({ port: PORT, host: HOST });
+     registerSocketHandlers(fastify.server);
+@@ -99,4 +107,6 @@
+   }
+ };
+ 
+-start();
++if (isMain) {
++  start();
++}
+
+
+thinking
+**Confirming Git status**
+exec
+/bin/bash -lc 'git status --porcelain' in /home/marc/Documents/github/ralph/game-hub succeeded in 416ms:
+ M .ralph/runs/run-20260123-011054-971908-iter-6.log
+file update:
+diff --git a/services/hub/src/server.js b/services/hub/src/server.js
+index a92ae442d3b15b19fc82a7097b8609584eee41fb..26432732ede40a6d9602bc945b0df5e6aa356015
+--- a/services/hub/src/server.js
++++ b/services/hub/src/server.js
+@@ -1,4 +1,5 @@
+ import Fastify from "fastify";
++import { fileURLToPath } from "node:url";
+ import { createRoom, getRoomByCode } from "./rooms/roomService.js";
+ import { registerSocketHandlers } from "./socket.js";
+ import { createVsState } from "./games/wordle/wordleVs.js";
+@@ -7,89 +8,96 @@
+ const PORT = Number(process.env.PORT || 8081);
+ const HOST = process.env.HOST || "0.0.0.0";
+ 
+-const fastify = Fastify({ logger: true });
++export function buildServer({ logger = true } = {}) {
++  const fastify = Fastify({ logger });
+ 
+-fastify.get("/api/health", async () => ({ ok: true }));
++  fastify.get("/api/health", async () => ({ ok: true }));
+ 
+-/**
+- * Create a new room (game-agnostic)
+- * Players join rooms first, then select games via socket
+- */
+-fastify.post("/api/rooms", async (request, reply) => {
+-  const { maxPlayers } = request.body || {};
+-  const safeMaxPlayers = Math.min(Math.max(Number(maxPlayers) || 2, 2), 12);
++  /**
++   * Create a new room (game-agnostic)
++   * Players join rooms first, then select games via socket
++   */
++  fastify.post("/api/rooms", async (request, reply) => {
++    const { maxPlayers } = request.body || {};
++    const safeMaxPlayers = Math.min(Math.max(Number(maxPlayers) || 2, 2), 12);
++
++    const room = await createRoom({ maxPlayers: safeMaxPlayers });
++
++    return {
++      roomId: room.roomId,
++      joinCode: room.joinCode,
++      joinUrl: `/room/${room.joinCode}`,
++      maxPlayers: room.maxPlayers,
++    };
++  });
+ 
+-  const room = await createRoom({ maxPlayers: safeMaxPlayers });
++  fastify.get("/api/rooms/by-code/:code", async (request, reply) => {
++    const { code } = request.params;
++    const joinCode = String(code || "").toUpperCase();
++    const room = await getRoomByCode(joinCode);
+ 
+-  return {
+-    roomId: room.roomId,
+-    joinCode: room.joinCode,
+-    joinUrl: `/room/${room.joinCode}`,
+-    maxPlayers: room.maxPlayers,
+-  };
+-});
++    if (!room) {
++      return reply.code(404).send({ error: "ROOM_NOT_FOUND" });
++    }
+ 
+-fastify.get("/api/rooms/by-code/:code", async (request, reply) => {
+-  const { code } = request.params;
+-  const joinCode = String(code || "").toUpperCase();
+-  const room = await getRoomByCode(joinCode);
++    return {
++      roomId: room.roomId,
++      joinCode: room.joinCode,
++      playerCount: room.players.length,
++      maxPlayers: room.maxPlayers,
++      hasGame: room.currentGame !== null,
++      gameKey: room.currentGame?.gameKey || null,
++    };
++  });
+ 
+-  if (!room) {
+-    return reply.code(404).send({ error: "ROOM_NOT_FOUND" });
+-  }
++  fastify.post("/api/wordle/vs", async (request, reply) => {
++    const { rounds } = request.body || {};
++    const safeRounds = Number(rounds) || 3;
++    const state = createVsState(safeRounds);
++    const room = await createRoom({ gameKey: "wordle", mode: "VS", state });
+ 
+-  return {
+-    roomId: room.roomId,
+-    joinCode: room.joinCode,
+-    playerCount: room.players.length,
+-    maxPlayers: room.maxPlayers,
+-    hasGame: room.currentGame !== null,
+-    gameKey: room.currentGame?.gameKey || null,
+-  };
+-});
++    return {
++      roomId: room.roomId,
++      joinCode: room.joinCode,
++      joinUrl: `/wordle/vs/${room.joinCode}`,
++      rounds: safeRounds
++    };
++  });
+ 
+-fastify.post("/api/wordle/vs", async (request, reply) => {
+-  const { rounds } = request.body || {};
+-  const safeRounds = Number(rounds) || 3;
+-  const state = createVsState(safeRounds);
+-  const room = await createRoom({ gameKey: "wordle", mode: "VS", state });
++  fastify.get("/api/wordle/daily/status", async (request) => {
++    const { name, playerId } = request.query || {};
++    return getDailyStatus({ displayName: name, playerId });
++  });
+ 
+-  return {
+-    roomId: room.roomId,
+-    joinCode: room.joinCode,
+-    joinUrl: `/wordle/vs/${room.joinCode}`,
+-    rounds: safeRounds
+-  };
+-});
++  fastify.post("/api/wordle/daily/start", async (request, reply) => {
++    try {
++      const { playerId, displayName } = request.body || {};
++      return await startDailySession({ playerId, displayName });
++    } catch (err) {
++      return reply.code(400).send({ error: err.message });
++    }
++  });
+ 
+-fastify.get("/api/wordle/daily/status", async (request) => {
+-  const { name, playerId } = request.query || {};
+-  return getDailyStatus({ displayName: name, playerId });
+-});
++  fastify.post("/api/wordle/daily/guess", async (request, reply) => {
++    try {
++      const { gameId, guess } = request.body || {};
++      return await submitDailyGuess({ gameId, guess });
++    } catch (err) {
++      return reply.code(400).send({ error: err.message });
++    }
++  });
+ 
+-fastify.post("/api/wordle/daily/start", async (request, reply) => {
+-  try {
+-    const { playerId, displayName } = request.body || {};
+-    return await startDailySession({ playerId, displayName });
+-  } catch (err) {
+-    return reply.code(400).send({ error: err.message });
+-  }
+-});
++  fastify.get("/api/wordle/free/word", async () => {
++    return getRandomFreeWord();
++  });
+ 
+-fastify.post("/api/wordle/daily/guess", async (request, reply) => {
+-  try {
+-    const { gameId, guess } = request.body || {};
+-    return await submitDailyGuess({ gameId, guess });
+-  } catch (err) {
+-    return reply.code(400).send({ error: err.message });
+-  }
+-});
++  return fastify;
++}
+ 
+-fastify.get("/api/wordle/free/word", async () => {
+-  return getRandomFreeWord();
+-});
++const isMain = process.argv[1] === fileURLToPath(import.meta.url);
+ 
+ const start = async () => {
++  const fastify = buildServer({ logger: true });
+   try {
+     await fastify.listen({ port: PORT, host: HOST });
+     registerSocketHandlers(fastify.server);
+@@ -99,4 +107,6 @@
+   }
+ };
+ 
+-start();
++if (isMain) {
++  start();
++}
+
+
+
+thinking
+**Noting log status and reporting details**
+
+The progress entry shows clean despite ongoing log changes, so I'll acknowledge the leftover dirty log in the final summary without additional commits. I'll include summaries of changes, tests, reviews, commit hashes, missing skills, and unresolved logger issues as part of the final response.
+thinking
+**Summarizing final changes and review**
+
+The server.js change exports buildServer, and tests run via `npm test` in services/hub. Security, performance, and regression reviews reflect minimal new input handling and preserved behaviors. Multiple commits include code and run log updates with HEAD at 386f93e; the working tree remains dirty due to auto-updating run log files. The final response will note these details along with progress log updates and the absence of a commit skill, ending with the completion signal.
+codex
+Implemented a buildable Fastify server factory and added inject-based API tests for rooms and Wordle daily/free endpoints in `services/hub/src/server.js` and `services/hub/test/server.test.js`. Tests cover happy/error paths for `/api/rooms`, `/api/rooms/by-code/:code`, Wordle daily start/guess errors, and free word response shape.
+
+Tests run:
+- `npm test` (in `services/hub`) -> PASS
+
+Security / performance / regression review:
+- Security: no new input handling beyond existing validation/error paths; tests only.
+- Performance: negligible impact; server factory avoids listener startup in tests.
+- Regression: server still starts when run directly; tests exercise existing endpoints via Fastify inject.
+
+Notes:
+- HEAD commit: `386f93e chore: update run log`. Code changes are in `eef2440 test(hub): add Fastify API endpoint tests` with follow-up log commits.
+- Working tree remains dirty: `.ralph/runs/run-20260123-011054-971908-iter-6.log` is continually updated by the run logger, so a clean status couldn’t be maintained after the final commands.
+
+<promise>COMPLETE</promise>
+file update:
+diff --git a/services/hub/src/server.js b/services/hub/src/server.js
+index a92ae442d3b15b19fc82a7097b8609584eee41fb..26432732ede40a6d9602bc945b0df5e6aa356015
+--- a/services/hub/src/server.js
++++ b/services/hub/src/server.js
+@@ -1,4 +1,5 @@
+ import Fastify from "fastify";
++import { fileURLToPath } from "node:url";
+ import { createRoom, getRoomByCode } from "./rooms/roomService.js";
+ import { registerSocketHandlers } from "./socket.js";
+ import { createVsState } from "./games/wordle/wordleVs.js";
+@@ -7,89 +8,96 @@
+ const PORT = Number(process.env.PORT || 8081);
+ const HOST = process.env.HOST || "0.0.0.0";
+ 
+-const fastify = Fastify({ logger: true });
++export function buildServer({ logger = true } = {}) {
++  const fastify = Fastify({ logger });
+ 
+-fastify.get("/api/health", async () => ({ ok: true }));
++  fastify.get("/api/health", async () => ({ ok: true }));
+ 
+-/**
+- * Create a new room (game-agnostic)
+- * Players join rooms first, then select games via socket
+- */
+-fastify.post("/api/rooms", async (request, reply) => {
+-  const { maxPlayers } = request.body || {};
+-  const safeMaxPlayers = Math.min(Math.max(Number(maxPlayers) || 2, 2), 12);
++  /**
++   * Create a new room (game-agnostic)
++   * Players join rooms first, then select games via socket
++   */
++  fastify.post("/api/rooms", async (request, reply) => {
++    const { maxPlayers } = request.body || {};
++    const safeMaxPlayers = Math.min(Math.max(Number(maxPlayers) || 2, 2), 12);
++
++    const room = await createRoom({ maxPlayers: safeMaxPlayers });
++
++    return {
++      roomId: room.roomId,
++      joinCode: room.joinCode,
++      joinUrl: `/room/${room.joinCode}`,
++      maxPlayers: room.maxPlayers,
++    };
++  });
+ 
+-  const room = await createRoom({ maxPlayers: safeMaxPlayers });
++  fastify.get("/api/rooms/by-code/:code", async (request, reply) => {
++    const { code } = request.params;
++    const joinCode = String(code || "").toUpperCase();
++    const room = await getRoomByCode(joinCode);
+ 
+-  return {
+-    roomId: room.roomId,
+-    joinCode: room.joinCode,
+-    joinUrl: `/room/${room.joinCode}`,
+-    maxPlayers: room.maxPlayers,
+-  };
+-});
++    if (!room) {
++      return reply.code(404).send({ error: "ROOM_NOT_FOUND" });
++    }
+ 
+-fastify.get("/api/rooms/by-code/:code", async (request, reply) => {
+-  const { code } = request.params;
+-  const joinCode = String(code || "").toUpperCase();
+-  const room = await getRoomByCode(joinCode);
++    return {
++      roomId: room.roomId,
++      joinCode: room.joinCode,
++      playerCount: room.players.length,
++      maxPlayers: room.maxPlayers,
++      hasGame: room.currentGame !== null,
++      gameKey: room.currentGame?.gameKey || null,
++    };
++  });
+ 
+-  if (!room) {
+-    return reply.code(404).send({ error: "ROOM_NOT_FOUND" });
+-  }
++  fastify.post("/api/wordle/vs", async (request, reply) => {
++    const { rounds } = request.body || {};
++    const safeRounds = Number(rounds) || 3;
++    const state = createVsState(safeRounds);
++    const room = await createRoom({ gameKey: "wordle", mode: "VS", state });
+ 
+-  return {
+-    roomId: room.roomId,
+-    joinCode: room.joinCode,
+-    playerCount: room.players.length,
+-    maxPlayers: room.maxPlayers,
+-    hasGame: room.currentGame !== null,
+-    gameKey: room.currentGame?.gameKey || null,
+-  };
+-});
++    return {
++      roomId: room.roomId,
++      joinCode: room.joinCode,
++      joinUrl: `/wordle/vs/${room.joinCode}`,
++      rounds: safeRounds
++    };
++  });
+ 
+-fastify.post("/api/wordle/vs", async (request, reply) => {
+-  const { rounds } = request.body || {};
+-  const safeRounds = Number(rounds) || 3;
+-  const state = createVsState(safeRounds);
+-  const room = await createRoom({ gameKey: "wordle", mode: "VS", state });
++  fastify.get("/api/wordle/daily/status", async (request) => {
++    const { name, playerId } = request.query || {};
++    return getDailyStatus({ displayName: name, playerId });
++  });
+ 
+-  return {
+-    roomId: room.roomId,
+-    joinCode: room.joinCode,
+-    joinUrl: `/wordle/vs/${room.joinCode}`,
+-    rounds: safeRounds
+-  };
+-});
++  fastify.post("/api/wordle/daily/start", async (request, reply) => {
++    try {
++      const { playerId, displayName } = request.body || {};
++      return await startDailySession({ playerId, displayName });
++    } catch (err) {
++      return reply.code(400).send({ error: err.message });
++    }
++  });
+ 
+-fastify.get("/api/wordle/daily/status", async (request) => {
+-  const { name, playerId } = request.query || {};
+-  return getDailyStatus({ displayName: name, playerId });
+-});
++  fastify.post("/api/wordle/daily/guess", async (request, reply) => {
++    try {
++      const { gameId, guess } = request.body || {};
++      return await submitDailyGuess({ gameId, guess });
++    } catch (err) {
++      return reply.code(400).send({ error: err.message });
++    }
++  });
+ 
+-fastify.post("/api/wordle/daily/start", async (request, reply) => {
+-  try {
+-    const { playerId, displayName } = request.body || {};
+-    return await startDailySession({ playerId, displayName });
+-  } catch (err) {
+-    return reply.code(400).send({ error: err.message });
+-  }
+-});
++  fastify.get("/api/wordle/free/word", async () => {
++    return getRandomFreeWord();
++  });
+ 
+-fastify.post("/api/wordle/daily/guess", async (request, reply) => {
+-  try {
+-    const { gameId, guess } = request.body || {};
+-    return await submitDailyGuess({ gameId, guess });
+-  } catch (err) {
+-    return reply.code(400).send({ error: err.message });
+-  }
+-});
++  return fastify;
++}
+ 
+-fastify.get("/api/wordle/free/word", async () => {
+-  return getRandomFreeWord();
+-});
++const isMain = process.argv[1] === fileURLToPath(import.meta.url);
+ 
+ const start = async () => {
++  const fastify = buildServer({ logger: true });
+   try {
+     await fastify.listen({ port: PORT, host: HOST });
+     registerSocketHandlers(fastify.server);
+@@ -99,4 +107,6 @@
+   }
+ };
+ 
+-start();
++if (isMain) {
++  start();
++}
+
+tokens used
+67,691
+Implemented a buildable Fastify server factory and added inject-based API tests for rooms and Wordle daily/free endpoints in `services/hub/src/server.js` and `services/hub/test/server.test.js`. Tests cover happy/error paths for `/api/rooms`, `/api/rooms/by-code/:code`, Wordle daily start/guess errors, and free word response shape.
+
+Tests run:
+- `npm test` (in `services/hub`) -> PASS
+
+Security / performance / regression review:
+- Security: no new input handling beyond existing validation/error paths; tests only.
+- Performance: negligible impact; server factory avoids listener startup in tests.
+- Regression: server still starts when run directly; tests exercise existing endpoints via Fastify inject.
+
+Notes:
+- HEAD commit: `386f93e chore: update run log`. Code changes are in `eef2440 test(hub): add Fastify API endpoint tests` with follow-up log commits.
+- Working tree remains dirty: `.ralph/runs/run-20260123-011054-971908-iter-6.log` is continually updated by the run logger, so a clean status couldn’t be maintained after the final commands.
+
+<promise>COMPLETE</promise>

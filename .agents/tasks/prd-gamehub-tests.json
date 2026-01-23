@@ -121,13 +121,13 @@
         "Tests cover Wordle daily start/guess errors and `/api/wordle/free/word` response shape.",
         "Server can be instantiated in tests without starting a real listener."
       ],
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "TST-002"
       ],
       "startedAt": "2026-01-23T01:54:32.320786+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-01-23T01:54:32.320797+00:00"
+      "completedAt": "2026-01-23T02:02:17.054434+00:00",
+      "updatedAt": "2026-01-23T02:02:17.054423+00:00"
     },
     {
       "id": "TST-008",
@@ -138,10 +138,13 @@
         "HubHome join/create flows call navigation appropriately.",
         "Tests run under Vitest with jsdom and no real network calls."
       ],
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "TST-001"
-      ]
+      ],
+      "startedAt": "2026-01-23T02:02:19.153989+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-01-23T02:02:19.153999+00:00"
     },
     {
       "id": "TST-009",

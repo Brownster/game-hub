@@ -1,6 +1,7 @@
 # Activity Log
 
 ## Run Summary
+- 2026-01-23 02:02:17 | run=20260123-011054-971908 | iter=6 | mode=build | story=TST-007 | duration=464s | status=success
 - 2026-01-23 01:54:30 | run=20260123-011054-971908 | iter=5 | mode=build | story=TST-006 | duration=422s | status=success
 - 2026-01-23 01:47:26 | run=20260123-011054-971908 | iter=4 | mode=build | story=TST-005 | duration=357s | status=success
 - 2026-01-23 01:41:27 | run=20260123-011054-971908 | iter=3 | mode=build | story=TST-004 | duration=755s | status=success
@@ -60,3 +61,12 @@
 2026-01-23 01:57:48 UTC Added Fastify server build helper and API endpoint tests
 2026-01-23 01:57:57 UTC Ran services/hub tests (npm test)
 2026-01-23 02:00:26 UTC Updated progress log for TST-007
+[2026-01-23 02:02:16] ITERATION 6 end (duration=464s)
+[2026-01-23 02:02:19] ITERATION 7 start (mode=build story=TST-008)
+[2026-01-23 02:02:43] Start TST-008 work
+[2026-01-23 02:05:47] Added web routing and HubHome tests
+[2026-01-23 02:06:31] Ran services/web tests
+[2026-01-23 02:06:38] Ran services/hub tests
+[2026-01-23 02:06:47] Ran services/web build
+[2026-01-23 02:07:32] Documented test/build commands in AGENTS.md
+[2026-01-23 02:07:36] Browser verification blocked: dev-browser skill not available
