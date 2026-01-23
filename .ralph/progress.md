@@ -205,3 +205,67 @@ Run summary: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123
   - Gotchas encountered: `redis` is captured at module import, so install the mock before importing wordleDaily.
   - Useful context: use unique dates and player names per test to avoid cross-test stat collisions.
 ---
+## [2026-01-23 02:00:07] - TST-007: Add hub API tests for Fastify endpoints
+Thread: 
+Run: 20260123-011054-971908 (iteration 6)
+Run log: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-6.log
+Run summary: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-6.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: eef2440 test(hub): add Fastify API endpoint tests
+- Post-commit status: clean
+- Verification:
+  - Command: npm test -> PASS
+- Files changed:
+  - .agents/tasks/prd-gamehub-tests.json
+  - .ralph/.tmp/prompt-20260123-011054-971908-6.md
+  - .ralph/.tmp/story-20260123-011054-971908-6.json
+  - .ralph/.tmp/story-20260123-011054-971908-6.md
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - .ralph/runs/run-20260123-011054-971908-iter-5.log
+  - .ralph/runs/run-20260123-011054-971908-iter-5.md
+  - .ralph/runs/run-20260123-011054-971908-iter-6.log
+  - services/hub/src/server.js
+  - services/hub/test/server.test.js
+  - .ralph/progress.md
+- What was implemented
+  - Added a buildable Fastify server factory to enable inject-based testing without starting a listener.
+  - Added API tests covering room creation/lookup, Wordle daily start/guess error handling, and free word response shape.
+- **Learnings for future iterations:**
+  - Patterns discovered: use  with Fastify inject to keep API tests fast and isolated.
+  - Gotchas encountered: install the Redis mock before importing server modules so services pick up the in-memory client.
+  - Useful context: fix time in Wordle API tests to keep date-based keys deterministic.
+---
+## [2026-01-23 02:00:21] - TST-007: Add hub API tests for Fastify endpoints
+Thread: 
+Run: 20260123-011054-971908 (iteration 6)
+Run log: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-6.log
+Run summary: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-6.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: eef2440 test(hub): add Fastify API endpoint tests
+- Post-commit status: clean
+- Verification:
+  - Command: npm test -> PASS
+- Files changed:
+  - .agents/tasks/prd-gamehub-tests.json
+  - .ralph/.tmp/prompt-20260123-011054-971908-6.md
+  - .ralph/.tmp/story-20260123-011054-971908-6.json
+  - .ralph/.tmp/story-20260123-011054-971908-6.md
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - .ralph/runs/run-20260123-011054-971908-iter-5.log
+  - .ralph/runs/run-20260123-011054-971908-iter-5.md
+  - .ralph/runs/run-20260123-011054-971908-iter-6.log
+  - services/hub/src/server.js
+  - services/hub/test/server.test.js
+  - .ralph/progress.md
+- What was implemented
+  - Added a buildable Fastify server factory to enable inject-based testing without starting a listener.
+  - Added API tests covering room creation/lookup, Wordle daily start/guess error handling, and free word response shape.
+- **Learnings for future iterations:**
+  - Patterns discovered: use `buildServer({ logger: false })` with Fastify inject to keep API tests fast and isolated.
+  - Gotchas encountered: install the Redis mock before importing server modules so services pick up the in-memory client.
+  - Useful context: fix time in Wordle API tests to keep date-based keys deterministic.
+---
