@@ -13,7 +13,7 @@ Run summary: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: b73e736 Complete Phase 0 test roadmap inventory
-- Post-commit status: clean
+- Post-commit status: .ralph/runs/run-20260123-011054-971908-iter-4.log
 - Verification:
   - Command: npm test (services/hub) -> PASS
   - Command: npm test (services/web) -> FAIL (App.test.jsx: unable to find text "GAME HUB")

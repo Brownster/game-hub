@@ -787,4 +787,59 @@ Using bundled templates: /home/marc/.nvm/versions/node/v22.14.0/lib/node_modules
 thinking
 **Committing progress and run log updates**
 exec
+/bin/bash -lc 'git add -A' in /home/marc/Documents/github/ralph/game-hub succeeded in 534ms:
+
+
+thinking
+**Committing progress update**
+exec
+/bin/bash -lc 'git commit -m "chore: update progress log"' in /home/marc/Documents/github/ralph/game-hub succeeded in 517ms:
+[main e42a5b6] chore: update progress log
+ 3 files changed, 141 insertions(+), 1 deletion(-)
+
+thinking
+**Showing latest commit details**
+exec
+/bin/bash -lc 'git show -s --format="%h %s" HEAD' in /home/marc/Documents/github/ralph/game-hub succeeded in 407ms:
+e42a5b6 chore: update progress log
+
+thinking
+**Checking git status**
+exec
+/bin/bash -lc 'git status --porcelain' in /home/marc/Documents/github/ralph/game-hub succeeded in 506ms:
+ M .ralph/runs/run-20260123-011054-971908-iter-4.log
+
+
+thinking
+**Resolving commit loop by accepting dirty state**
+
+The run log update causes a loop if committed and followed by more git commands, so I'll accept the dirty state and adjust the progress log to reflect the post-commit status as not clean instead of forcing a final commit cycle.
+thinking
+**Deciding to update progress log despite run log changes**
+
+I'll update the progress log to reflect the actual dirty post-commit status caused by the run log and commit that, accepting that subsequent required git commands will keep run log dirty; this ensures accurate status reporting even if perfect cleanliness isn't achievable.
+exec
+/bin/bash -lc "python - <<'PY'
+from pathlib import Path
+path = Path('/home/marc/Documents/github/ralph/game-hub/.ralph/progress.md')
+text = path.read_text()
+old = \"- Post-commit status: clean\\n\"
+new = \"- Post-commit status: .ralph/runs/run-20260123-011054-971908-iter-4.log\\n\"
+if old not in text:
+    raise SystemExit('Expected status line not found')
+path.write_text(text.replace(old, new, 1))
+PY" in /home/marc/Documents/github/ralph/game-hub succeeded in 422ms:
+
+
+thinking
+**Adding log after progress update**
+
+I'll add a log message immediately after updating the progress to ensure tracking before and after the update, fulfilling the requirement for post-update logging.
+exec
+/bin/bash -lc 'ralph log "Adjusted progress log post-commit status"' in /home/marc/Documents/github/ralph/game-hub succeeded in 853ms:
+Using bundled templates: /home/marc/.nvm/versions/node/v22.14.0/lib/node_modules/@iannuttall/ralph/.agents/ralph
+
+thinking
+**Staging and committing changes**
+exec
 /bin/bash -lc 'git add -A' in /home/marc/Documents/github/ralph/game-hub
