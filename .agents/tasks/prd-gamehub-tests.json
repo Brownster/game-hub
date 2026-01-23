@@ -36,13 +36,13 @@
         "Tests can swap Redis without touching production code paths in most cases (minimal DI or module mocking).",
         "A helper exists to control time for date-based Wordle daily tests."
       ],
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "TST-001"
       ],
       "startedAt": "2026-01-23T01:10:54.292139+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-01-23T01:10:54.292149+00:00"
+      "completedAt": "2026-01-23T01:18:15.835901+00:00",
+      "updatedAt": "2026-01-23T01:18:15.835891+00:00"
     },
     {
       "id": "TST-003",
@@ -53,10 +53,13 @@
         "Tests cover victory point calculation and longest road holder updates.",
         "All tests run without network or Redis."
       ],
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "TST-002"
-      ]
+      ],
+      "startedAt": "2026-01-23T01:18:18.018355+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-01-23T01:18:18.018365+00:00"
     },
     {
       "id": "TST-004",
