@@ -19,3 +19,4 @@
 [2026-01-23 01:11:16] Start TST-002: hub test helpers and Redis mock (logger missing)
 [2026-01-23 01:13:25] Added hub test helpers and redis mock; updated roomService test
 [2026-01-23 01:14:01] Ran tests: services/hub npm test (pass), services/web npm test (fail App.test.jsx)
+[2026-01-23 01:17:13] Updated progress log for TST-002
