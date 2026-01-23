@@ -1,0 +1,142 @@
+{
+  "title": "GameHub Test Coverage",
+  "summary": "Implement a robust, prioritized test suite for the GameHub monorepo with focus on deterministic game logic, room lifecycle, API behavior, and core UI flows.",
+  "nonGoals": [
+    "End-to-end multiplayer tests that require real Redis, sockets, or browser automation (unless explicitly requested later).",
+    "Large refactors unrelated to testability."
+  ],
+  "qualityGates": [
+    "All new tests are deterministic and avoid real Redis/network usage (use in-memory mocks or dependency injection).",
+    "`services/hub` tests run via `npm test` without requiring external services.",
+    "`services/web` tests run via `npm test` and use jsdom-safe APIs.",
+    "Test failures include clear, actionable messages."
+  ],
+  "stories": [
+    {
+      "id": "TST-001",
+      "title": "Complete test inventory and prioritize coverage",
+      "description": "Finish `test-roadmap.md` Phase 0 by mapping major functional areas to files, listing critical game paths, and enumerating must-test APIs/socket events.",
+      "acceptanceCriteria": [
+        "`test-roadmap.md` lists each major service area with concrete file paths.",
+        "Critical game paths are listed per game (start, turn progression, win detection, scoring).",
+        "API endpoints and socket events are enumerated with source file references."
+      ],
+      "status": "in_progress",
+      "dependsOn": [],
+      "startedAt": "2026-01-23T00:45:22.906696+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-01-23T00:45:22.906707+00:00"
+    },
+    {
+      "id": "TST-002",
+      "title": "Add hub test helpers and Redis mock",
+      "description": "Create test utilities for `services/hub` to stub Redis and control time (e.g., fake timers), enabling deterministic tests for room and Wordle daily logic.",
+      "acceptanceCriteria": [
+        "A reusable in-memory Redis mock is added for `services/hub` tests.",
+        "Tests can swap Redis without touching production code paths in most cases (minimal DI or module mocking).",
+        "A helper exists to control time for date-based Wordle daily tests."
+      ],
+      "status": "open",
+      "dependsOn": [
+        "TST-001"
+      ]
+    },
+    {
+      "id": "TST-003",
+      "title": "Expand Catan resources and scoring unit tests",
+      "description": "Add unit tests for `services/hub/src/games/catan/catanResources.js` and `catanScoring.js` including discard logic, bank trade ratios, monopoly/year-of-plenty, and victory point calculation/longest road edge cases.",
+      "acceptanceCriteria": [
+        "Tests cover resource bundle math, discard validation, and trade validation.",
+        "Tests cover victory point calculation and longest road holder updates.",
+        "All tests run without network or Redis."
+      ],
+      "status": "open",
+      "dependsOn": [
+        "TST-002"
+      ]
+    },
+    {
+      "id": "TST-004",
+      "title": "Add UNO service unit tests",
+      "description": "Create tests for `services/hub/src/games/uno/unoService.js` covering game start, playable actions, draw/skip/reverse/draw2/draw4, color choice, UNO call penalty, and end-game detection.",
+      "acceptanceCriteria": [
+        "Tests cover at least one happy path and multiple invalid action paths.",
+        "Color choice and pending draw rules are validated.",
+        "Winner detection and phase transitions are verified."
+      ],
+      "status": "open",
+      "dependsOn": [
+        "TST-002"
+      ]
+    },
+    {
+      "id": "TST-005",
+      "title": "Add Crazy Eights service unit tests",
+      "description": "Create tests for `services/hub/src/games/crazy_eights/crazyEightsService.js` covering start, playability rules, draw/pass behavior, suit declaration with eights, and win detection.",
+      "acceptanceCriteria": [
+        "Tests cover playability by rank/suit and the special 8 rules.",
+        "Draw and pass behavior is validated when no moves exist.",
+        "Winner detection ends the game phase."
+      ],
+      "status": "open",
+      "dependsOn": [
+        "TST-002"
+      ]
+    },
+    {
+      "id": "TST-006",
+      "title": "Add Wordle daily flow tests",
+      "description": "Write tests for `services/hub/src/games/wordle/wordleDaily.js` covering start, guess validation, win/lose outcomes, leaderboard/entry writes, and status queries using the Redis mock and controlled time.",
+      "acceptanceCriteria": [
+        "Start/guess flows validate error cases (missing name, invalid length/word, already played).",
+        "Win and lose outcomes update stats and leaderboard entries.",
+        "`getDailyStatus` returns expected fields for player and anonymous queries."
+      ],
+      "status": "open",
+      "dependsOn": [
+        "TST-002"
+      ]
+    },
+    {
+      "id": "TST-007",
+      "title": "Add hub API tests for Fastify endpoints",
+      "description": "Add tests for `services/hub/src/server.js` endpoints using Fastify inject; verify request validation and response shapes for rooms and Wordle endpoints.",
+      "acceptanceCriteria": [
+        "Tests cover `/api/rooms` and `/api/rooms/by-code/:code` happy + error paths.",
+        "Tests cover Wordle daily start/guess errors and `/api/wordle/free/word` response shape.",
+        "Server can be instantiated in tests without starting a real listener."
+      ],
+      "status": "open",
+      "dependsOn": [
+        "TST-002"
+      ]
+    },
+    {
+      "id": "TST-008",
+      "title": "Add web UI routing and HubHome tests",
+      "description": "Expand `services/web` tests to cover App routing and HubHome interactions with mocked navigation and fetch.",
+      "acceptanceCriteria": [
+        "App routing renders expected screens for key routes.",
+        "HubHome join/create flows call navigation appropriately.",
+        "Tests run under Vitest with jsdom and no real network calls."
+      ],
+      "status": "open",
+      "dependsOn": [
+        "TST-001"
+      ]
+    },
+    {
+      "id": "TST-009",
+      "title": "Add lightweight coverage guardrails and test docs",
+      "description": "Document how to run hub/web tests and add optional coverage thresholds or guidance without slowing dev workflows.",
+      "acceptanceCriteria": [
+        "README or a testing doc explains how to run hub/web tests and what they cover.",
+        "Optional: add a lightweight coverage target note or script (non-blocking)."
+      ],
+      "status": "open",
+      "dependsOn": [
+        "TST-001"
+      ]
+    }
+  ]
+}

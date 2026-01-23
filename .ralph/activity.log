@@ -1,0 +1,13 @@
+# Activity Log
+
+## Run Summary
+
+## Events
+
+[2026-01-23 00:45:23] ITERATION 1 start (mode=build story=TST-001)
+
+[2026-01-23 00:46:03] Start TST-001: test-roadmap Phase 0 inventory (manual log; helper missing)
+
+[2026-01-23 00:51:28] Updated test-roadmap Phase 0 inventory/paths/events (manual log; helper missing)
+
+[2026-01-23 00:52:08] Ran hub tests (pass), web tests (fail in App.test.jsx), web build (pass)
