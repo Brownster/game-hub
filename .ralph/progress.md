@@ -125,7 +125,7 @@ Run summary: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123
 - Guardrails reviewed: yes
 - No-commit run: false
 - Commit: fce9da5 test: add uno service unit tests
-- Post-commit status: clean
+- Post-commit status: .ralph/runs/run-20260123-011054-971908-iter-8.log
 - Verification:
   - Command: npm test -> PASS
 - Files changed:
