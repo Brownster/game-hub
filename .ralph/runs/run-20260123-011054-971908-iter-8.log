@@ -2882,4 +2882,282 @@ index 4031d88e7cf0f2ea5daf07b0e8d8b4e3603b45b7..26be698afa8823be31ce9ed867e6b5c0
 thinking
 **Staging and committing changes**
 exec
+/bin/bash -lc 'git add -A' in /home/marc/Documents/github/ralph/game-hub succeeded in 413ms:
+
+file update:
+diff --git a/.ralph/progress.md b/.ralph/progress.md
+index 7562d225e88a08f45af196c6f4ccc56760b33796..32a3f232b3cf727f104999a0fddf042680fa17c8
+--- a/.ralph/progress.md
++++ b/.ralph/progress.md
+@@ -125,7 +125,7 @@
+ - Guardrails reviewed: yes
+ - No-commit run: false
+ - Commit: fce9da5 test: add uno service unit tests
+-- Post-commit status: clean
++- Post-commit status: .ralph/runs/run-20260123-011054-971908-iter-8.log
+ - Verification:
+   - Command: npm test -> PASS
+ - Files changed:
+diff --git a/AGENTS.md b/AGENTS.md
+index 5aa2925d9499280dd5d2c24db2b29f87c2ec7da6..5d1a46a68b591cc2e59c78af14d5f93a4f5d0fd5
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -4,6 +4,8 @@
+ - Tests: `cd services/web && npm test`
+ - Build: `cd services/web && npm run build`
+ - Dev server: `cd services/web && npm run dev`
++- Coverage (optional): `cd services/web && npx vitest --coverage` (requires `@vitest/coverage-v8`)
+ 
+ ## services/hub
+ - Tests: `cd services/hub && npm test`
++- Coverage (optional): `cd services/hub && node --test --coverage`
+diff --git a/README.md b/README.md
+index 4031d88e7cf0f2ea5daf07b0e8d8b4e3603b45b7..26be698afa8823be31ce9ed867e6b5c025a3f781
+--- a/README.md
++++ b/README.md
+@@ -38,6 +38,29 @@
+ 
+ Then open `http://localhost:5173`.
+ 
++## Testing
++
++Hub tests use Node's built-in test runner to keep game logic and API behavior deterministic (room lifecycle, game services/utilities, and Wordle flows) without real Redis or network dependencies.
++
++```bash
++cd services/hub
++npm test
++```
++
++Web tests run in Vitest + jsdom to cover routing and key HubHome interactions while keeping browser APIs mocked.
++
++```bash
++cd services/web
++npm test
++```
++
++### Coverage (optional, non-blocking)
++
++Coverage is not enforced. If you want a quick snapshot, keep core game logic and routing around ~70% lines/branches and use:
++
++- `cd services/hub && node --test --coverage`
++- `cd services/web && npx vitest --coverage` (requires adding `@vitest/coverage-v8`)
++
+ ## Notes
+ 
+ - Room codes are 4 characters; share the lobby link to join.
+
+
+thinking
+**Committing progress update**
+exec
+/bin/bash -lc 'git commit -m "chore: update progress status"' in /home/marc/Documents/github/ralph/game-hub succeeded in 419ms:
+[main 7ea2fef] chore: update progress status
+ 2 files changed, 382 insertions(+), 1 deletion(-)
+file update:
+diff --git a/.ralph/progress.md b/.ralph/progress.md
+index 7562d225e88a08f45af196c6f4ccc56760b33796..32a3f232b3cf727f104999a0fddf042680fa17c8
+--- a/.ralph/progress.md
++++ b/.ralph/progress.md
+@@ -125,7 +125,7 @@
+ - Guardrails reviewed: yes
+ - No-commit run: false
+ - Commit: fce9da5 test: add uno service unit tests
+-- Post-commit status: clean
++- Post-commit status: .ralph/runs/run-20260123-011054-971908-iter-8.log
+ - Verification:
+   - Command: npm test -> PASS
+ - Files changed:
+diff --git a/AGENTS.md b/AGENTS.md
+index 5aa2925d9499280dd5d2c24db2b29f87c2ec7da6..5d1a46a68b591cc2e59c78af14d5f93a4f5d0fd5
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -4,6 +4,8 @@
+ - Tests: `cd services/web && npm test`
+ - Build: `cd services/web && npm run build`
+ - Dev server: `cd services/web && npm run dev`
++- Coverage (optional): `cd services/web && npx vitest --coverage` (requires `@vitest/coverage-v8`)
+ 
+ ## services/hub
+ - Tests: `cd services/hub && npm test`
++- Coverage (optional): `cd services/hub && node --test --coverage`
+diff --git a/README.md b/README.md
+index 4031d88e7cf0f2ea5daf07b0e8d8b4e3603b45b7..26be698afa8823be31ce9ed867e6b5c025a3f781
+--- a/README.md
++++ b/README.md
+@@ -38,6 +38,29 @@
+ 
+ Then open `http://localhost:5173`.
+ 
++## Testing
++
++Hub tests use Node's built-in test runner to keep game logic and API behavior deterministic (room lifecycle, game services/utilities, and Wordle flows) without real Redis or network dependencies.
++
++```bash
++cd services/hub
++npm test
++```
++
++Web tests run in Vitest + jsdom to cover routing and key HubHome interactions while keeping browser APIs mocked.
++
++```bash
++cd services/web
++npm test
++```
++
++### Coverage (optional, non-blocking)
++
++Coverage is not enforced. If you want a quick snapshot, keep core game logic and routing around ~70% lines/branches and use:
++
++- `cd services/hub && node --test --coverage`
++- `cd services/web && npx vitest --coverage` (requires adding `@vitest/coverage-v8`)
++
+ ## Notes
+ 
+ - Room codes are 4 characters; share the lobby link to join.
+
+
+thinking
+**Switching to Ralph logging**
+
+I'm updating the logging to use Ralph after the progress log update, accepting that this will modify the run log as needed per requirements.
+exec
+/bin/bash -lc 'ralph log "Updated progress log status for TST-009"' in /home/marc/Documents/github/ralph/game-hub succeeded in 813ms:
+Using bundled templates: /home/marc/.nvm/versions/node/v22.14.0/lib/node_modules/@iannuttall/ralph/.agents/ralph
+file update:
+diff --git a/.ralph/progress.md b/.ralph/progress.md
+index 7562d225e88a08f45af196c6f4ccc56760b33796..32a3f232b3cf727f104999a0fddf042680fa17c8
+--- a/.ralph/progress.md
++++ b/.ralph/progress.md
+@@ -125,7 +125,7 @@
+ - Guardrails reviewed: yes
+ - No-commit run: false
+ - Commit: fce9da5 test: add uno service unit tests
+-- Post-commit status: clean
++- Post-commit status: .ralph/runs/run-20260123-011054-971908-iter-8.log
+ - Verification:
+   - Command: npm test -> PASS
+ - Files changed:
+diff --git a/AGENTS.md b/AGENTS.md
+index 5aa2925d9499280dd5d2c24db2b29f87c2ec7da6..5d1a46a68b591cc2e59c78af14d5f93a4f5d0fd5
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -4,6 +4,8 @@
+ - Tests: `cd services/web && npm test`
+ - Build: `cd services/web && npm run build`
+ - Dev server: `cd services/web && npm run dev`
++- Coverage (optional): `cd services/web && npx vitest --coverage` (requires `@vitest/coverage-v8`)
+ 
+ ## services/hub
+ - Tests: `cd services/hub && npm test`
++- Coverage (optional): `cd services/hub && node --test --coverage`
+diff --git a/README.md b/README.md
+index 4031d88e7cf0f2ea5daf07b0e8d8b4e3603b45b7..26be698afa8823be31ce9ed867e6b5c025a3f781
+--- a/README.md
++++ b/README.md
+@@ -38,6 +38,29 @@
+ 
+ Then open `http://localhost:5173`.
+ 
++## Testing
++
++Hub tests use Node's built-in test runner to keep game logic and API behavior deterministic (room lifecycle, game services/utilities, and Wordle flows) without real Redis or network dependencies.
++
++```bash
++cd services/hub
++npm test
++```
++
++Web tests run in Vitest + jsdom to cover routing and key HubHome interactions while keeping browser APIs mocked.
++
++```bash
++cd services/web
++npm test
++```
++
++### Coverage (optional, non-blocking)
++
++Coverage is not enforced. If you want a quick snapshot, keep core game logic and routing around ~70% lines/branches and use:
++
++- `cd services/hub && node --test --coverage`
++- `cd services/web && npx vitest --coverage` (requires adding `@vitest/coverage-v8`)
++
+ ## Notes
+ 
+ - Room codes are 4 characters; share the lobby link to join.
+
+
+thinking
+**Checking git status**
+exec
+/bin/bash -lc 'git status --porcelain' in /home/marc/Documents/github/ralph/game-hub succeeded in 451ms:
+ M .ralph/activity.log
+ M .ralph/runs/run-20260123-011054-971908-iter-8.log
+file update:
+diff --git a/.ralph/progress.md b/.ralph/progress.md
+index 7562d225e88a08f45af196c6f4ccc56760b33796..32a3f232b3cf727f104999a0fddf042680fa17c8
+--- a/.ralph/progress.md
++++ b/.ralph/progress.md
+@@ -125,7 +125,7 @@
+ - Guardrails reviewed: yes
+ - No-commit run: false
+ - Commit: fce9da5 test: add uno service unit tests
+-- Post-commit status: clean
++- Post-commit status: .ralph/runs/run-20260123-011054-971908-iter-8.log
+ - Verification:
+   - Command: npm test -> PASS
+ - Files changed:
+diff --git a/AGENTS.md b/AGENTS.md
+index 5aa2925d9499280dd5d2c24db2b29f87c2ec7da6..5d1a46a68b591cc2e59c78af14d5f93a4f5d0fd5
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -4,6 +4,8 @@
+ - Tests: `cd services/web && npm test`
+ - Build: `cd services/web && npm run build`
+ - Dev server: `cd services/web && npm run dev`
++- Coverage (optional): `cd services/web && npx vitest --coverage` (requires `@vitest/coverage-v8`)
+ 
+ ## services/hub
+ - Tests: `cd services/hub && npm test`
++- Coverage (optional): `cd services/hub && node --test --coverage`
+diff --git a/README.md b/README.md
+index 4031d88e7cf0f2ea5daf07b0e8d8b4e3603b45b7..26be698afa8823be31ce9ed867e6b5c025a3f781
+--- a/README.md
++++ b/README.md
+@@ -38,6 +38,29 @@
+ 
+ Then open `http://localhost:5173`.
+ 
++## Testing
++
++Hub tests use Node's built-in test runner to keep game logic and API behavior deterministic (room lifecycle, game services/utilities, and Wordle flows) without real Redis or network dependencies.
++
++```bash
++cd services/hub
++npm test
++```
++
++Web tests run in Vitest + jsdom to cover routing and key HubHome interactions while keeping browser APIs mocked.
++
++```bash
++cd services/web
++npm test
++```
++
++### Coverage (optional, non-blocking)
++
++Coverage is not enforced. If you want a quick snapshot, keep core game logic and routing around ~70% lines/branches and use:
++
++- `cd services/hub && node --test --coverage`
++- `cd services/web && npx vitest --coverage` (requires adding `@vitest/coverage-v8`)
++
+ ## Notes
+ 
+ - Room codes are 4 characters; share the lobby link to join.
+
+
+thinking
+**Committing final log changes**
+
+I'm staging and committing the latest activity and run log updates now, then planning to stop further commands to maintain a clean repository state per requirements.
+exec
 /bin/bash -lc 'git add -A' in /home/marc/Documents/github/ralph/game-hub
