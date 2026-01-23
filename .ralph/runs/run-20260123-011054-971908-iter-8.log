@@ -3160,4 +3160,223 @@ thinking
 
 I'm staging and committing the latest activity and run log updates now, then planning to stop further commands to maintain a clean repository state per requirements.
 exec
+/bin/bash -lc 'git add -A' in /home/marc/Documents/github/ralph/game-hub succeeded in 482ms:
+
+file update:
+diff --git a/.ralph/progress.md b/.ralph/progress.md
+index 7562d225e88a08f45af196c6f4ccc56760b33796..32a3f232b3cf727f104999a0fddf042680fa17c8
+--- a/.ralph/progress.md
++++ b/.ralph/progress.md
+@@ -125,7 +125,7 @@
+ - Guardrails reviewed: yes
+ - No-commit run: false
+ - Commit: fce9da5 test: add uno service unit tests
+-- Post-commit status: clean
++- Post-commit status: .ralph/runs/run-20260123-011054-971908-iter-8.log
+ - Verification:
+   - Command: npm test -> PASS
+ - Files changed:
+diff --git a/AGENTS.md b/AGENTS.md
+index 5aa2925d9499280dd5d2c24db2b29f87c2ec7da6..5d1a46a68b591cc2e59c78af14d5f93a4f5d0fd5
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -4,6 +4,8 @@
+ - Tests: `cd services/web && npm test`
+ - Build: `cd services/web && npm run build`
+ - Dev server: `cd services/web && npm run dev`
++- Coverage (optional): `cd services/web && npx vitest --coverage` (requires `@vitest/coverage-v8`)
+ 
+ ## services/hub
+ - Tests: `cd services/hub && npm test`
++- Coverage (optional): `cd services/hub && node --test --coverage`
+diff --git a/README.md b/README.md
+index 4031d88e7cf0f2ea5daf07b0e8d8b4e3603b45b7..26be698afa8823be31ce9ed867e6b5c025a3f781
+--- a/README.md
++++ b/README.md
+@@ -38,6 +38,29 @@
+ 
+ Then open `http://localhost:5173`.
+ 
++## Testing
++
++Hub tests use Node's built-in test runner to keep game logic and API behavior deterministic (room lifecycle, game services/utilities, and Wordle flows) without real Redis or network dependencies.
++
++```bash
++cd services/hub
++npm test
++```
++
++Web tests run in Vitest + jsdom to cover routing and key HubHome interactions while keeping browser APIs mocked.
++
++```bash
++cd services/web
++npm test
++```
++
++### Coverage (optional, non-blocking)
++
++Coverage is not enforced. If you want a quick snapshot, keep core game logic and routing around ~70% lines/branches and use:
++
++- `cd services/hub && node --test --coverage`
++- `cd services/web && npx vitest --coverage` (requires adding `@vitest/coverage-v8`)
++
+ ## Notes
+ 
+ - Room codes are 4 characters; share the lobby link to join.
+
+
+thinking
+**Committing activity log update**
+exec
+/bin/bash -lc 'git commit -m "chore: update activity log"' in /home/marc/Documents/github/ralph/game-hub succeeded in 498ms:
+[main 35e85a6] chore: update activity log
+ 2 files changed, 279 insertions(+)
+file update:
+diff --git a/.ralph/progress.md b/.ralph/progress.md
+index 7562d225e88a08f45af196c6f4ccc56760b33796..32a3f232b3cf727f104999a0fddf042680fa17c8
+--- a/.ralph/progress.md
++++ b/.ralph/progress.md
+@@ -125,7 +125,7 @@
+ - Guardrails reviewed: yes
+ - No-commit run: false
+ - Commit: fce9da5 test: add uno service unit tests
+-- Post-commit status: clean
++- Post-commit status: .ralph/runs/run-20260123-011054-971908-iter-8.log
+ - Verification:
+   - Command: npm test -> PASS
+ - Files changed:
+diff --git a/AGENTS.md b/AGENTS.md
+index 5aa2925d9499280dd5d2c24db2b29f87c2ec7da6..5d1a46a68b591cc2e59c78af14d5f93a4f5d0fd5
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -4,6 +4,8 @@
+ - Tests: `cd services/web && npm test`
+ - Build: `cd services/web && npm run build`
+ - Dev server: `cd services/web && npm run dev`
++- Coverage (optional): `cd services/web && npx vitest --coverage` (requires `@vitest/coverage-v8`)
+ 
+ ## services/hub
+ - Tests: `cd services/hub && npm test`
++- Coverage (optional): `cd services/hub && node --test --coverage`
+diff --git a/README.md b/README.md
+index 4031d88e7cf0f2ea5daf07b0e8d8b4e3603b45b7..26be698afa8823be31ce9ed867e6b5c025a3f781
+--- a/README.md
++++ b/README.md
+@@ -38,6 +38,29 @@
+ 
+ Then open `http://localhost:5173`.
+ 
++## Testing
++
++Hub tests use Node's built-in test runner to keep game logic and API behavior deterministic (room lifecycle, game services/utilities, and Wordle flows) without real Redis or network dependencies.
++
++```bash
++cd services/hub
++npm test
++```
++
++Web tests run in Vitest + jsdom to cover routing and key HubHome interactions while keeping browser APIs mocked.
++
++```bash
++cd services/web
++npm test
++```
++
++### Coverage (optional, non-blocking)
++
++Coverage is not enforced. If you want a quick snapshot, keep core game logic and routing around ~70% lines/branches and use:
++
++- `cd services/hub && node --test --coverage`
++- `cd services/web && npx vitest --coverage` (requires adding `@vitest/coverage-v8`)
++
+ ## Notes
+ 
+ - Room codes are 4 characters; share the lobby link to join.
+
+
+
+thinking
+**Evaluating git show logging dilemma**
+
+There's a conflict between running `git show` to capture commit info (per step 10) and maintaining a clean run log, since `git show` updates the log and dirties the repo. Considering making the run log read-only to prevent further logging modifications, though that risks command failures or other issues.
+thinking
+**Resolving run log commit loop**
+
+The run log keeps updating after commands like git status and git show, causing an endless commit cycle that prevents a clean repo state. The best approach is to perform a final git status check, commit run log changes once more, then stop and report that the final repo remains dirty due to continuous run log updates.
+exec
+/bin/bash -lc 'git status --porcelain' in /home/marc/Documents/github/ralph/game-hub succeeded in 425ms:
+ M .ralph/runs/run-20260123-011054-971908-iter-8.log
+file update:
+diff --git a/.ralph/progress.md b/.ralph/progress.md
+index 7562d225e88a08f45af196c6f4ccc56760b33796..32a3f232b3cf727f104999a0fddf042680fa17c8
+--- a/.ralph/progress.md
++++ b/.ralph/progress.md
+@@ -125,7 +125,7 @@
+ - Guardrails reviewed: yes
+ - No-commit run: false
+ - Commit: fce9da5 test: add uno service unit tests
+-- Post-commit status: clean
++- Post-commit status: .ralph/runs/run-20260123-011054-971908-iter-8.log
+ - Verification:
+   - Command: npm test -> PASS
+ - Files changed:
+diff --git a/AGENTS.md b/AGENTS.md
+index 5aa2925d9499280dd5d2c24db2b29f87c2ec7da6..5d1a46a68b591cc2e59c78af14d5f93a4f5d0fd5
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -4,6 +4,8 @@
+ - Tests: `cd services/web && npm test`
+ - Build: `cd services/web && npm run build`
+ - Dev server: `cd services/web && npm run dev`
++- Coverage (optional): `cd services/web && npx vitest --coverage` (requires `@vitest/coverage-v8`)
+ 
+ ## services/hub
+ - Tests: `cd services/hub && npm test`
++- Coverage (optional): `cd services/hub && node --test --coverage`
+diff --git a/README.md b/README.md
+index 4031d88e7cf0f2ea5daf07b0e8d8b4e3603b45b7..26be698afa8823be31ce9ed867e6b5c025a3f781
+--- a/README.md
++++ b/README.md
+@@ -38,6 +38,29 @@
+ 
+ Then open `http://localhost:5173`.
+ 
++## Testing
++
++Hub tests use Node's built-in test runner to keep game logic and API behavior deterministic (room lifecycle, game services/utilities, and Wordle flows) without real Redis or network dependencies.
++
++```bash
++cd services/hub
++npm test
++```
++
++Web tests run in Vitest + jsdom to cover routing and key HubHome interactions while keeping browser APIs mocked.
++
++```bash
++cd services/web
++npm test
++```
++
++### Coverage (optional, non-blocking)
++
++Coverage is not enforced. If you want a quick snapshot, keep core game logic and routing around ~70% lines/branches and use:
++
++- `cd services/hub && node --test --coverage`
++- `cd services/web && npx vitest --coverage` (requires adding `@vitest/coverage-v8`)
++
+ ## Notes
+ 
+ - Room codes are 4 characters; share the lobby link to join.
+
+
+
+thinking
+**Resolving run log commit loop**
+
+Deciding to commit the run log and then stop running commands to avoid an infinite modification loop, relying on capturing the commit hash from commit output for the final response.
+thinking
+**Finalizing with last commit**
+
+Planning a last commit of all changes to the run log with a clear message, then stopping all commands to conclude the process.
+exec
 /bin/bash -lc 'git add -A' in /home/marc/Documents/github/ralph/game-hub
