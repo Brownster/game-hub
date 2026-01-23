@@ -175,3 +175,33 @@ Run summary: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123
   - Gotchas encountered
   - Useful context
 ---
+## [2026-01-23 01:51:24] - TST-006: Add Wordle daily flow tests
+Thread: 
+Run: 20260123-011054-971908 (iteration 5)
+Run log: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-5.log
+Run summary: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-5.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 9dee254 test: add wordle daily flow coverage
+- Post-commit status: clean
+- Verification:
+  - Command: npm test -> PASS
+- Files changed:
+  - .agents/tasks/prd-gamehub-tests.json
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - .ralph/runs/run-20260123-011054-971908-iter-4.log
+  - .ralph/.tmp/prompt-20260123-011054-971908-5.md
+  - .ralph/.tmp/story-20260123-011054-971908-5.json
+  - .ralph/.tmp/story-20260123-011054-971908-5.md
+  - .ralph/runs/run-20260123-011054-971908-iter-4.md
+  - .ralph/runs/run-20260123-011054-971908-iter-5.log
+  - services/hub/test/wordleDaily.test.js
+  - .ralph/progress.md
+- What was implemented
+  - Added Wordle daily flow tests for start/guess validation errors, win/lose outcomes, leaderboard entries, and status queries using fixed time and the Redis mock.
+- **Learnings for future iterations:**
+  - Patterns discovered: set daily word keys directly to keep Wordle daily tests deterministic.
+  - Gotchas encountered: `redis` is captured at module import, so install the mock before importing wordleDaily.
+  - Useful context: use unique dates and player names per test to avoid cross-test stat collisions.
+---
