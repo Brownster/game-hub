@@ -1301,4 +1301,35 @@ thinking
 
 Deciding to stage and commit all modifications—including build outputs and system-updated files—since instructions require staging everything and committing changes made during the run, despite build artifacts not being typical commit targets. I'll mention the unavailability of the $commit skill and proceed with git commands for committing.
 exec
+/bin/bash -lc 'git add -A' in /home/marc/Documents/github/ralph/game-hub succeeded in 530ms:
+
+
+thinking
+**Committing test coverage expansion**
+
+I'm proceeding to commit with a message about expanding Catan resources and scoring coverage, noting a final review will occur before completing the process.
+exec
+/bin/bash -lc 'git commit -m "test: expand catan resources and scoring coverage"' in /home/marc/Documents/github/ralph/game-hub succeeded in 435ms:
+[main 6a66fa6] test: expand catan resources and scoring coverage
+ 14 files changed, 3180 insertions(+), 9 deletions(-)
+ create mode 100644 .ralph/.tmp/prompt-20260123-011054-971908-2.md
+ create mode 100644 .ralph/.tmp/story-20260123-011054-971908-2.json
+ create mode 100644 .ralph/.tmp/story-20260123-011054-971908-2.md
+ create mode 100644 .ralph/runs/run-20260123-011054-971908-iter-1.md
+ create mode 100644 .ralph/runs/run-20260123-011054-971908-iter-2.log
+ create mode 100644 services/hub/test/catanResources.test.js
+ create mode 100644 services/hub/test/catanScoring.test.js
+ rename services/web/dist/assets/{index-Dn5bpU_n.js => index-D07VNSu9.js} (95%)
+
+thinking
+**Verifying clean git status**
+exec
+/bin/bash -lc 'git status --porcelain' in /home/marc/Documents/github/ralph/game-hub succeeded in 609ms:
+ M .ralph/runs/run-20260123-011054-971908-iter-2.log
+
+thinking
+**Committing post-run log changes**
+
+The run log updates after the initial commit and must be committed too; since amending isn't allowed, I'm creating a separate commit for the updated log file.
+exec
 /bin/bash -lc 'git add -A' in /home/marc/Documents/github/ralph/game-hub
