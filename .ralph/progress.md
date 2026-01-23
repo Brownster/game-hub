@@ -146,3 +146,32 @@ Run summary: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123
   - Gotchas encountered: pending UNO penalties can drain the draw pile and affect draw counts.
   - Useful context: stub `Math.random` for deterministic starter card validation.
 ---
+## [2026-01-23 01:45:48] - TST-005: Add Crazy Eights service unit tests
+Thread: 
+Run: 20260123-011054-971908 (iteration 4)
+Run log: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-4.log
+Run summary: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-4.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 1caaf97 test: add crazy eights service coverage
+- Post-commit status: clean
+- Verification:
+  - Command: npm test -> PASS
+- Files changed:
+  - .agents/tasks/prd-gamehub-tests.json
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - .ralph/runs/run-20260123-011054-971908-iter-3.log
+  - .ralph/.tmp/prompt-20260123-011054-971908-4.md
+  - .ralph/.tmp/story-20260123-011054-971908-4.json
+  - .ralph/.tmp/story-20260123-011054-971908-4.md
+  - .ralph/runs/run-20260123-011054-971908-iter-3.md
+  - .ralph/runs/run-20260123-011054-971908-iter-4.log
+  - services/hub/test/crazyEightsService.test.js
+- What was implemented
+  - Added Crazy Eights service tests for start flow, playability rules, draw/pass behavior, suit declaration on eights, and win detection.
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - Gotchas encountered
+  - Useful context
+---
