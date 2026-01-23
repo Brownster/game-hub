@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { installRedisMock } from "./helpers/redisTestHelper.js";
 
 function createRoomFixture() {
   return {
@@ -13,34 +14,14 @@ function createRoomFixture() {
   };
 }
 
-let redisClient = null;
+installRedisMock();
 
-test.after(() => {
-  if (redisClient) {
-    redisClient.disconnect();
-    redisClient = null;
-  }
-});
-
-async function loadRoomService(t) {
-  try {
-    if (!redisClient) {
-      const redisModule = await import("../src/redis.js");
-      redisClient = redisModule.redis;
-    }
-    return await import("../src/rooms/roomService.js");
-  } catch (err) {
-    if (err?.code === "ERR_MODULE_NOT_FOUND") {
-      t.skip("redis dependency not installed");
-      return null;
-    }
-    throw err;
-  }
+async function loadRoomService() {
+  return import("../src/rooms/roomService.js");
 }
 
 test("roomService: add/remove players assigns host and updates on removal", async (t) => {
-  const roomService = await loadRoomService(t);
-  if (!roomService) return;
+  const roomService = await loadRoomService();
   const { addPlayer, getHost, removePlayer } = roomService;
   const room = createRoomFixture();
 
@@ -58,8 +39,7 @@ test("roomService: add/remove players assigns host and updates on removal", asyn
 });
 
 test("roomService: chat messages trim and cap size", async (t) => {
-  const roomService = await loadRoomService(t);
-  if (!roomService) return;
+  const roomService = await loadRoomService();
   const { addChatMessage, addPlayer } = roomService;
   const room = createRoomFixture();
   addPlayer(room, { playerId: "p1", displayName: "Player 1" });
@@ -77,8 +57,7 @@ test("roomService: chat messages trim and cap size", async (t) => {
 });
 
 test("roomService: start/reset/end/clear game and readiness helpers", async (t) => {
-  const roomService = await loadRoomService(t);
-  if (!roomService) return;
+  const roomService = await loadRoomService();
   const {
     addPlayer,
     clearCurrentGame,

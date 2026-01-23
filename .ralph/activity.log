@@ -1,6 +1,7 @@
 # Activity Log
 
 ## Run Summary
+- 2026-01-23 00:57:42 | run=20260123-004522-945259 | iter=1 | mode=build | story=TST-001 | duration=740s | status=success
 
 ## Events
 
@@ -13,3 +14,8 @@
 [2026-01-23 00:52:08] Ran hub tests (pass), web tests (fail in App.test.jsx), web build (pass)
 
 [2026-01-23 00:54:53] Updated progress log for TST-001
+[2026-01-23 00:57:42] ITERATION 1 end (duration=740s)
+[2026-01-23 01:10:54] ITERATION 1 start (mode=build story=TST-002)
+[2026-01-23 01:11:16] Start TST-002: hub test helpers and Redis mock (logger missing)
+[2026-01-23 01:13:25] Added hub test helpers and redis mock; updated roomService test
+[2026-01-23 01:14:01] Ran tests: services/hub npm test (pass), services/web npm test (fail App.test.jsx)

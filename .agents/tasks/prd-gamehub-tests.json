@@ -21,11 +21,11 @@
         "Critical game paths are listed per game (start, turn progression, win detection, scoring).",
         "API endpoints and socket events are enumerated with source file references."
       ],
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [],
       "startedAt": "2026-01-23T00:45:22.906696+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-01-23T00:45:22.906707+00:00"
+      "completedAt": "2026-01-23T00:57:42.265734+00:00",
+      "updatedAt": "2026-01-23T00:57:42.265724+00:00"
     },
     {
       "id": "TST-002",
@@ -36,10 +36,13 @@
         "Tests can swap Redis without touching production code paths in most cases (minimal DI or module mocking).",
         "A helper exists to control time for date-based Wordle daily tests."
       ],
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "TST-001"
-      ]
+      ],
+      "startedAt": "2026-01-23T01:10:54.292139+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-01-23T01:10:54.292149+00:00"
     },
     {
       "id": "TST-003",

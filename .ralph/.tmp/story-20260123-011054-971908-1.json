@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "total": 9,
+  "remaining": 8,
+  "quality_gates": [
+    "All new tests are deterministic and avoid real Redis/network usage (use in-memory mocks or dependency injection).",
+    "`services/hub` tests run via `npm test` without requiring external services.",
+    "`services/web` tests run via `npm test` and use jsdom-safe APIs.",
+    "Test failures include clear, actionable messages."
+  ],
+  "id": "TST-002",
+  "title": "Add hub test helpers and Redis mock"
+}
