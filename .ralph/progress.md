@@ -306,3 +306,65 @@ Run summary: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123
   - Gotchas encountered: App route snapshots can produce duplicate text matches; prefer getAllByText.
   - Useful context: HubHome create flow expects POST /api/rooms with { maxPlayers: 12 } payload.
 ---
+## [2026-01-23 02:16:33] - TST-009: Add lightweight coverage guardrails and test docs
+Thread: 
+Run: 20260123-011054-971908 (iteration 8)
+Run log: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-8.log
+Run summary: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-8.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: cd2c239 docs: add testing and coverage guidance
+- Post-commit status: clean
+- Verification:
+  - Command: cd services/hub && npm test -> PASS
+  - Command: cd services/web && npm test -> PASS
+  - Command: cd services/web && npm run build -> PASS
+  - Command: cd services/web && timeout 5s npm run dev -> PASS (ready output before timeout)
+- Files changed:
+  - .agents/tasks/prd-gamehub-tests.json
+  - .ralph/.tmp/prompt-20260123-011054-971908-8.md
+  - .ralph/.tmp/story-20260123-011054-971908-8.json
+  - .ralph/.tmp/story-20260123-011054-971908-8.md
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - .ralph/runs/run-20260123-011054-971908-iter-7.log
+  - .ralph/runs/run-20260123-011054-971908-iter-7.md
+  - .ralph/runs/run-20260123-011054-971908-iter-8.log
+  - AGENTS.md
+  - README.md
+  - services/web/node_modules/.vite/deps_temp_b95264a8/chess__js.js
+  - services/web/node_modules/.vite/deps_temp_b95264a8/chess__js.js.map
+  - services/web/node_modules/.vite/deps_temp_b95264a8/chunk-DC5AMYBS.js
+  - services/web/node_modules/.vite/deps_temp_b95264a8/chunk-DC5AMYBS.js.map
+  - services/web/node_modules/.vite/deps_temp_b95264a8/chunk-NUMECXU6.js
+  - services/web/node_modules/.vite/deps_temp_b95264a8/chunk-NUMECXU6.js.map
+  - services/web/node_modules/.vite/deps_temp_b95264a8/chunk-RLJ2RCJQ.js
+  - services/web/node_modules/.vite/deps_temp_b95264a8/chunk-RLJ2RCJQ.js.map
+  - services/web/node_modules/.vite/deps_temp_b95264a8/package.json
+  - services/web/node_modules/.vite/deps_temp_b95264a8/react-dom.js
+  - services/web/node_modules/.vite/deps_temp_b95264a8/react-dom.js.map
+  - services/web/node_modules/.vite/deps_temp_b95264a8/react-dom_client.js
+  - services/web/node_modules/.vite/deps_temp_b95264a8/react-dom_client.js.map
+  - services/web/node_modules/.vite/deps_temp_b95264a8/react-router-dom.js
+  - services/web/node_modules/.vite/deps_temp_b95264a8/react-router-dom.js.map
+  - services/web/node_modules/.vite/deps_temp_b95264a8/react.js
+  - services/web/node_modules/.vite/deps_temp_b95264a8/react.js.map
+  - services/web/node_modules/.vite/deps_temp_b95264a8/react_jsx-dev-runtime.js
+  - services/web/node_modules/.vite/deps_temp_b95264a8/react_jsx-dev-runtime.js.map
+  - services/web/node_modules/.vite/deps_temp_b95264a8/react_jsx-runtime.js
+  - services/web/node_modules/.vite/deps_temp_b95264a8/react_jsx-runtime.js.map
+  - services/web/node_modules/.vite/deps_temp_b95264a8/socket__io-client.js
+  - services/web/node_modules/.vite/deps_temp_b95264a8/socket__io-client.js.map
+  - services/web/node_modules/.vite/vitest/da39a3ee5e6b4b0d3255bfef95601890afd80709/results.json
+- What was implemented
+  - Documented how to run hub/web tests, what they cover, and why they stay deterministic in README.
+  - Added optional coverage guidance (non-blocking) and noted required tooling for web coverage.
+  - Updated AGENTS.md with optional coverage commands for quick reference.
+- **Learnings for future iterations:**
+  - Patterns discovered
+    - Optional coverage guidance is best kept non-blocking with explicit tooling notes.
+  - Gotchas encountered
+    - `timeout`-based dev server checks exit with code 124 even when Vite is ready.
+  - Useful context
+    - Hub tests focus on game logic/services and Fastify APIs; web tests cover routing and HubHome flows.
+---
