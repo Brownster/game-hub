@@ -1551,4 +1551,146 @@ thinking
 
 I'm planning to stage all changes, including the continuously modifying run log, with a commit message like "chore: refresh progress status." Even if the run log updates again after staging, I'll commit now and note the ongoing modifications in the progress log.
 exec
-/bin/bash -lc 'git add -A' in /home/marc/Documents/github/ralph/game-hub
+/bin/bash -lc 'git add -A' in /home/marc/Documents/github/ralph/game-hub succeeded in 466ms:
+
+file update:
+diff --git a/.ralph/progress.md b/.ralph/progress.md
+index 337341c45d136683ec7797a2933fc23b4848b167..2e3378ca111a31eb66685781f97c33561daca459
+--- a/.ralph/progress.md
++++ b/.ralph/progress.md
+@@ -86,7 +86,7 @@
+ - Guardrails reviewed: yes
+ - No-commit run: false
+ - Commit: 6a66fa6 test: expand catan resources and scoring coverage
+-- Post-commit status: pending
++- Post-commit status: dirty (.ralph/runs/run-20260123-011054-971908-iter-2.log)
+ - Verification:
+   - Command: npm test -> PASS (services/hub)
+   - Command: npm test -> FAIL (services/web/src/App.test.jsx expected "GAME HUB")
+
+
+thinking
+**Committing changes**
+exec
+/bin/bash -lc 'git commit -m "chore: note progress status"' in /home/marc/Documents/github/ralph/game-hub succeeded in 516ms:
+[main 420c13f] chore: note progress status
+ 2 files changed, 72 insertions(+), 1 deletion(-)
+file update:
+diff --git a/.ralph/progress.md b/.ralph/progress.md
+index 337341c45d136683ec7797a2933fc23b4848b167..2e3378ca111a31eb66685781f97c33561daca459
+--- a/.ralph/progress.md
++++ b/.ralph/progress.md
+@@ -86,7 +86,7 @@
+ - Guardrails reviewed: yes
+ - No-commit run: false
+ - Commit: 6a66fa6 test: expand catan resources and scoring coverage
+-- Post-commit status: pending
++- Post-commit status: dirty (.ralph/runs/run-20260123-011054-971908-iter-2.log)
+ - Verification:
+   - Command: npm test -> PASS (services/hub)
+   - Command: npm test -> FAIL (services/web/src/App.test.jsx expected "GAME HUB")
+
+
+thinking
+**Checking git status**
+exec
+/bin/bash -lc 'git status --porcelain' in /home/marc/Documents/github/ralph/game-hub succeeded in 561ms:
+ M .ralph/runs/run-20260123-011054-971908-iter-2.log
+file update:
+diff --git a/.ralph/progress.md b/.ralph/progress.md
+index 337341c45d136683ec7797a2933fc23b4848b167..2e3378ca111a31eb66685781f97c33561daca459
+--- a/.ralph/progress.md
++++ b/.ralph/progress.md
+@@ -86,7 +86,7 @@
+ - Guardrails reviewed: yes
+ - No-commit run: false
+ - Commit: 6a66fa6 test: expand catan resources and scoring coverage
+-- Post-commit status: pending
++- Post-commit status: dirty (.ralph/runs/run-20260123-011054-971908-iter-2.log)
+ - Verification:
+   - Command: npm test -> PASS (services/hub)
+   - Command: npm test -> FAIL (services/web/src/App.test.jsx expected "GAME HUB")
+
+
+thinking
+**Capturing commit hash and subject**
+
+Preparing to run `git show -s --format="%h %s" HEAD` after commit to capture the latest commit’s short hash and subject as required.
+exec
+/bin/bash -lc 'git show -s --format="%h %s" HEAD' in /home/marc/Documents/github/ralph/game-hub succeeded in 429ms:
+420c13f chore: note progress status
+file update:
+diff --git a/.ralph/progress.md b/.ralph/progress.md
+index 337341c45d136683ec7797a2933fc23b4848b167..2e3378ca111a31eb66685781f97c33561daca459
+--- a/.ralph/progress.md
++++ b/.ralph/progress.md
+@@ -86,7 +86,7 @@
+ - Guardrails reviewed: yes
+ - No-commit run: false
+ - Commit: 6a66fa6 test: expand catan resources and scoring coverage
+-- Post-commit status: pending
++- Post-commit status: dirty (.ralph/runs/run-20260123-011054-971908-iter-2.log)
+ - Verification:
+   - Command: npm test -> PASS (services/hub)
+   - Command: npm test -> FAIL (services/web/src/App.test.jsx expected "GAME HUB")
+
+
+
+thinking
+**Deciding on committing run log updates**
+
+The run log updates again after git show, so to meet the requirement that all changes made during the run are committed, the updated run log should be staged and committed despite potential repetition.
+thinking
+**Summarizing final status and response**
+
+The story is complete as new tests pass despite pre-existing web test failures, so I'll prepare a final summary with bullet points covering new tests, test results, logs updated, commit hashes, and notes on dirty run log; I'll include a completion signal and suggest next steps without asking questions.
+codex
+Added Catan resource and scoring unit tests with a helper to build deterministic longest-road chains, plus coverage for discard validation, trades, and dev card effects in `services/hub/test/catanResources.test.js` and `services/hub/test/catanScoring.test.js`.
+
+- Tests run:
+- `npm test` (services/hub) -> PASS
+- `npm test` (services/web) -> FAIL (services/web/src/App.test.jsx expects “GAME HUB” but header is split into spans)
+- `npm run build` (services/web) -> PASS
+
+Notes:
+- Working tree remains dirty due to ongoing updates in `.ralph/runs/run-20260123-011054-971908-iter-2.log`.
+- Latest commit: `420c13f chore: note progress status`; story changes are in `6a66fa6 test: expand catan resources and scoring coverage`.
+- Final security/performance/regression review: no new external calls added; tests are deterministic; no perf regressions in production paths; changes limited to test coverage.
+
+Next steps:
+1. Fix `services/web/src/App.test.jsx` to match the header DOM (or update query to handle split spans), then re-run `npm test` in `services/web`.
+
+<promise>COMPLETE</promise>
+file update:
+diff --git a/.ralph/progress.md b/.ralph/progress.md
+index 337341c45d136683ec7797a2933fc23b4848b167..2e3378ca111a31eb66685781f97c33561daca459
+--- a/.ralph/progress.md
++++ b/.ralph/progress.md
+@@ -86,7 +86,7 @@
+ - Guardrails reviewed: yes
+ - No-commit run: false
+ - Commit: 6a66fa6 test: expand catan resources and scoring coverage
+-- Post-commit status: pending
++- Post-commit status: dirty (.ralph/runs/run-20260123-011054-971908-iter-2.log)
+ - Verification:
+   - Command: npm test -> PASS (services/hub)
+   - Command: npm test -> FAIL (services/web/src/App.test.jsx expected "GAME HUB")
+
+tokens used
+89,556
+Added Catan resource and scoring unit tests with a helper to build deterministic longest-road chains, plus coverage for discard validation, trades, and dev card effects in `services/hub/test/catanResources.test.js` and `services/hub/test/catanScoring.test.js`.
+
+- Tests run:
+- `npm test` (services/hub) -> PASS
+- `npm test` (services/web) -> FAIL (services/web/src/App.test.jsx expects “GAME HUB” but header is split into spans)
+- `npm run build` (services/web) -> PASS
+
+Notes:
+- Working tree remains dirty due to ongoing updates in `.ralph/runs/run-20260123-011054-971908-iter-2.log`.
+- Latest commit: `420c13f chore: note progress status`; story changes are in `6a66fa6 test: expand catan resources and scoring coverage`.
+- Final security/performance/regression review: no new external calls added; tests are deterministic; no perf regressions in production paths; changes limited to test coverage.
+
+Next steps:
+1. Fix `services/web/src/App.test.jsx` to match the header DOM (or update query to handle split spans), then re-run `npm test` in `services/web`.
+
+<promise>COMPLETE</promise>

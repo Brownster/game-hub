@@ -53,13 +53,13 @@
         "Tests cover victory point calculation and longest road holder updates.",
         "All tests run without network or Redis."
       ],
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "TST-002"
       ],
       "startedAt": "2026-01-23T01:18:18.018355+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-01-23T01:18:18.018365+00:00"
+      "completedAt": "2026-01-23T01:28:50.429154+00:00",
+      "updatedAt": "2026-01-23T01:28:50.429143+00:00"
     },
     {
       "id": "TST-004",
@@ -70,10 +70,13 @@
         "Color choice and pending draw rules are validated.",
         "Winner detection and phase transitions are verified."
       ],
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "TST-002"
-      ]
+      ],
+      "startedAt": "2026-01-23T01:28:52.505050+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-01-23T01:28:52.505062+00:00"
     },
     {
       "id": "TST-005",
