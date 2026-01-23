@@ -4576,4 +4576,1280 @@ thinking
 
 The run log changed after the initial commit, so I'll stage and create a second commit with message "chore: update run log" to ensure all changes during the run are committed and the repo is clean.
 exec
+/bin/bash -lc 'git add -A' in /home/marc/Documents/github/ralph/game-hub succeeded in 527ms:
+
+file update:
+diff --git a/services/web/src/App.test.jsx b/services/web/src/App.test.jsx
+index f479b1596c1bb9bce9f61674e15128f82a19cd49..247e62bee93b20a02fc8c2acfecce001f2503855
+--- a/services/web/src/App.test.jsx
++++ b/services/web/src/App.test.jsx
+@@ -1,15 +1,48 @@
+-import { render, screen } from "@testing-library/react";
++import { cleanup, render, screen } from "@testing-library/react";
+ import { MemoryRouter } from "react-router-dom";
+-import { describe, it, expect } from "vitest";
++import { describe, it, expect, vi } from "vitest";
+ import App from "./App";
+ 
++vi.mock("./state/sounds.js", () => ({
++  isSoundEnabled: vi.fn(() => true),
++  playSound: vi.fn(),
++  setSoundEnabled: vi.fn(),
++  unlockAudio: vi.fn()
++}));
++
+ describe("App", () => {
+-  it("renders the hub home page", () => {
++  const renderRoute = (route) => {
+     render(
+-      <MemoryRouter initialEntries={["/"]}>
++      <MemoryRouter initialEntries={[route]}>
+         <App />
+       </MemoryRouter>
+     );
+-    expect(screen.getByText("GAME HUB")).toBeInTheDocument();
++  };
++
++  const expectRouteText = (text) => {
++    const matches = screen.getAllByText((_, element) => element?.textContent === text);
++    expect(matches.length).toBeGreaterThan(0);
++  };
++
++  it("renders key routes", () => {
++    const routes = [
++      { path: "/", text: "GAME HUB" },
++      { path: "/wordle", text: "WORDLE_" },
++      { path: "/connect4", text: "CONNECT 4" },
++      { path: "/draw", text: "Draw & Guess" },
++      { path: "/charades", text: "Charades" },
++      { path: "/slither", text: "SERPENT.IO" }
++    ];
++
++    routes.forEach(({ path, text }) => {
++      renderRoute(path);
++      expectRouteText(text);
++      cleanup();
++    });
++  });
++
++  it("redirects unknown routes to the hub", () => {
++    renderRoute("/unknown-route");
++    expectRouteText("GAME HUB");
+   });
+ });
+diff --git a/services/web/src/pages/HubHome.test.jsx b/services/web/src/pages/HubHome.test.jsx
+new file mode 100644
+index 0000000000000000000000000000000000000000..ae712272ad236d4fd1f8cf0b494848b1fb1181de
+--- /dev/null
++++ b/services/web/src/pages/HubHome.test.jsx
+@@ -0,0 +1,62 @@
++import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
++import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
++import HubHome from "./HubHome.jsx";
++
++const navigateMock = vi.fn();
++
++vi.mock("react-router-dom", () => ({
++  useNavigate: () => navigateMock
++}));
++
++vi.mock("../state/sounds.js", () => ({
++  playSound: vi.fn(),
++  unlockAudio: vi.fn()
++}));
++
++describe("HubHome", () => {
++  beforeEach(() => {
++    navigateMock.mockClear();
++  });
++
++  afterEach(() => {
++    cleanup();
++    vi.unstubAllGlobals();
++  });
++
++  it("joins a room with a normalized code", () => {
++    render(<HubHome />);
++
++    fireEvent.change(screen.getByPlaceholderText("Enter room code"), {
++      target: { value: " ab12 " }
++    });
++    fireEvent.click(screen.getByRole("button", { name: "Join Room" }));
++
++    expect(navigateMock).toHaveBeenCalledWith("/room/AB12");
++  });
++
++  it("creates a room and navigates to the join code", async () => {
++    const fetchMock = vi.fn().mockResolvedValue({
++      json: vi.fn().mockResolvedValue({ joinCode: "Z9QK" })
++    });
++    vi.stubGlobal("fetch", fetchMock);
++
++    render(<HubHome />);
++
++    fireEvent.click(screen.getByRole("button", { name: "Create Room" }));
++
++    await waitFor(() => {
++      expect(fetchMock).toHaveBeenCalledWith(
++        "/api/rooms",
++        expect.objectContaining({
++          method: "POST",
++          headers: { "Content-Type": "application/json" },
++          body: JSON.stringify({ maxPlayers: 12 })
++        })
++      );
++    });
++
++    await waitFor(() => {
++      expect(navigateMock).toHaveBeenCalledWith("/room/Z9QK");
++    });
++  });
++});
+
+
+thinking
+**Committing changes**
+exec
+/bin/bash -lc 'git commit -m "chore: update run log"' in /home/marc/Documents/github/ralph/game-hub succeeded in 462ms:
+[main 26e9cf2] chore: update run log
+ 1 file changed, 414 insertions(+)
+file update:
+diff --git a/services/web/src/App.test.jsx b/services/web/src/App.test.jsx
+index f479b1596c1bb9bce9f61674e15128f82a19cd49..247e62bee93b20a02fc8c2acfecce001f2503855
+--- a/services/web/src/App.test.jsx
++++ b/services/web/src/App.test.jsx
+@@ -1,15 +1,48 @@
+-import { render, screen } from "@testing-library/react";
++import { cleanup, render, screen } from "@testing-library/react";
+ import { MemoryRouter } from "react-router-dom";
+-import { describe, it, expect } from "vitest";
++import { describe, it, expect, vi } from "vitest";
+ import App from "./App";
+ 
++vi.mock("./state/sounds.js", () => ({
++  isSoundEnabled: vi.fn(() => true),
++  playSound: vi.fn(),
++  setSoundEnabled: vi.fn(),
++  unlockAudio: vi.fn()
++}));
++
+ describe("App", () => {
+-  it("renders the hub home page", () => {
++  const renderRoute = (route) => {
+     render(
+-      <MemoryRouter initialEntries={["/"]}>
++      <MemoryRouter initialEntries={[route]}>
+         <App />
+       </MemoryRouter>
+     );
+-    expect(screen.getByText("GAME HUB")).toBeInTheDocument();
++  };
++
++  const expectRouteText = (text) => {
++    const matches = screen.getAllByText((_, element) => element?.textContent === text);
++    expect(matches.length).toBeGreaterThan(0);
++  };
++
++  it("renders key routes", () => {
++    const routes = [
++      { path: "/", text: "GAME HUB" },
++      { path: "/wordle", text: "WORDLE_" },
++      { path: "/connect4", text: "CONNECT 4" },
++      { path: "/draw", text: "Draw & Guess" },
++      { path: "/charades", text: "Charades" },
++      { path: "/slither", text: "SERPENT.IO" }
++    ];
++
++    routes.forEach(({ path, text }) => {
++      renderRoute(path);
++      expectRouteText(text);
++      cleanup();
++    });
++  });
++
++  it("redirects unknown routes to the hub", () => {
++    renderRoute("/unknown-route");
++    expectRouteText("GAME HUB");
+   });
+ });
+diff --git a/services/web/src/pages/HubHome.test.jsx b/services/web/src/pages/HubHome.test.jsx
+new file mode 100644
+index 0000000000000000000000000000000000000000..ae712272ad236d4fd1f8cf0b494848b1fb1181de
+--- /dev/null
++++ b/services/web/src/pages/HubHome.test.jsx
+@@ -0,0 +1,62 @@
++import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
++import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
++import HubHome from "./HubHome.jsx";
++
++const navigateMock = vi.fn();
++
++vi.mock("react-router-dom", () => ({
++  useNavigate: () => navigateMock
++}));
++
++vi.mock("../state/sounds.js", () => ({
++  playSound: vi.fn(),
++  unlockAudio: vi.fn()
++}));
++
++describe("HubHome", () => {
++  beforeEach(() => {
++    navigateMock.mockClear();
++  });
++
++  afterEach(() => {
++    cleanup();
++    vi.unstubAllGlobals();
++  });
++
++  it("joins a room with a normalized code", () => {
++    render(<HubHome />);
++
++    fireEvent.change(screen.getByPlaceholderText("Enter room code"), {
++      target: { value: " ab12 " }
++    });
++    fireEvent.click(screen.getByRole("button", { name: "Join Room" }));
++
++    expect(navigateMock).toHaveBeenCalledWith("/room/AB12");
++  });
++
++  it("creates a room and navigates to the join code", async () => {
++    const fetchMock = vi.fn().mockResolvedValue({
++      json: vi.fn().mockResolvedValue({ joinCode: "Z9QK" })
++    });
++    vi.stubGlobal("fetch", fetchMock);
++
++    render(<HubHome />);
++
++    fireEvent.click(screen.getByRole("button", { name: "Create Room" }));
++
++    await waitFor(() => {
++      expect(fetchMock).toHaveBeenCalledWith(
++        "/api/rooms",
++        expect.objectContaining({
++          method: "POST",
++          headers: { "Content-Type": "application/json" },
++          body: JSON.stringify({ maxPlayers: 12 })
++        })
++      );
++    });
++
++    await waitFor(() => {
++      expect(navigateMock).toHaveBeenCalledWith("/room/Z9QK");
++    });
++  });
++});
+
+
+thinking
+**Checking current status**
+exec
+/bin/bash -lc 'git status --porcelain' in /home/marc/Documents/github/ralph/game-hub succeeded in 429ms:
+ M .ralph/runs/run-20260123-011054-971908-iter-7.log
+file update:
+diff --git a/services/web/src/App.test.jsx b/services/web/src/App.test.jsx
+index f479b1596c1bb9bce9f61674e15128f82a19cd49..247e62bee93b20a02fc8c2acfecce001f2503855
+--- a/services/web/src/App.test.jsx
++++ b/services/web/src/App.test.jsx
+@@ -1,15 +1,48 @@
+-import { render, screen } from "@testing-library/react";
++import { cleanup, render, screen } from "@testing-library/react";
+ import { MemoryRouter } from "react-router-dom";
+-import { describe, it, expect } from "vitest";
++import { describe, it, expect, vi } from "vitest";
+ import App from "./App";
+ 
++vi.mock("./state/sounds.js", () => ({
++  isSoundEnabled: vi.fn(() => true),
++  playSound: vi.fn(),
++  setSoundEnabled: vi.fn(),
++  unlockAudio: vi.fn()
++}));
++
+ describe("App", () => {
+-  it("renders the hub home page", () => {
++  const renderRoute = (route) => {
+     render(
+-      <MemoryRouter initialEntries={["/"]}>
++      <MemoryRouter initialEntries={[route]}>
+         <App />
+       </MemoryRouter>
+     );
+-    expect(screen.getByText("GAME HUB")).toBeInTheDocument();
++  };
++
++  const expectRouteText = (text) => {
++    const matches = screen.getAllByText((_, element) => element?.textContent === text);
++    expect(matches.length).toBeGreaterThan(0);
++  };
++
++  it("renders key routes", () => {
++    const routes = [
++      { path: "/", text: "GAME HUB" },
++      { path: "/wordle", text: "WORDLE_" },
++      { path: "/connect4", text: "CONNECT 4" },
++      { path: "/draw", text: "Draw & Guess" },
++      { path: "/charades", text: "Charades" },
++      { path: "/slither", text: "SERPENT.IO" }
++    ];
++
++    routes.forEach(({ path, text }) => {
++      renderRoute(path);
++      expectRouteText(text);
++      cleanup();
++    });
++  });
++
++  it("redirects unknown routes to the hub", () => {
++    renderRoute("/unknown-route");
++    expectRouteText("GAME HUB");
+   });
+ });
+diff --git a/services/web/src/pages/HubHome.test.jsx b/services/web/src/pages/HubHome.test.jsx
+new file mode 100644
+index 0000000000000000000000000000000000000000..ae712272ad236d4fd1f8cf0b494848b1fb1181de
+--- /dev/null
++++ b/services/web/src/pages/HubHome.test.jsx
+@@ -0,0 +1,62 @@
++import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
++import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
++import HubHome from "./HubHome.jsx";
++
++const navigateMock = vi.fn();
++
++vi.mock("react-router-dom", () => ({
++  useNavigate: () => navigateMock
++}));
++
++vi.mock("../state/sounds.js", () => ({
++  playSound: vi.fn(),
++  unlockAudio: vi.fn()
++}));
++
++describe("HubHome", () => {
++  beforeEach(() => {
++    navigateMock.mockClear();
++  });
++
++  afterEach(() => {
++    cleanup();
++    vi.unstubAllGlobals();
++  });
++
++  it("joins a room with a normalized code", () => {
++    render(<HubHome />);
++
++    fireEvent.change(screen.getByPlaceholderText("Enter room code"), {
++      target: { value: " ab12 " }
++    });
++    fireEvent.click(screen.getByRole("button", { name: "Join Room" }));
++
++    expect(navigateMock).toHaveBeenCalledWith("/room/AB12");
++  });
++
++  it("creates a room and navigates to the join code", async () => {
++    const fetchMock = vi.fn().mockResolvedValue({
++      json: vi.fn().mockResolvedValue({ joinCode: "Z9QK" })
++    });
++    vi.stubGlobal("fetch", fetchMock);
++
++    render(<HubHome />);
++
++    fireEvent.click(screen.getByRole("button", { name: "Create Room" }));
++
++    await waitFor(() => {
++      expect(fetchMock).toHaveBeenCalledWith(
++        "/api/rooms",
++        expect.objectContaining({
++          method: "POST",
++          headers: { "Content-Type": "application/json" },
++          body: JSON.stringify({ maxPlayers: 12 })
++        })
++      );
++    });
++
++    await waitFor(() => {
++      expect(navigateMock).toHaveBeenCalledWith("/room/Z9QK");
++    });
++  });
++});
+
+
+
+thinking
+**Noticing run log changes after each command**
+
+The run log file updates after every shell command, including commits and git status, causing continuous modifications. This implies the working directory won't stay clean until all commands finish, so finalizing with the commit last is necessary to confirm a clean state afterward.
+thinking
+**Planning to analyze run log diffs after git status**
+
+I'm considering checking the exact changes in the run log file after git status using a diff to understand why it updates and whether the final status check inevitably dirties the repo. This will clarify if the run log changes come only from specific commands.
+exec
+/bin/bash -lc 'git diff --stat .ralph/runs/run-20260123-011054-971908-iter-7.log' in /home/marc/Documents/github/ralph/game-hub succeeded in 452ms:
+ .ralph/runs/run-20260123-011054-971908-iter-7.log | 412 +++++++++++++++++++++-
+ 1 file changed, 411 insertions(+), 1 deletion(-)
+file update:
+diff --git a/services/web/src/App.test.jsx b/services/web/src/App.test.jsx
+index f479b1596c1bb9bce9f61674e15128f82a19cd49..247e62bee93b20a02fc8c2acfecce001f2503855
+--- a/services/web/src/App.test.jsx
++++ b/services/web/src/App.test.jsx
+@@ -1,15 +1,48 @@
+-import { render, screen } from "@testing-library/react";
++import { cleanup, render, screen } from "@testing-library/react";
+ import { MemoryRouter } from "react-router-dom";
+-import { describe, it, expect } from "vitest";
++import { describe, it, expect, vi } from "vitest";
+ import App from "./App";
+ 
++vi.mock("./state/sounds.js", () => ({
++  isSoundEnabled: vi.fn(() => true),
++  playSound: vi.fn(),
++  setSoundEnabled: vi.fn(),
++  unlockAudio: vi.fn()
++}));
++
+ describe("App", () => {
+-  it("renders the hub home page", () => {
++  const renderRoute = (route) => {
+     render(
+-      <MemoryRouter initialEntries={["/"]}>
++      <MemoryRouter initialEntries={[route]}>
+         <App />
+       </MemoryRouter>
+     );
+-    expect(screen.getByText("GAME HUB")).toBeInTheDocument();
++  };
++
++  const expectRouteText = (text) => {
++    const matches = screen.getAllByText((_, element) => element?.textContent === text);
++    expect(matches.length).toBeGreaterThan(0);
++  };
++
++  it("renders key routes", () => {
++    const routes = [
++      { path: "/", text: "GAME HUB" },
++      { path: "/wordle", text: "WORDLE_" },
++      { path: "/connect4", text: "CONNECT 4" },
++      { path: "/draw", text: "Draw & Guess" },
++      { path: "/charades", text: "Charades" },
++      { path: "/slither", text: "SERPENT.IO" }
++    ];
++
++    routes.forEach(({ path, text }) => {
++      renderRoute(path);
++      expectRouteText(text);
++      cleanup();
++    });
++  });
++
++  it("redirects unknown routes to the hub", () => {
++    renderRoute("/unknown-route");
++    expectRouteText("GAME HUB");
+   });
+ });
+diff --git a/services/web/src/pages/HubHome.test.jsx b/services/web/src/pages/HubHome.test.jsx
+new file mode 100644
+index 0000000000000000000000000000000000000000..ae712272ad236d4fd1f8cf0b494848b1fb1181de
+--- /dev/null
++++ b/services/web/src/pages/HubHome.test.jsx
+@@ -0,0 +1,62 @@
++import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
++import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
++import HubHome from "./HubHome.jsx";
++
++const navigateMock = vi.fn();
++
++vi.mock("react-router-dom", () => ({
++  useNavigate: () => navigateMock
++}));
++
++vi.mock("../state/sounds.js", () => ({
++  playSound: vi.fn(),
++  unlockAudio: vi.fn()
++}));
++
++describe("HubHome", () => {
++  beforeEach(() => {
++    navigateMock.mockClear();
++  });
++
++  afterEach(() => {
++    cleanup();
++    vi.unstubAllGlobals();
++  });
++
++  it("joins a room with a normalized code", () => {
++    render(<HubHome />);
++
++    fireEvent.change(screen.getByPlaceholderText("Enter room code"), {
++      target: { value: " ab12 " }
++    });
++    fireEvent.click(screen.getByRole("button", { name: "Join Room" }));
++
++    expect(navigateMock).toHaveBeenCalledWith("/room/AB12");
++  });
++
++  it("creates a room and navigates to the join code", async () => {
++    const fetchMock = vi.fn().mockResolvedValue({
++      json: vi.fn().mockResolvedValue({ joinCode: "Z9QK" })
++    });
++    vi.stubGlobal("fetch", fetchMock);
++
++    render(<HubHome />);
++
++    fireEvent.click(screen.getByRole("button", { name: "Create Room" }));
++
++    await waitFor(() => {
++      expect(fetchMock).toHaveBeenCalledWith(
++        "/api/rooms",
++        expect.objectContaining({
++          method: "POST",
++          headers: { "Content-Type": "application/json" },
++          body: JSON.stringify({ maxPlayers: 12 })
++        })
++      );
++    });
++
++    await waitFor(() => {
++      expect(navigateMock).toHaveBeenCalledWith("/room/Z9QK");
++    });
++  });
++});
+
+
+
+
+thinking
+**Refining command and commit order**
+
+I'm balancing the need to run all commands, including those updating logs, before a final commit that captures all changes, while ensuring a clean working tree afterward. Running `git status --porcelain` after the final commit complicates this as it modifies the run log, so I’m considering committing all logs before and after that check but must avoid an endless loop.
+thinking
+**Analyzing run log update conflict with clean commit check**
+
+I confirmed every command, including `git status --porcelain`, modifies the run log, preventing a truly clean working tree after the final commit. Given the strict requirement to confirm cleanliness after commit, I’m planning to finalize all changes, commit them (including run and progress logs), then run git status once—accepting it will likely report uncommitted changes due to run log updates—and avoid further commits to prevent an infinite loop.
+thinking
+**Confirming progress log update with commit hash after final commit**
+
+I’m planning to retrieve the final commit hash after all commands run, then update the progress log with that hash and timestamp before committing it, accepting that run log updates prevent a perfectly clean working tree after the last commit.
+exec
+/bin/bash -lc 'git show -s --format="%h %s" HEAD' in /home/marc/Documents/github/ralph/game-hub succeeded in 471ms:
+26e9cf2 chore: update run log
+file update:
+diff --git a/services/web/src/App.test.jsx b/services/web/src/App.test.jsx
+index f479b1596c1bb9bce9f61674e15128f82a19cd49..247e62bee93b20a02fc8c2acfecce001f2503855
+--- a/services/web/src/App.test.jsx
++++ b/services/web/src/App.test.jsx
+@@ -1,15 +1,48 @@
+-import { render, screen } from "@testing-library/react";
++import { cleanup, render, screen } from "@testing-library/react";
+ import { MemoryRouter } from "react-router-dom";
+-import { describe, it, expect } from "vitest";
++import { describe, it, expect, vi } from "vitest";
+ import App from "./App";
+ 
++vi.mock("./state/sounds.js", () => ({
++  isSoundEnabled: vi.fn(() => true),
++  playSound: vi.fn(),
++  setSoundEnabled: vi.fn(),
++  unlockAudio: vi.fn()
++}));
++
+ describe("App", () => {
+-  it("renders the hub home page", () => {
++  const renderRoute = (route) => {
+     render(
+-      <MemoryRouter initialEntries={["/"]}>
++      <MemoryRouter initialEntries={[route]}>
+         <App />
+       </MemoryRouter>
+     );
+-    expect(screen.getByText("GAME HUB")).toBeInTheDocument();
++  };
++
++  const expectRouteText = (text) => {
++    const matches = screen.getAllByText((_, element) => element?.textContent === text);
++    expect(matches.length).toBeGreaterThan(0);
++  };
++
++  it("renders key routes", () => {
++    const routes = [
++      { path: "/", text: "GAME HUB" },
++      { path: "/wordle", text: "WORDLE_" },
++      { path: "/connect4", text: "CONNECT 4" },
++      { path: "/draw", text: "Draw & Guess" },
++      { path: "/charades", text: "Charades" },
++      { path: "/slither", text: "SERPENT.IO" }
++    ];
++
++    routes.forEach(({ path, text }) => {
++      renderRoute(path);
++      expectRouteText(text);
++      cleanup();
++    });
++  });
++
++  it("redirects unknown routes to the hub", () => {
++    renderRoute("/unknown-route");
++    expectRouteText("GAME HUB");
+   });
+ });
+diff --git a/services/web/src/pages/HubHome.test.jsx b/services/web/src/pages/HubHome.test.jsx
+new file mode 100644
+index 0000000000000000000000000000000000000000..ae712272ad236d4fd1f8cf0b494848b1fb1181de
+--- /dev/null
++++ b/services/web/src/pages/HubHome.test.jsx
+@@ -0,0 +1,62 @@
++import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
++import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
++import HubHome from "./HubHome.jsx";
++
++const navigateMock = vi.fn();
++
++vi.mock("react-router-dom", () => ({
++  useNavigate: () => navigateMock
++}));
++
++vi.mock("../state/sounds.js", () => ({
++  playSound: vi.fn(),
++  unlockAudio: vi.fn()
++}));
++
++describe("HubHome", () => {
++  beforeEach(() => {
++    navigateMock.mockClear();
++  });
++
++  afterEach(() => {
++    cleanup();
++    vi.unstubAllGlobals();
++  });
++
++  it("joins a room with a normalized code", () => {
++    render(<HubHome />);
++
++    fireEvent.change(screen.getByPlaceholderText("Enter room code"), {
++      target: { value: " ab12 " }
++    });
++    fireEvent.click(screen.getByRole("button", { name: "Join Room" }));
++
++    expect(navigateMock).toHaveBeenCalledWith("/room/AB12");
++  });
++
++  it("creates a room and navigates to the join code", async () => {
++    const fetchMock = vi.fn().mockResolvedValue({
++      json: vi.fn().mockResolvedValue({ joinCode: "Z9QK" })
++    });
++    vi.stubGlobal("fetch", fetchMock);
++
++    render(<HubHome />);
++
++    fireEvent.click(screen.getByRole("button", { name: "Create Room" }));
++
++    await waitFor(() => {
++      expect(fetchMock).toHaveBeenCalledWith(
++        "/api/rooms",
++        expect.objectContaining({
++          method: "POST",
++          headers: { "Content-Type": "application/json" },
++          body: JSON.stringify({ maxPlayers: 12 })
++        })
++      );
++    });
++
++    await waitFor(() => {
++      expect(navigateMock).toHaveBeenCalledWith("/room/Z9QK");
++    });
++  });
++});
+
+
+thinking
+**Preparing progress log entry**
+
+I'm gathering the list of all files changed during this run to append with a timestamp to the progress log, ensuring it includes verification outputs and uses a consistent date/time format.
+exec
+/bin/bash -lc 'date "+%Y-%m-%d %H:%M"' in /home/marc/Documents/github/ralph/game-hub succeeded in 485ms:
+2026-01-23 02:09
+file update:
+diff --git a/services/web/src/App.test.jsx b/services/web/src/App.test.jsx
+index f479b1596c1bb9bce9f61674e15128f82a19cd49..247e62bee93b20a02fc8c2acfecce001f2503855
+--- a/services/web/src/App.test.jsx
++++ b/services/web/src/App.test.jsx
+@@ -1,15 +1,48 @@
+-import { render, screen } from "@testing-library/react";
++import { cleanup, render, screen } from "@testing-library/react";
+ import { MemoryRouter } from "react-router-dom";
+-import { describe, it, expect } from "vitest";
++import { describe, it, expect, vi } from "vitest";
+ import App from "./App";
+ 
++vi.mock("./state/sounds.js", () => ({
++  isSoundEnabled: vi.fn(() => true),
++  playSound: vi.fn(),
++  setSoundEnabled: vi.fn(),
++  unlockAudio: vi.fn()
++}));
++
+ describe("App", () => {
+-  it("renders the hub home page", () => {
++  const renderRoute = (route) => {
+     render(
+-      <MemoryRouter initialEntries={["/"]}>
++      <MemoryRouter initialEntries={[route]}>
+         <App />
+       </MemoryRouter>
+     );
+-    expect(screen.getByText("GAME HUB")).toBeInTheDocument();
++  };
++
++  const expectRouteText = (text) => {
++    const matches = screen.getAllByText((_, element) => element?.textContent === text);
++    expect(matches.length).toBeGreaterThan(0);
++  };
++
++  it("renders key routes", () => {
++    const routes = [
++      { path: "/", text: "GAME HUB" },
++      { path: "/wordle", text: "WORDLE_" },
++      { path: "/connect4", text: "CONNECT 4" },
++      { path: "/draw", text: "Draw & Guess" },
++      { path: "/charades", text: "Charades" },
++      { path: "/slither", text: "SERPENT.IO" }
++    ];
++
++    routes.forEach(({ path, text }) => {
++      renderRoute(path);
++      expectRouteText(text);
++      cleanup();
++    });
++  });
++
++  it("redirects unknown routes to the hub", () => {
++    renderRoute("/unknown-route");
++    expectRouteText("GAME HUB");
+   });
+ });
+diff --git a/services/web/src/pages/HubHome.test.jsx b/services/web/src/pages/HubHome.test.jsx
+new file mode 100644
+index 0000000000000000000000000000000000000000..ae712272ad236d4fd1f8cf0b494848b1fb1181de
+--- /dev/null
++++ b/services/web/src/pages/HubHome.test.jsx
+@@ -0,0 +1,62 @@
++import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
++import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
++import HubHome from "./HubHome.jsx";
++
++const navigateMock = vi.fn();
++
++vi.mock("react-router-dom", () => ({
++  useNavigate: () => navigateMock
++}));
++
++vi.mock("../state/sounds.js", () => ({
++  playSound: vi.fn(),
++  unlockAudio: vi.fn()
++}));
++
++describe("HubHome", () => {
++  beforeEach(() => {
++    navigateMock.mockClear();
++  });
++
++  afterEach(() => {
++    cleanup();
++    vi.unstubAllGlobals();
++  });
++
++  it("joins a room with a normalized code", () => {
++    render(<HubHome />);
++
++    fireEvent.change(screen.getByPlaceholderText("Enter room code"), {
++      target: { value: " ab12 " }
++    });
++    fireEvent.click(screen.getByRole("button", { name: "Join Room" }));
++
++    expect(navigateMock).toHaveBeenCalledWith("/room/AB12");
++  });
++
++  it("creates a room and navigates to the join code", async () => {
++    const fetchMock = vi.fn().mockResolvedValue({
++      json: vi.fn().mockResolvedValue({ joinCode: "Z9QK" })
++    });
++    vi.stubGlobal("fetch", fetchMock);
++
++    render(<HubHome />);
++
++    fireEvent.click(screen.getByRole("button", { name: "Create Room" }));
++
++    await waitFor(() => {
++      expect(fetchMock).toHaveBeenCalledWith(
++        "/api/rooms",
++        expect.objectContaining({
++          method: "POST",
++          headers: { "Content-Type": "application/json" },
++          body: JSON.stringify({ maxPlayers: 12 })
++        })
++      );
++    });
++
++    await waitFor(() => {
++      expect(navigateMock).toHaveBeenCalledWith("/room/Z9QK");
++    });
++  });
++});
+
+
+thinking
+**Deciding timing for progress log entry**
+
+Planning to run `git status --porcelain` after the latest commit to capture accurate post-commit status before appending and committing the progress log entry.
+exec
+/bin/bash -lc 'git status --porcelain' in /home/marc/Documents/github/ralph/game-hub succeeded in 453ms:
+ M .ralph/runs/run-20260123-011054-971908-iter-7.log
+file update:
+diff --git a/services/web/src/App.test.jsx b/services/web/src/App.test.jsx
+index f479b1596c1bb9bce9f61674e15128f82a19cd49..247e62bee93b20a02fc8c2acfecce001f2503855
+--- a/services/web/src/App.test.jsx
++++ b/services/web/src/App.test.jsx
+@@ -1,15 +1,48 @@
+-import { render, screen } from "@testing-library/react";
++import { cleanup, render, screen } from "@testing-library/react";
+ import { MemoryRouter } from "react-router-dom";
+-import { describe, it, expect } from "vitest";
++import { describe, it, expect, vi } from "vitest";
+ import App from "./App";
+ 
++vi.mock("./state/sounds.js", () => ({
++  isSoundEnabled: vi.fn(() => true),
++  playSound: vi.fn(),
++  setSoundEnabled: vi.fn(),
++  unlockAudio: vi.fn()
++}));
++
+ describe("App", () => {
+-  it("renders the hub home page", () => {
++  const renderRoute = (route) => {
+     render(
+-      <MemoryRouter initialEntries={["/"]}>
++      <MemoryRouter initialEntries={[route]}>
+         <App />
+       </MemoryRouter>
+     );
+-    expect(screen.getByText("GAME HUB")).toBeInTheDocument();
++  };
++
++  const expectRouteText = (text) => {
++    const matches = screen.getAllByText((_, element) => element?.textContent === text);
++    expect(matches.length).toBeGreaterThan(0);
++  };
++
++  it("renders key routes", () => {
++    const routes = [
++      { path: "/", text: "GAME HUB" },
++      { path: "/wordle", text: "WORDLE_" },
++      { path: "/connect4", text: "CONNECT 4" },
++      { path: "/draw", text: "Draw & Guess" },
++      { path: "/charades", text: "Charades" },
++      { path: "/slither", text: "SERPENT.IO" }
++    ];
++
++    routes.forEach(({ path, text }) => {
++      renderRoute(path);
++      expectRouteText(text);
++      cleanup();
++    });
++  });
++
++  it("redirects unknown routes to the hub", () => {
++    renderRoute("/unknown-route");
++    expectRouteText("GAME HUB");
+   });
+ });
+diff --git a/services/web/src/pages/HubHome.test.jsx b/services/web/src/pages/HubHome.test.jsx
+new file mode 100644
+index 0000000000000000000000000000000000000000..ae712272ad236d4fd1f8cf0b494848b1fb1181de
+--- /dev/null
++++ b/services/web/src/pages/HubHome.test.jsx
+@@ -0,0 +1,62 @@
++import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
++import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
++import HubHome from "./HubHome.jsx";
++
++const navigateMock = vi.fn();
++
++vi.mock("react-router-dom", () => ({
++  useNavigate: () => navigateMock
++}));
++
++vi.mock("../state/sounds.js", () => ({
++  playSound: vi.fn(),
++  unlockAudio: vi.fn()
++}));
++
++describe("HubHome", () => {
++  beforeEach(() => {
++    navigateMock.mockClear();
++  });
++
++  afterEach(() => {
++    cleanup();
++    vi.unstubAllGlobals();
++  });
++
++  it("joins a room with a normalized code", () => {
++    render(<HubHome />);
++
++    fireEvent.change(screen.getByPlaceholderText("Enter room code"), {
++      target: { value: " ab12 " }
++    });
++    fireEvent.click(screen.getByRole("button", { name: "Join Room" }));
++
++    expect(navigateMock).toHaveBeenCalledWith("/room/AB12");
++  });
++
++  it("creates a room and navigates to the join code", async () => {
++    const fetchMock = vi.fn().mockResolvedValue({
++      json: vi.fn().mockResolvedValue({ joinCode: "Z9QK" })
++    });
++    vi.stubGlobal("fetch", fetchMock);
++
++    render(<HubHome />);
++
++    fireEvent.click(screen.getByRole("button", { name: "Create Room" }));
++
++    await waitFor(() => {
++      expect(fetchMock).toHaveBeenCalledWith(
++        "/api/rooms",
++        expect.objectContaining({
++          method: "POST",
++          headers: { "Content-Type": "application/json" },
++          body: JSON.stringify({ maxPlayers: 12 })
++        })
++      );
++    });
++
++    await waitFor(() => {
++      expect(navigateMock).toHaveBeenCalledWith("/room/Z9QK");
++    });
++  });
++});
+
+
+
+thinking
+**Logging progress with dirty status**
+
+I'm preparing to append a detailed entry to the progress log including all files changed in recent commits, noting the post-commit dirty state with the run log file and ensuring consistency in reported changes for accurate tracking.
+thinking
+**Detailing progress log with test results and learnings**
+
+I'm expanding the progress log to list key modified files including logs and tests, summarizing implemented features and noting successful test/build commands alongside a blocked browser verification due to missing skills for future reference.
+exec
+/bin/bash -lc "cat <<'EOF' >> /home/marc/Documents/github/ralph/game-hub/.ralph/progress.md
+## [2026-01-23 02:09] - TST-008: Add web UI routing and HubHome tests
+Thread: 
+Run: 20260123-011054-971908 (iteration 7)
+Run log: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-7.log
+Run summary: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-7.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 26e9cf2 chore: update run log
+- Post-commit status: .ralph/runs/run-20260123-011054-971908-iter-7.log
+- Verification:
+  - Command: cd services/web && npm test -> PASS
+  - Command: cd services/hub && npm test -> PASS
+  - Command: cd services/web && npm run build -> PASS
+- Files changed:
+  - .agents/tasks/prd-gamehub-tests.json
+  - .ralph/.tmp/prompt-20260123-011054-971908-7.md
+  - .ralph/.tmp/story-20260123-011054-971908-7.json
+  - .ralph/.tmp/story-20260123-011054-971908-7.md
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - .ralph/runs/run-20260123-011054-971908-iter-6.log
+  - .ralph/runs/run-20260123-011054-971908-iter-6.md
+  - .ralph/runs/run-20260123-011054-971908-iter-7.log
+  - AGENTS.md
+  - services/web/node_modules/.vite/vitest/da39a3ee5e6b4b0d3255bfef95601890afd80709/results.json
+  - services/web/src/App.test.jsx
+  - services/web/src/pages/HubHome.test.jsx
+- What was implemented
+  - Added App routing coverage for key routes and wildcard redirect.
+  - Added HubHome join/create flow tests with mocked navigation and fetch.
+  - Documented web/hub test + build commands in AGENTS.md.
+  - Browser verification blocked: dev-browser skill not available.
+- **Learnings for future iterations:**
+  - Patterns discovered: Use textContent-based matchers for split-letter headings in HubHome.
+  - Gotchas encountered: App route snapshots can produce duplicate text matches; prefer getAllByText.
+  - Useful context: HubHome create flow expects POST /api/rooms with { maxPlayers: 12 } payload.
+---
+EOF" in /home/marc/Documents/github/ralph/game-hub succeeded in 459ms:
+
+file update:
+diff --git a/services/web/src/App.test.jsx b/services/web/src/App.test.jsx
+index f479b1596c1bb9bce9f61674e15128f82a19cd49..247e62bee93b20a02fc8c2acfecce001f2503855
+--- a/services/web/src/App.test.jsx
++++ b/services/web/src/App.test.jsx
+@@ -1,15 +1,48 @@
+-import { render, screen } from "@testing-library/react";
++import { cleanup, render, screen } from "@testing-library/react";
+ import { MemoryRouter } from "react-router-dom";
+-import { describe, it, expect } from "vitest";
++import { describe, it, expect, vi } from "vitest";
+ import App from "./App";
+ 
++vi.mock("./state/sounds.js", () => ({
++  isSoundEnabled: vi.fn(() => true),
++  playSound: vi.fn(),
++  setSoundEnabled: vi.fn(),
++  unlockAudio: vi.fn()
++}));
++
+ describe("App", () => {
+-  it("renders the hub home page", () => {
++  const renderRoute = (route) => {
+     render(
+-      <MemoryRouter initialEntries={["/"]}>
++      <MemoryRouter initialEntries={[route]}>
+         <App />
+       </MemoryRouter>
+     );
+-    expect(screen.getByText("GAME HUB")).toBeInTheDocument();
++  };
++
++  const expectRouteText = (text) => {
++    const matches = screen.getAllByText((_, element) => element?.textContent === text);
++    expect(matches.length).toBeGreaterThan(0);
++  };
++
++  it("renders key routes", () => {
++    const routes = [
++      { path: "/", text: "GAME HUB" },
++      { path: "/wordle", text: "WORDLE_" },
++      { path: "/connect4", text: "CONNECT 4" },
++      { path: "/draw", text: "Draw & Guess" },
++      { path: "/charades", text: "Charades" },
++      { path: "/slither", text: "SERPENT.IO" }
++    ];
++
++    routes.forEach(({ path, text }) => {
++      renderRoute(path);
++      expectRouteText(text);
++      cleanup();
++    });
++  });
++
++  it("redirects unknown routes to the hub", () => {
++    renderRoute("/unknown-route");
++    expectRouteText("GAME HUB");
+   });
+ });
+diff --git a/services/web/src/pages/HubHome.test.jsx b/services/web/src/pages/HubHome.test.jsx
+new file mode 100644
+index 0000000000000000000000000000000000000000..ae712272ad236d4fd1f8cf0b494848b1fb1181de
+--- /dev/null
++++ b/services/web/src/pages/HubHome.test.jsx
+@@ -0,0 +1,62 @@
++import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
++import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
++import HubHome from "./HubHome.jsx";
++
++const navigateMock = vi.fn();
++
++vi.mock("react-router-dom", () => ({
++  useNavigate: () => navigateMock
++}));
++
++vi.mock("../state/sounds.js", () => ({
++  playSound: vi.fn(),
++  unlockAudio: vi.fn()
++}));
++
++describe("HubHome", () => {
++  beforeEach(() => {
++    navigateMock.mockClear();
++  });
++
++  afterEach(() => {
++    cleanup();
++    vi.unstubAllGlobals();
++  });
++
++  it("joins a room with a normalized code", () => {
++    render(<HubHome />);
++
++    fireEvent.change(screen.getByPlaceholderText("Enter room code"), {
++      target: { value: " ab12 " }
++    });
++    fireEvent.click(screen.getByRole("button", { name: "Join Room" }));
++
++    expect(navigateMock).toHaveBeenCalledWith("/room/AB12");
++  });
++
++  it("creates a room and navigates to the join code", async () => {
++    const fetchMock = vi.fn().mockResolvedValue({
++      json: vi.fn().mockResolvedValue({ joinCode: "Z9QK" })
++    });
++    vi.stubGlobal("fetch", fetchMock);
++
++    render(<HubHome />);
++
++    fireEvent.click(screen.getByRole("button", { name: "Create Room" }));
++
++    await waitFor(() => {
++      expect(fetchMock).toHaveBeenCalledWith(
++        "/api/rooms",
++        expect.objectContaining({
++          method: "POST",
++          headers: { "Content-Type": "application/json" },
++          body: JSON.stringify({ maxPlayers: 12 })
++        })
++      );
++    });
++
++    await waitFor(() => {
++      expect(navigateMock).toHaveBeenCalledWith("/room/Z9QK");
++    });
++  });
++});
+
+
+thinking
+**Adding logging after progress update**
+exec
+/bin/bash -lc '/home/marc/.nvm/versions/node/v22.14.0/bin/ralph log "Updated progress log for TST-008"' in /home/marc/Documents/github/ralph/game-hub succeeded in 926ms:
+Using bundled templates: /home/marc/.nvm/versions/node/v22.14.0/lib/node_modules/@iannuttall/ralph/.agents/ralph
+file update:
+diff --git a/services/web/src/App.test.jsx b/services/web/src/App.test.jsx
+index f479b1596c1bb9bce9f61674e15128f82a19cd49..247e62bee93b20a02fc8c2acfecce001f2503855
+--- a/services/web/src/App.test.jsx
++++ b/services/web/src/App.test.jsx
+@@ -1,15 +1,48 @@
+-import { render, screen } from "@testing-library/react";
++import { cleanup, render, screen } from "@testing-library/react";
+ import { MemoryRouter } from "react-router-dom";
+-import { describe, it, expect } from "vitest";
++import { describe, it, expect, vi } from "vitest";
+ import App from "./App";
+ 
++vi.mock("./state/sounds.js", () => ({
++  isSoundEnabled: vi.fn(() => true),
++  playSound: vi.fn(),
++  setSoundEnabled: vi.fn(),
++  unlockAudio: vi.fn()
++}));
++
+ describe("App", () => {
+-  it("renders the hub home page", () => {
++  const renderRoute = (route) => {
+     render(
+-      <MemoryRouter initialEntries={["/"]}>
++      <MemoryRouter initialEntries={[route]}>
+         <App />
+       </MemoryRouter>
+     );
+-    expect(screen.getByText("GAME HUB")).toBeInTheDocument();
++  };
++
++  const expectRouteText = (text) => {
++    const matches = screen.getAllByText((_, element) => element?.textContent === text);
++    expect(matches.length).toBeGreaterThan(0);
++  };
++
++  it("renders key routes", () => {
++    const routes = [
++      { path: "/", text: "GAME HUB" },
++      { path: "/wordle", text: "WORDLE_" },
++      { path: "/connect4", text: "CONNECT 4" },
++      { path: "/draw", text: "Draw & Guess" },
++      { path: "/charades", text: "Charades" },
++      { path: "/slither", text: "SERPENT.IO" }
++    ];
++
++    routes.forEach(({ path, text }) => {
++      renderRoute(path);
++      expectRouteText(text);
++      cleanup();
++    });
++  });
++
++  it("redirects unknown routes to the hub", () => {
++    renderRoute("/unknown-route");
++    expectRouteText("GAME HUB");
+   });
+ });
+diff --git a/services/web/src/pages/HubHome.test.jsx b/services/web/src/pages/HubHome.test.jsx
+new file mode 100644
+index 0000000000000000000000000000000000000000..ae712272ad236d4fd1f8cf0b494848b1fb1181de
+--- /dev/null
++++ b/services/web/src/pages/HubHome.test.jsx
+@@ -0,0 +1,62 @@
++import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
++import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
++import HubHome from "./HubHome.jsx";
++
++const navigateMock = vi.fn();
++
++vi.mock("react-router-dom", () => ({
++  useNavigate: () => navigateMock
++}));
++
++vi.mock("../state/sounds.js", () => ({
++  playSound: vi.fn(),
++  unlockAudio: vi.fn()
++}));
++
++describe("HubHome", () => {
++  beforeEach(() => {
++    navigateMock.mockClear();
++  });
++
++  afterEach(() => {
++    cleanup();
++    vi.unstubAllGlobals();
++  });
++
++  it("joins a room with a normalized code", () => {
++    render(<HubHome />);
++
++    fireEvent.change(screen.getByPlaceholderText("Enter room code"), {
++      target: { value: " ab12 " }
++    });
++    fireEvent.click(screen.getByRole("button", { name: "Join Room" }));
++
++    expect(navigateMock).toHaveBeenCalledWith("/room/AB12");
++  });
++
++  it("creates a room and navigates to the join code", async () => {
++    const fetchMock = vi.fn().mockResolvedValue({
++      json: vi.fn().mockResolvedValue({ joinCode: "Z9QK" })
++    });
++    vi.stubGlobal("fetch", fetchMock);
++
++    render(<HubHome />);
++
++    fireEvent.click(screen.getByRole("button", { name: "Create Room" }));
++
++    await waitFor(() => {
++      expect(fetchMock).toHaveBeenCalledWith(
++        "/api/rooms",
++        expect.objectContaining({
++          method: "POST",
++          headers: { "Content-Type": "application/json" },
++          body: JSON.stringify({ maxPlayers: 12 })
++        })
++      );
++    });
++
++    await waitFor(() => {
++      expect(navigateMock).toHaveBeenCalledWith("/room/Z9QK");
++    });
++  });
++});
+
+
+thinking
+**Committing progress and log updates**
+exec
 /bin/bash -lc 'git add -A' in /home/marc/Documents/github/ralph/game-hub

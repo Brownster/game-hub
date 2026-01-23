@@ -269,3 +269,40 @@ Run summary: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123
   - Gotchas encountered: install the Redis mock before importing server modules so services pick up the in-memory client.
   - Useful context: fix time in Wordle API tests to keep date-based keys deterministic.
 ---
+## [2026-01-23 02:09] - TST-008: Add web UI routing and HubHome tests
+Thread: 
+Run: 20260123-011054-971908 (iteration 7)
+Run log: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-7.log
+Run summary: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-7.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: 26e9cf2 chore: update run log
+- Post-commit status: .ralph/runs/run-20260123-011054-971908-iter-7.log
+- Verification:
+  - Command: cd services/web && npm test -> PASS
+  - Command: cd services/hub && npm test -> PASS
+  - Command: cd services/web && npm run build -> PASS
+- Files changed:
+  - .agents/tasks/prd-gamehub-tests.json
+  - .ralph/.tmp/prompt-20260123-011054-971908-7.md
+  - .ralph/.tmp/story-20260123-011054-971908-7.json
+  - .ralph/.tmp/story-20260123-011054-971908-7.md
+  - .ralph/activity.log
+  - .ralph/errors.log
+  - .ralph/runs/run-20260123-011054-971908-iter-6.log
+  - .ralph/runs/run-20260123-011054-971908-iter-6.md
+  - .ralph/runs/run-20260123-011054-971908-iter-7.log
+  - AGENTS.md
+  - services/web/node_modules/.vite/vitest/da39a3ee5e6b4b0d3255bfef95601890afd80709/results.json
+  - services/web/src/App.test.jsx
+  - services/web/src/pages/HubHome.test.jsx
+- What was implemented
+  - Added App routing coverage for key routes and wildcard redirect.
+  - Added HubHome join/create flow tests with mocked navigation and fetch.
+  - Documented web/hub test + build commands in AGENTS.md.
+  - Browser verification blocked: dev-browser skill not available.
+- **Learnings for future iterations:**
+  - Patterns discovered: Use textContent-based matchers for split-letter headings in HubHome.
+  - Gotchas encountered: App route snapshots can produce duplicate text matches; prefer getAllByText.
+  - Useful context: HubHome create flow expects POST /api/rooms with { maxPlayers: 12 } payload.
+---
