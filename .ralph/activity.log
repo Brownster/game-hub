@@ -1,6 +1,7 @@
 # Activity Log
 
 ## Run Summary
+- 2026-01-23 02:11:10 | run=20260123-011054-971908 | iter=7 | mode=build | story=TST-008 | duration=531s | status=success
 - 2026-01-23 02:02:17 | run=20260123-011054-971908 | iter=6 | mode=build | story=TST-007 | duration=464s | status=success
 - 2026-01-23 01:54:30 | run=20260123-011054-971908 | iter=5 | mode=build | story=TST-006 | duration=422s | status=success
 - 2026-01-23 01:47:26 | run=20260123-011054-971908 | iter=4 | mode=build | story=TST-005 | duration=357s | status=success
@@ -71,3 +72,8 @@
 [2026-01-23 02:07:32] Documented test/build commands in AGENTS.md
 [2026-01-23 02:07:36] Browser verification blocked: dev-browser skill not available
 [2026-01-23 02:10:14] Updated progress log for TST-008
+[2026-01-23 02:11:10] ITERATION 7 end (duration=531s)
+[2026-01-23 02:11:12] ITERATION 8 start (mode=build story=TST-009)
+[2026-01-23 02:11:34] Start TST-009 work
+[2026-01-23 02:12:59] Updated README and AGENTS with testing/coverage guidance
+[2026-01-23 02:13:30] Completed hub/web tests and web build/dev verification

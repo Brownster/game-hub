@@ -138,13 +138,13 @@
         "HubHome join/create flows call navigation appropriately.",
         "Tests run under Vitest with jsdom and no real network calls."
       ],
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "TST-001"
       ],
       "startedAt": "2026-01-23T02:02:19.153989+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-01-23T02:02:19.153999+00:00"
+      "completedAt": "2026-01-23T02:11:10.249542+00:00",
+      "updatedAt": "2026-01-23T02:11:10.249530+00:00"
     },
     {
       "id": "TST-009",
@@ -154,10 +154,13 @@
         "README or a testing doc explains how to run hub/web tests and what they cover.",
         "Optional: add a lightweight coverage target note or script (non-blocking)."
       ],
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "TST-001"
-      ]
+      ],
+      "startedAt": "2026-01-23T02:11:12.324338+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-01-23T02:11:12.324351+00:00"
     }
   ]
 }
