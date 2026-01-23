@@ -70,13 +70,13 @@
         "Color choice and pending draw rules are validated.",
         "Winner detection and phase transitions are verified."
       ],
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "TST-002"
       ],
       "startedAt": "2026-01-23T01:28:52.505050+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-01-23T01:28:52.505062+00:00"
+      "completedAt": "2026-01-23T01:41:27.375917+00:00",
+      "updatedAt": "2026-01-23T01:41:27.375907+00:00"
     },
     {
       "id": "TST-005",
@@ -87,10 +87,13 @@
         "Draw and pass behavior is validated when no moves exist.",
         "Winner detection ends the game phase."
       ],
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "TST-002"
-      ]
+      ],
+      "startedAt": "2026-01-23T01:41:29.474505+00:00",
+      "completedAt": null,
+      "updatedAt": "2026-01-23T01:41:29.474515+00:00"
     },
     {
       "id": "TST-006",

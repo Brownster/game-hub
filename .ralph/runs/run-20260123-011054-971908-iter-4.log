@@ -1,0 +1,653 @@
+OpenAI Codex v0.89.0 (research preview)
+--------
+workdir: /home/marc/Documents/github/ralph/game-hub
+model: gpt-5.2-codex
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: medium
+reasoning summaries: auto
+session id: 019be883-7c17-7721-9ec7-7d23a2d0bad9
+--------
+user
+# Build
+
+You are an autonomous coding agent. Your task is to complete the work for exactly one story and record the outcome.
+
+## Paths
+- PRD: /home/marc/Documents/github/ralph/game-hub/.agents/tasks/prd-gamehub-tests.json
+- AGENTS (optional): /home/marc/Documents/github/ralph/game-hub/AGENTS.md
+- Progress Log: /home/marc/Documents/github/ralph/game-hub/.ralph/progress.md
+- Guardrails: /home/marc/Documents/github/ralph/game-hub/.ralph/guardrails.md
+- Guardrails Reference: /home/marc/.nvm/versions/node/v22.14.0/lib/node_modules/@iannuttall/ralph/.agents/ralph/references/GUARDRAILS.md
+- Context Reference: /home/marc/.nvm/versions/node/v22.14.0/lib/node_modules/@iannuttall/ralph/.agents/ralph/references/CONTEXT_ENGINEERING.md
+- Errors Log: /home/marc/Documents/github/ralph/game-hub/.ralph/errors.log
+- Activity Log: /home/marc/Documents/github/ralph/game-hub/.ralph/activity.log
+- Activity Logger: /home/marc/Documents/github/ralph/game-hub/ralph log
+- No-commit: false
+- Repo Root: /home/marc/Documents/github/ralph/game-hub
+- Run ID: 20260123-011054-971908
+- Iteration: 4
+- Run Log: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-4.log
+- Run Summary: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-4.md
+
+## Global Quality Gates (apply to every story)
+- All new tests are deterministic and avoid real Redis/network usage (use in-memory mocks or dependency injection).
+- `services/hub` tests run via `npm test` without requiring external services.
+- `services/web` tests run via `npm test` and use jsdom-safe APIs.
+- Test failures include clear, actionable messages.
+
+## Selected Story (Do not change scope)
+ID: TST-005
+Title: Add Crazy Eights service unit tests
+
+Story details:
+### TST-005: Add Crazy Eights service unit tests
+Status: in_progress
+Depends on: TST-002
+
+Description:
+Create tests for `services/hub/src/games/crazy_eights/crazyEightsService.js` covering start, playability rules, draw/pass behavior, suit declaration with eights, and win detection.
+
+Acceptance Criteria:
+- [ ] Tests cover playability by rank/suit and the special 8 rules.
+- [ ] Draw and pass behavior is validated when no moves exist.
+- [ ] Winner detection ends the game phase.
+
+
+If the story details are empty or missing, STOP and report that the PRD story format could not be parsed.
+
+## Rules (Non-Negotiable)
+- Implement **only** the work required to complete the selected story.
+- Complete all tasks associated with this story (and only this story).
+- Do NOT ask the user questions.
+- Do NOT change unrelated code.
+- Do NOT assume something is unimplemented — confirm by reading code.
+- Implement completely; no placeholders or stubs.
+- If No-commit is true, do NOT commit or push changes.
+- Do NOT edit the PRD JSON (status is handled by the loop).
+- All changes made during the run must be committed (including updates to progress/logs).
+ - Before committing, perform a final **security**, **performance**, and **regression** review of your changes.
+
+## Your Task (Do this in order)
+1. Read /home/marc/Documents/github/ralph/game-hub/.ralph/guardrails.md before any code changes.
+2. Read /home/marc/Documents/github/ralph/game-hub/.ralph/errors.log for repeated failures to avoid.
+3. Read /home/marc/Documents/github/ralph/game-hub/.agents/tasks/prd-gamehub-tests.json for global context (do not edit).
+4. Fully audit and read all necessary files to understand the task end-to-end before implementing. Do not assume missing functionality.
+5. If /home/marc/Documents/github/ralph/game-hub/AGENTS.md exists, follow its build/test instructions.
+6. Implement only the tasks that belong to TST-005.
+7. Run verification commands listed in the story, the global quality gates, and in /home/marc/Documents/github/ralph/game-hub/AGENTS.md (if required).
+8. If the project has a build or dev workflow, run what applies:
+   - Build step (e.g., `npm run build`) if defined.
+   - Dev server (e.g., `npm run dev`, `wrangler dev`) if it is the normal validation path.
+   - Confirm no runtime/build errors in the console.
+9. Perform a brief audit before committing:
+   - **Security:** check for obvious vulnerabilities or unsafe handling introduced by your changes.
+   - **Performance:** check for avoidable regressions (extra queries, heavy loops, unnecessary re-renders).
+   - **Regression:** verify existing behavior that could be impacted still works.
+10. If No-commit is false, commit changes using the `$commit` skill.
+    - Stage everything: `git add -A`
+    - Confirm a clean working tree after commit: `git status --porcelain` should be empty.
+    - After committing, capture the commit hash and subject using:
+      `git show -s --format="%h %s" HEAD`.
+11. Append a progress entry to /home/marc/Documents/github/ralph/game-hub/.ralph/progress.md with run/commit/test details (format below).
+    If No-commit is true, skip committing and note it in the progress entry.
+
+## Progress Entry Format (Append Only)
+```
+## [Date/Time] - TST-005: Add Crazy Eights service unit tests
+Thread: [codex exec session id if available, otherwise leave blank]
+Run: 20260123-011054-971908 (iteration 4)
+Run log: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-4.log
+Run summary: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-4.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: <hash> <subject> (or `none` + reason)
+- Post-commit status: `clean` or list remaining files
+- Verification:
+  - Command: <exact command> -> PASS/FAIL
+  - Command: <exact command> -> PASS/FAIL
+- Files changed:
+  - <file path>
+  - <file path>
+- What was implemented
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - Gotchas encountered
+  - Useful context
+---
+```
+
+## Completion Signal
+Only output the completion signal when the **selected story** is fully complete and verified.
+When the selected story is complete, output:
+<promise>COMPLETE</promise>
+
+Otherwise, end normally without the signal.
+
+## Additional Guardrails
+- When authoring documentation, capture the why (tests + implementation intent).
+- If you learn how to run/build/test the project, update /home/marc/Documents/github/ralph/game-hub/AGENTS.md briefly (operational only).
+- Keep AGENTS operational only; progress notes belong in /home/marc/Documents/github/ralph/game-hub/.ralph/progress.md.
+- If you hit repeated errors, log them in /home/marc/Documents/github/ralph/game-hub/.ralph/errors.log and add a Sign to /home/marc/Documents/github/ralph/game-hub/.ralph/guardrails.md using /home/marc/.nvm/versions/node/v22.14.0/lib/node_modules/@iannuttall/ralph/.agents/ralph/references/GUARDRAILS.md as the template.
+
+## Activity Logging (Required)
+Log major actions to /home/marc/Documents/github/ralph/game-hub/.ralph/activity.log using the helper:
+```
+/home/marc/Documents/github/ralph/game-hub/ralph log "message"
+```
+Log at least:
+- Start of work on the story
+- After major code changes
+- After tests/verification
+- After updating progress log
+
+## Browser Testing (Required for Frontend Stories)
+If the selected story changes UI, you MUST verify it in the browser:
+1. Load the `dev-browser` skill.
+2. Navigate to the relevant page.
+3. Verify the UI changes work as expected.
+4. Take a screenshot if helpful for the progress log.
+
+A frontend story is NOT complete until browser verification passes.
+
+mcp: livekit-docs starting
+mcp: livekit-docs ready
+mcp startup: ready: livekit-docs
+
+thinking
+**Starting task execution**
+exec
+/bin/bash -lc ls in /home/marc/Documents/github/ralph/game-hub succeeded in 395ms:
+docker-compose.yml
+Dockerfile
+gamehub_framework.md
+README.md
+scripts
+services
+test-roadmap.md
+exec
+/bin/bash -lc '/home/marc/Documents/github/ralph/game-hub/ralph log "Start TST-005 Crazy Eights service unit tests"' in /home/marc/Documents/github/ralph/game-hub exited 127 in 409ms:
+/bin/bash: line 1: /home/marc/Documents/github/ralph/game-hub/ralph: No such file or directory
+
+thinking
+**Checking activity logger path**
+
+I'm verifying if the activity logger path points to a script by listing related files and inspecting their types.
+exec
+/bin/bash -lc 'ls -la /home/marc/Documents/github/ralph/game-hub' in /home/marc/Documents/github/ralph/game-hub succeeded in 455ms:
+total 40
+drwxr-xr-x. 1 marc marc   242 Jan 23 00:45 .
+drwxr-xr-x. 1 marc marc   238 Jan 23 00:30 ..
+drwxr-xr-x. 1 marc marc    10 Jan 23 00:44 .agents
+-rw-r--r--. 1 marc marc   876 Jan 23 00:30 docker-compose.yml
+-rw-r--r--. 1 marc marc   687 Jan 23 00:30 Dockerfile
+-rw-r--r--. 1 marc marc  6434 Jan 23 00:30 gamehub_framework.md
+drwxr-xr-x. 1 marc marc   150 Jan 23 01:41 .git
+drwxr-xr-x. 1 marc marc    18 Jan 23 00:30 .github
+-rw-r--r--. 1 marc marc    11 Jan 23 00:30 .gitignore
+drwxr-xr-x. 1 marc marc   108 Jan 23 00:45 .ralph
+-rw-r--r--. 1 marc marc  1255 Jan 23 00:30 README.md
+drwxr-xr-x. 1 marc marc    24 Jan 23 00:30 scripts
+drwxr-xr-x. 1 marc marc    12 Jan 23 00:30 services
+-rw-r--r--. 1 marc marc 13496 Jan 23 00:51 test-roadmap.md
+
+thinking
+**Investigating activity logger location**
+
+I'm checking for an activity logger script named "ralph log" in the root or scripts directory and will review the .ralph file for related clues.
+exec
+/bin/bash -lc 'ls -la /home/marc/Documents/github/ralph/game-hub/.ralph' in /home/marc/Documents/github/ralph/game-hub succeeded in 437ms:
+total 20
+drwxr-xr-x. 1 marc marc  108 Jan 23 00:45 .
+drwxr-xr-x. 1 marc marc  242 Jan 23 00:45 ..
+-rw-r--r--. 1 marc marc 2573 Jan 23 01:41 activity.log
+-rw-r--r--. 1 marc marc  895 Jan 23 01:41 errors.log
+-rw-r--r--. 1 marc marc  421 Jan 23 00:45 guardrails.md
+-rw-r--r--. 1 marc marc 7343 Jan 23 01:39 progress.md
+drwxr-xr-x. 1 marc marc  658 Jan 23 01:41 runs
+drwxr-xr-x. 1 marc marc 1020 Jan 23 01:41 .tmp
+
+thinking
+**Searching for executable script**
+
+I'm checking the scripts directory to locate the 'ralph' executable since it's not found in the expected places.
+exec
+/bin/bash -lc "rg --files -g 'ralph' /home/marc/Documents/github/ralph/game-hub" in /home/marc/Documents/github/ralph/game-hub exited 1 in 424ms:
+
+
+thinking
+**Checking command availability**
+
+I'm verifying if the required command is in PATH or the npm bin directory by checking its location with `which`. This will clarify if the helper script is missing or just not found in the current environment.
+exec
+/bin/bash -lc 'which ralph' in /home/marc/Documents/github/ralph/game-hub succeeded in 496ms:
+/home/marc/.nvm/versions/node/v22.14.0/bin/ralph
+
+thinking
+**Switching to Ralph logging**
+exec
+/bin/bash -lc 'ralph log "Start TST-005 Crazy Eights service unit tests"' in /home/marc/Documents/github/ralph/game-hub succeeded in 860ms:
+Using bundled templates: /home/marc/.nvm/versions/node/v22.14.0/lib/node_modules/@iannuttall/ralph/.agents/ralph
+
+thinking
+**Reviewing guardrails, errors, and PRD**
+exec
+/bin/bash -lc 'cat /home/marc/Documents/github/ralph/game-hub/.ralph/guardrails.md' in /home/marc/Documents/github/ralph/game-hub succeeded in 514ms:
+# Guardrails (Signs)
+
+> Lessons learned from failures. Read before acting.
+
+## Core Signs
+
+### Sign: Read Before Writing
+- **Trigger**: Before modifying any file
+- **Instruction**: Read the file first
+- **Added after**: Core principle
+
+### Sign: Test Before Commit
+- **Trigger**: Before committing changes
+- **Instruction**: Run required tests and verify outputs
+- **Added after**: Core principle
+
+---
+
+## Learned Signs
+
+exec
+/bin/bash -lc 'cat /home/marc/Documents/github/ralph/game-hub/.ralph/errors.log' in /home/marc/Documents/github/ralph/game-hub succeeded in 458ms:
+# Error Log
+
+> Failures and repeated issues. Use this to add guardrails.
+
+
+[2026-01-23 00:45:40] NOTE: activity logger missing at /home/marc/Documents/github/ralph/game-hub/ralph; appending manually
+[2026-01-23 00:57:42] ITERATION 1 left uncommitted changes; review run summary at /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-004522-945259-iter-1.md
+[2026-01-23 01:18:15] ITERATION 1 left uncommitted changes; review run summary at /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-1.md
+[2026-01-23 01:28:50] ITERATION 2 left uncommitted changes; review run summary at /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-2.md
+[2026-01-23 01:41:27] ITERATION 3 left uncommitted changes; review run summary at /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-3.md
+
+thinking
+**Requesting product requirements**
+exec
+/bin/bash -lc 'cat /home/marc/Documents/github/ralph/game-hub/.agents/tasks/prd-gamehub-tests.json' in /home/marc/Documents/github/ralph/game-hub succeeded in 476ms:
+{
+  "title": "GameHub Test Coverage",
+  "summary": "Implement a robust, prioritized test suite for the GameHub monorepo with focus on deterministic game logic, room lifecycle, API behavior, and core UI flows.",
+  "nonGoals": [
+    "End-to-end multiplayer tests that require real Redis, sockets, or browser automation (unless explicitly requested later).",
+    "Large refactors unrelated to testability."
+  ],
+  "qualityGates": [
+    "All new tests are deterministic and avoid real Redis/network usage (use in-memory mocks or dependency injection).",
+    "`services/hub` tests run via `npm test` without requiring external services.",
+    "`services/web` tests run via `npm test` and use jsdom-safe APIs.",
+    "Test failures include clear, actionable messages."
+  ],
+  "stories": [
+    {
+      "id": "TST-001",
+      "title": "Complete test inventory and prioritize coverage",
+      "description": "Finish `test-roadmap.md` Phase 0 by mapping major functional areas to files, listing critical game paths, and enumerating must-test APIs/socket events.",
+      "acceptanceCriteria": [
+        "`test-roadmap.md` lists each major service area with concrete file paths.",
+
+thinking
+**Requesting clarification on agents**
+exec
+/bin/bash -lc 'cat /home/marc/Documents/github/ralph/game-hub/AGENTS.md' in /home/marc/Documents/github/ralph/game-hub exited 1 in 467ms:
+cat: /home/marc/Documents/github/ralph/game-hub/AGENTS.md: No such file or directory
+
+thinking
+**Inspecting crazy eights service**
+exec
+/bin/bash -lc "sed -n '1,240p' /home/marc/Documents/github/ralph/game-hub/services/hub/src/games/crazy_eights/crazyEightsService.js" in /home/marc/Documents/github/ralph/game-hub succeeded in 638ms:
+import { createShuffledDeck, deal, draw, parseCard, sortCards, shuffle } from "../cards/cardUtils.js";
+
+export const PHASES = {
+  LOBBY: "LOBBY",
+  TURN: "TURN",
+  FINISHED: "FINISHED",
+};
+
+export const ACTIONS = {
+  PLAY_CARD: "PLAY_CARD",
+  DRAW_CARD: "DRAW_CARD",
+  PASS: "PASS",
+};
+
+const SUITS = ["C", "D", "H", "S"];
+
+function createPlayerState(player) {
+  return {
+    playerId: player.odPlayerId ?? player.playerId,
+    displayName: player.odDisplayName ?? player.displayName,
+
+thinking
+**Identifying test structure**
+
+I'm checking the test organization in the services/hub tests to understand the existing patterns before adding new tests.
+exec
+/bin/bash -lc 'rg --files /home/marc/Documents/github/ralph/game-hub/services/hub/test' in /home/marc/Documents/github/ralph/game-hub succeeded in 407ms:
+/home/marc/Documents/github/ralph/game-hub/services/hub/test/unoService.test.js
+/home/marc/Documents/github/ralph/game-hub/services/hub/test/catanScoring.test.js
+/home/marc/Documents/github/ralph/game-hub/services/hub/test/catanResources.test.js
+/home/marc/Documents/github/ralph/game-hub/services/hub/test/helpers/timeTestHelper.js
+/home/marc/Documents/github/ralph/game-hub/services/hub/test/helpers/redisTestHelper.js
+/home/marc/Documents/github/ralph/game-hub/services/hub/test/wordleUtils.test.js
+/home/marc/Documents/github/ralph/game-hub/services/hub/test/scoringUtils.test.js
+/home/marc/Documents/github/ralph/game-hub/services/hub/test/roomService.test.js
+/home/marc/Documents/github/ralph/game-hub/services/hub/test/hexUtils.test.js
+/home/marc/Documents/github/ralph/game-hub/services/hub/test/fibbage.test.js
+/home/marc/Documents/github/ralph/game-hub/services/hub/test/drawService.test.js
+/home/marc/Documents/github/ralph/game-hub/services/hub/test/cribbageService.test.js
+/home/marc/Documents/github/ralph/game-hub/services/hub/test/connect4Rules.test.js
+/home/marc/Documents/github/ralph/game-hub/services/hub/test/codes.test.js
+/home/marc/Documents/github/ralph/game-hub/services/hub/test/chessService.test.js
+/home/marc/Documents/github/ralph/game-hub/services/hub/test/chessAi.test.js
+/home/marc/Documents/github/ralph/game-hub/services/hub/test/cardUtils.test.js
+/home/marc/Documents/github/ralph/game-hub/services/hub/test/boardUtils.test.js
+
+thinking
+**Identifying test patterns**
+
+I'm extracting patterns from the unoService test to inform the next steps.
+exec
+/bin/bash -lc "sed -n '1,240p' /home/marc/Documents/github/ralph/game-hub/services/hub/test/unoService.test.js" in /home/marc/Documents/github/ralph/game-hub succeeded in 429ms:
+import test from "node:test";
+import assert from "node:assert/strict";
+import {
+  ACTIONS,
+  PHASES,
+  createUnoInitialState,
+  getAvailableActions,
+  processAction,
+  startUnoGame,
+} from "../src/games/uno/unoService.js";
+import { CARD_TYPES, COLORS } from "../src/games/uno/unoConstants.js";
+
+function makeCard({ id, color, type, value }) {
+  return { id, color, type, value };
+}
+
+function makeState(players) {
+  const state = createUnoInitialState(players);
+  state.phase = PHASES.TURN;
+  state.turnIndex = 0;
+
+thinking
+**Noting test framework and target utilities**
+
+Tests use node:test, so the new tests will follow that style. I'm focusing on crazy eights and will inspect cardUtils, especially parsing logic, next.
+exec
+/bin/bash -lc "sed -n '1,220p' /home/marc/Documents/github/ralph/game-hub/services/hub/src/games/cards/cardUtils.js" in /home/marc/Documents/github/ralph/game-hub succeeded in 478ms:
+// Card utilities for card games
+// Card ID format: {rank}{suit} where rank is A,2-10,J,Q,K and suit is C,D,H,S
+// Example: "5H" = 5 of Hearts, "KC" = King of Clubs
+
+const SUITS = ["C", "D", "H", "S"]; // Clubs, Diamonds, Hearts, Spades
+const RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+
+// Rank to numeric index (for sorting and runs)
+const RANK_INDEX = {
+  A: 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7,
+  "8": 8, "9": 9, "10": 10, J: 11, Q: 12, K: 13,
+};
+
+// Rank to point value (for cribbage counting - face cards = 10, ace = 1)
+const RANK_POINTS = {
+  A: 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7,
+  "8": 8, "9": 9, "10": 10, J: 10, Q: 10, K: 10,
+};
+
+/**
+
+
+thinking
+**Planning Crazy Eights tests**
+
+I'm outlining tests for Crazy Eights focusing on game start conditions, hand sizes, discard pile initialization, and playability logic using deterministic assertions on hand and draw pile sizes while stubbing randomness to control deck behavior. Next, I'll build states manually for key actions using available helpers and test playability via exposed methods.
+thinking
+**Detailing Crazy Eights gameplay tests**
+
+I'm specifying tests for playable card logic including special handling of eights, declared suits, draw/pass actions with edge cases, and winner detection by manipulating game state precisely and ensuring correct errors or state transitions. I'll confirm test setup uses node:test and assertions, verifying existing test commands for integration.
+exec
+/bin/bash -lc 'cat /home/marc/Documents/github/ralph/game-hub/services/hub/package.json' in /home/marc/Documents/github/ralph/game-hub succeeded in 436ms:
+{
+  "name": "gamehub-hub",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "chess.js": "^1.4.0",
+    "fastify": "^4.27.0",
+    "ioredis": "^5.4.1",
+    "nanoid": "^5.0.7",
+    "socket.io": "^4.7.5"
+  }
+}
+
+
+thinking
+**Planning deterministic game start tests**
+
+I'm outlining tests to verify the initial game state for 2 and 3 players without overriding randomness, focusing on hand sizes, phase status, and pile lengths per acceptance criteria. Next, I'll create a test file importing relevant service functions and implement these checks.
+thinking
+**Designing detailed Crazy Eights action tests**
+
+I'm defining multiple tests covering playability rules, eight card suit declaration, draw/pass behavior, and winner detection with deterministic states and a helper for baseline state setup. Next, I'll implement these in a new test file and log progress after major steps, noting the need to commit manually since the commit skill is unavailable.
+exec
+/bin/bash -lc "cat <<'EOF' > /home/marc/Documents/github/ralph/game-hub/services/hub/test/crazyEightsService.test.js
+import test from \"node:test\";
+import assert from \"node:assert/strict\";
+import {
+  ACTIONS,
+  PHASES,
+  createCrazyEightsInitialState,
+  getAvailableActions,
+  processAction,
+  startCrazyEightsGame,
+} from \"../src/games/crazy_eights/crazyEightsService.js\";
+import { parseCard } from \"../src/games/cards/cardUtils.js\";
+
+function makeState(players) {
+  const state = createCrazyEightsInitialState(players);
+  state.phase = PHASES.TURN;
+  state.turnIndex = 0;
+  state.currentSuit = \"H\";
+  state.discardPile = [\"5H\"];
+  state.drawPile = [];
+  state.hands = Object.fromEntries(players.map((player) => [player.playerId, []]));
+  state.lastDrawnCardId = null;
+  state.winner = null;
+  return state;
+}
+
+test(\"crazy eights: start deals hands and sets starter\", () => {
+  const state = createCrazyEightsInitialState([
+    { playerId: \"p1\", displayName: \"P1\", isHost: true },
+    { playerId: \"p2\", displayName: \"P2\" },
+  ]);
+
+  const result = startCrazyEightsGame(state);
+  assert.equal(result.ok, true);
+  assert.equal(state.phase, PHASES.TURN);
+  assert.equal(state.hands.p1.length, 7);
+  assert.equal(state.hands.p2.length, 7);
+  assert.equal(state.discardPile.length, 1);
+  assert.equal(state.drawPile.length, 52 - 7 * 2 - 1);
+  assert.equal(state.currentSuit, parseCard(state.discardPile[0]).suit);
+});
+
+test(\"crazy eights: start uses smaller hand size for 3+ players\", () => {
+  const state = createCrazyEightsInitialState([
+    { playerId: \"p1\", displayName: \"P1\", isHost: true },
+    { playerId: \"p2\", displayName: \"P2\" },
+    { playerId: \"p3\", displayName: \"P3\" },
+  ]);
+
+  const result = startCrazyEightsGame(state);
+  assert.equal(result.ok, true);
+  assert.equal(state.hands.p1.length, 5);
+  assert.equal(state.hands.p2.length, 5);
+  assert.equal(state.hands.p3.length, 5);
+});
+
+test(\"crazy eights: playability matches rank, suit, and 8s\", () => {
+  const state = makeState([
+    { playerId: \"p1\", displayName: \"P1\" },
+    { playerId: \"p2\", displayName: \"P2\" },
+  ]);
+  state.hands.p1 = [\"5S\", \"9H\", \"8C\", \"2D\"];
+
+  const actions = getAvailableActions(state, \"p1\");
+  const play = actions.find((action) => action.type === ACTIONS.PLAY_CARD);
+
+  assert.ok(play, \"Expected playable cards to be available\");
+  assert.deepEqual([...play.playable].sort(), [\"5S\", \"8C\", \"9H\"].sort());
+});
+
+test(\"crazy eights: eight requires declared suit and updates current suit\", () => {
+  const state = makeState([
+    { playerId: \"p1\", displayName: \"P1\" },
+    { playerId: \"p2\", displayName: \"P2\" },
+  ]);
+  state.hands.p1 = [\"8C\", \"2D\"];
+
+  const missingSuit = processAction(state, \"p1\", { type: ACTIONS.PLAY_CARD, cardId: \"8C\" });
+  assert.equal(missingSuit.ok, false);
+  assert.equal(missingSuit.error, \"DECLARED_SUIT_REQUIRED\");
+
+  const played = processAction(state, \"p1\", {
+    type: ACTIONS.PLAY_CARD,
+    cardId: \"8C\",
+    declaredSuit: \"S\",
+  });
+  assert.equal(played.ok, true);
+  assert.equal(state.currentSuit, \"S\");
+  assert.equal(state.discardPile[state.discardPile.length - 1], \"8C\");
+  assert.equal(state.turnIndex, 1);
+});
+
+test(\"crazy eights: drawing is required when no playable cards exist\", () => {
+  const state = makeState([
+    { playerId: \"p1\", displayName: \"P1\" },
+    { playerId: \"p2\", displayName: \"P2\" },
+  ]);
+  state.hands.p1 = [\"2D\"];
+  state.drawPile = [\"3C\"];
+
+  const actions = getAvailableActions(state, \"p1\");
+  assert.deepEqual(actions, [{ type: ACTIONS.DRAW_CARD }]);
+
+  const pass = processAction(state, \"p1\", { type: ACTIONS.PASS });
+  assert.equal(pass.ok, false);
+  assert.equal(pass.error, \"MUST_DRAW\");
+
+  const draw = processAction(state, \"p1\", { type: ACTIONS.DRAW_CARD });
+  assert.equal(draw.ok, true);
+  assert.equal(state.hands.p1.length, 2);
+  assert.equal(state.lastDrawnCardId, \"3C\");
+});
+
+test(\"crazy eights: passing advances turn when no draw is possible\", () => {
+  const state = makeState([
+    { playerId: \"p1\", displayName: \"P1\" },
+    { playerId: \"p2\", displayName: \"P2\" },
+  ]);
+  state.hands.p1 = [\"2D\"];
+  state.drawPile = [];
+  state.discardPile = [\"5H\"];
+
+  const actions = getAvailableActions(state, \"p1\");
+  assert.deepEqual(actions, [{ type: ACTIONS.PASS }]);
+
+  const result = processAction(state, \"p1\", { type: ACTIONS.PASS });
+  assert.equal(result.ok, true);
+  assert.equal(state.turnIndex, 1);
+});
+
+test(\"crazy eights: playing last card ends the game\", () => {
+  const state = makeState([
+    { playerId: \"p1\", displayName: \"P1\" },
+    { playerId: \"p2\", displayName: \"P2\" },
+  ]);
+  state.hands.p1 = [\"5S\"];
+
+  const result = processAction(state, \"p1\", { type: ACTIONS.PLAY_CARD, cardId: \"5S\" });
+  assert.equal(result.ok, true);
+  assert.equal(state.phase, PHASES.FINISHED);
+  assert.equal(state.winner, \"p1\");
+});
+EOF" in /home/marc/Documents/github/ralph/game-hub succeeded in 483ms:
+
+
+thinking
+**Logging major code change**
+exec
+/bin/bash -lc 'ralph log "Added Crazy Eights service unit tests"' in /home/marc/Documents/github/ralph/game-hub succeeded in 897ms:
+Using bundled templates: /home/marc/.nvm/versions/node/v22.14.0/lib/node_modules/@iannuttall/ralph/.agents/ralph
+
+thinking
+**Running tests in service directory**
+exec
+/bin/bash -lc 'npm test' in /home/marc/Documents/github/ralph/game-hub/services/hub succeeded in 932ms:
+
+> gamehub-hub@0.1.0 test
+> node --test
+
+TAP version 13
+# Subtest: boardUtils: board state init and serialization
+ok 1 - boardUtils: board state init and serialization
+  ---
+  duration_ms: 1.112917
+  ...
+# Subtest: boardUtils: place buildings/roads and longest path
+ok 2 - boardUtils: place buildings/roads and longest path
+  ---
+  duration_ms: 0.626468
+  ...
+# Subtest: cardUtils: createDeck builds a standard 52-card deck
+ok 3 - cardUtils: createDeck builds a standard 52-card deck
+  ---
+  duration_ms: 1.445627
+  ...
+
+thinking
+**Logging test results**
+exec
+/bin/bash -lc 'ralph log "Ran services/hub tests for Crazy Eights coverage"' in /home/marc/Documents/github/ralph/game-hub succeeded in 802ms:
+Using bundled templates: /home/marc/.nvm/versions/node/v22.14.0/lib/node_modules/@iannuttall/ralph/.agents/ralph
+
+thinking
+**Preparing for final commit**
+exec
+/bin/bash -lc 'git status --porcelain' in /home/marc/Documents/github/ralph/game-hub succeeded in 433ms:
+ M .agents/tasks/prd-gamehub-tests.json
+ M .ralph/activity.log
+ M .ralph/errors.log
+ M .ralph/runs/run-20260123-011054-971908-iter-3.log
+?? .ralph/.tmp/prompt-20260123-011054-971908-4.md
+?? .ralph/.tmp/story-20260123-011054-971908-4.json
+?? .ralph/.tmp/story-20260123-011054-971908-4.md
+?? .ralph/runs/run-20260123-011054-971908-iter-3.md
+?? .ralph/runs/run-20260123-011054-971908-iter-4.log
+?? services/hub/test/crazyEightsService.test.js
+
+
+thinking
+**Clarifying commit scope**
+
+The agent must commit all changes made during the current run—including updated logs or progress files—but avoid committing unrelated or preexisting modifications from before this run.
+thinking
+**Resolving unexpected changes**
+
+Despite preexisting unexpected modifications, the agent will stage and commit all changes as instructed without user clarification, treating them as system-managed; tests and mental review precede committing and progress log updates.
+exec
+/bin/bash -lc 'git add -A' in /home/marc/Documents/github/ralph/game-hub
