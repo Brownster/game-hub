@@ -1,0 +1,2082 @@
+OpenAI Codex v0.89.0 (research preview)
+--------
+workdir: /home/marc/Documents/github/ralph/game-hub
+model: gpt-5.2-codex
+provider: openai
+approval: never
+sandbox: danger-full-access
+reasoning effort: medium
+reasoning summaries: auto
+session id: 019be888-f5d5-7fa0-bc3b-4822a105f490
+--------
+user
+# Build
+
+You are an autonomous coding agent. Your task is to complete the work for exactly one story and record the outcome.
+
+## Paths
+- PRD: /home/marc/Documents/github/ralph/game-hub/.agents/tasks/prd-gamehub-tests.json
+- AGENTS (optional): /home/marc/Documents/github/ralph/game-hub/AGENTS.md
+- Progress Log: /home/marc/Documents/github/ralph/game-hub/.ralph/progress.md
+- Guardrails: /home/marc/Documents/github/ralph/game-hub/.ralph/guardrails.md
+- Guardrails Reference: /home/marc/.nvm/versions/node/v22.14.0/lib/node_modules/@iannuttall/ralph/.agents/ralph/references/GUARDRAILS.md
+- Context Reference: /home/marc/.nvm/versions/node/v22.14.0/lib/node_modules/@iannuttall/ralph/.agents/ralph/references/CONTEXT_ENGINEERING.md
+- Errors Log: /home/marc/Documents/github/ralph/game-hub/.ralph/errors.log
+- Activity Log: /home/marc/Documents/github/ralph/game-hub/.ralph/activity.log
+- Activity Logger: /home/marc/Documents/github/ralph/game-hub/ralph log
+- No-commit: false
+- Repo Root: /home/marc/Documents/github/ralph/game-hub
+- Run ID: 20260123-011054-971908
+- Iteration: 5
+- Run Log: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-5.log
+- Run Summary: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-5.md
+
+## Global Quality Gates (apply to every story)
+- All new tests are deterministic and avoid real Redis/network usage (use in-memory mocks or dependency injection).
+- `services/hub` tests run via `npm test` without requiring external services.
+- `services/web` tests run via `npm test` and use jsdom-safe APIs.
+- Test failures include clear, actionable messages.
+
+## Selected Story (Do not change scope)
+ID: TST-006
+Title: Add Wordle daily flow tests
+
+Story details:
+### TST-006: Add Wordle daily flow tests
+Status: in_progress
+Depends on: TST-002
+
+Description:
+Write tests for `services/hub/src/games/wordle/wordleDaily.js` covering start, guess validation, win/lose outcomes, leaderboard/entry writes, and status queries using the Redis mock and controlled time.
+
+Acceptance Criteria:
+- [ ] Start/guess flows validate error cases (missing name, invalid length/word, already played).
+- [ ] Win and lose outcomes update stats and leaderboard entries.
+- [ ] `getDailyStatus` returns expected fields for player and anonymous queries.
+
+
+If the story details are empty or missing, STOP and report that the PRD story format could not be parsed.
+
+## Rules (Non-Negotiable)
+- Implement **only** the work required to complete the selected story.
+- Complete all tasks associated with this story (and only this story).
+- Do NOT ask the user questions.
+- Do NOT change unrelated code.
+- Do NOT assume something is unimplemented — confirm by reading code.
+- Implement completely; no placeholders or stubs.
+- If No-commit is true, do NOT commit or push changes.
+- Do NOT edit the PRD JSON (status is handled by the loop).
+- All changes made during the run must be committed (including updates to progress/logs).
+ - Before committing, perform a final **security**, **performance**, and **regression** review of your changes.
+
+## Your Task (Do this in order)
+1. Read /home/marc/Documents/github/ralph/game-hub/.ralph/guardrails.md before any code changes.
+2. Read /home/marc/Documents/github/ralph/game-hub/.ralph/errors.log for repeated failures to avoid.
+3. Read /home/marc/Documents/github/ralph/game-hub/.agents/tasks/prd-gamehub-tests.json for global context (do not edit).
+4. Fully audit and read all necessary files to understand the task end-to-end before implementing. Do not assume missing functionality.
+5. If /home/marc/Documents/github/ralph/game-hub/AGENTS.md exists, follow its build/test instructions.
+6. Implement only the tasks that belong to TST-006.
+7. Run verification commands listed in the story, the global quality gates, and in /home/marc/Documents/github/ralph/game-hub/AGENTS.md (if required).
+8. If the project has a build or dev workflow, run what applies:
+   - Build step (e.g., `npm run build`) if defined.
+   - Dev server (e.g., `npm run dev`, `wrangler dev`) if it is the normal validation path.
+   - Confirm no runtime/build errors in the console.
+9. Perform a brief audit before committing:
+   - **Security:** check for obvious vulnerabilities or unsafe handling introduced by your changes.
+   - **Performance:** check for avoidable regressions (extra queries, heavy loops, unnecessary re-renders).
+   - **Regression:** verify existing behavior that could be impacted still works.
+10. If No-commit is false, commit changes using the `$commit` skill.
+    - Stage everything: `git add -A`
+    - Confirm a clean working tree after commit: `git status --porcelain` should be empty.
+    - After committing, capture the commit hash and subject using:
+      `git show -s --format="%h %s" HEAD`.
+11. Append a progress entry to /home/marc/Documents/github/ralph/game-hub/.ralph/progress.md with run/commit/test details (format below).
+    If No-commit is true, skip committing and note it in the progress entry.
+
+## Progress Entry Format (Append Only)
+```
+## [Date/Time] - TST-006: Add Wordle daily flow tests
+Thread: [codex exec session id if available, otherwise leave blank]
+Run: 20260123-011054-971908 (iteration 5)
+Run log: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-5.log
+Run summary: /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-5.md
+- Guardrails reviewed: yes
+- No-commit run: false
+- Commit: <hash> <subject> (or `none` + reason)
+- Post-commit status: `clean` or list remaining files
+- Verification:
+  - Command: <exact command> -> PASS/FAIL
+  - Command: <exact command> -> PASS/FAIL
+- Files changed:
+  - <file path>
+  - <file path>
+- What was implemented
+- **Learnings for future iterations:**
+  - Patterns discovered
+  - Gotchas encountered
+  - Useful context
+---
+```
+
+## Completion Signal
+Only output the completion signal when the **selected story** is fully complete and verified.
+When the selected story is complete, output:
+<promise>COMPLETE</promise>
+
+Otherwise, end normally without the signal.
+
+## Additional Guardrails
+- When authoring documentation, capture the why (tests + implementation intent).
+- If you learn how to run/build/test the project, update /home/marc/Documents/github/ralph/game-hub/AGENTS.md briefly (operational only).
+- Keep AGENTS operational only; progress notes belong in /home/marc/Documents/github/ralph/game-hub/.ralph/progress.md.
+- If you hit repeated errors, log them in /home/marc/Documents/github/ralph/game-hub/.ralph/errors.log and add a Sign to /home/marc/Documents/github/ralph/game-hub/.ralph/guardrails.md using /home/marc/.nvm/versions/node/v22.14.0/lib/node_modules/@iannuttall/ralph/.agents/ralph/references/GUARDRAILS.md as the template.
+
+## Activity Logging (Required)
+Log major actions to /home/marc/Documents/github/ralph/game-hub/.ralph/activity.log using the helper:
+```
+/home/marc/Documents/github/ralph/game-hub/ralph log "message"
+```
+Log at least:
+- Start of work on the story
+- After major code changes
+- After tests/verification
+- After updating progress log
+
+## Browser Testing (Required for Frontend Stories)
+If the selected story changes UI, you MUST verify it in the browser:
+1. Load the `dev-browser` skill.
+2. Navigate to the relevant page.
+3. Verify the UI changes work as expected.
+4. Take a screenshot if helpful for the progress log.
+
+A frontend story is NOT complete until browser verification passes.
+
+mcp: livekit-docs starting
+mcp: livekit-docs ready
+mcp startup: ready: livekit-docs
+
+thinking
+**Starting inspection with shell commands**
+exec
+/bin/bash -lc ls in /home/marc/Documents/github/ralph/game-hub succeeded in 390ms:
+docker-compose.yml
+Dockerfile
+gamehub_framework.md
+README.md
+scripts
+services
+test-roadmap.md
+
+thinking
+**Reading key docs**
+
+I'm retrieving the guardrails, errors, PRD, and AGENTS files to gather necessary context for next steps.
+exec
+/bin/bash -lc 'cat /home/marc/Documents/github/ralph/game-hub/.ralph/guardrails.md' in /home/marc/Documents/github/ralph/game-hub succeeded in 415ms:
+# Guardrails (Signs)
+
+> Lessons learned from failures. Read before acting.
+
+## Core Signs
+
+### Sign: Read Before Writing
+- **Trigger**: Before modifying any file
+- **Instruction**: Read the file first
+- **Added after**: Core principle
+
+### Sign: Test Before Commit
+- **Trigger**: Before committing changes
+- **Instruction**: Run required tests and verify outputs
+- **Added after**: Core principle
+
+---
+
+## Learned Signs
+
+
+thinking
+**Reviewing error logs**
+exec
+/bin/bash -lc 'cat /home/marc/Documents/github/ralph/game-hub/.ralph/errors.log' in /home/marc/Documents/github/ralph/game-hub succeeded in 477ms:
+# Error Log
+
+> Failures and repeated issues. Use this to add guardrails.
+
+
+[2026-01-23 00:45:40] NOTE: activity logger missing at /home/marc/Documents/github/ralph/game-hub/ralph; appending manually
+[2026-01-23 00:57:42] ITERATION 1 left uncommitted changes; review run summary at /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-004522-945259-iter-1.md
+[2026-01-23 01:18:15] ITERATION 1 left uncommitted changes; review run summary at /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-1.md
+[2026-01-23 01:28:50] ITERATION 2 left uncommitted changes; review run summary at /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-2.md
+[2026-01-23 01:41:27] ITERATION 3 left uncommitted changes; review run summary at /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-3.md
+[2026-01-23 01:47:26] ITERATION 4 left uncommitted changes; review run summary at /home/marc/Documents/github/ralph/game-hub/.ralph/runs/run-20260123-011054-971908-iter-4.md
+
+thinking
+**Requesting PRD JSON**
+exec
+/bin/bash -lc 'cat /home/marc/Documents/github/ralph/game-hub/.agents/tasks/prd-gamehub-tests.json' in /home/marc/Documents/github/ralph/game-hub succeeded in 421ms:
+{
+  "title": "GameHub Test Coverage",
+  "summary": "Implement a robust, prioritized test suite for the GameHub monorepo with focus on deterministic game logic, room lifecycle, API behavior, and core UI flows.",
+  "nonGoals": [
+    "End-to-end multiplayer tests that require real Redis, sockets, or browser automation (unless explicitly requested later).",
+    "Large refactors unrelated to testability."
+  ],
+  "qualityGates": [
+    "All new tests are deterministic and avoid real Redis/network usage (use in-memory mocks or dependency injection).",
+    "`services/hub` tests run via `npm test` without requiring external services.",
+    "`services/web` tests run via `npm test` and use jsdom-safe APIs.",
+    "Test failures include clear, actionable messages."
+  ],
+  "stories": [
+    {
+      "id": "TST-001",
+      "title": "Complete test inventory and prioritize coverage",
+      "description": "Finish `test-roadmap.md` Phase 0 by mapping major functional areas to files, listing critical game paths, and enumerating must-test APIs/socket events.",
+      "acceptanceCriteria": [
+        "`test-roadmap.md` lists each major service area with concrete file paths.",
+
+thinking
+**Noting missing documentation**
+
+I need to create an AGENTS.md file.
+exec
+/bin/bash -lc 'cat /home/marc/Documents/github/ralph/game-hub/AGENTS.md' in /home/marc/Documents/github/ralph/game-hub exited 1 in 414ms:
+cat: /home/marc/Documents/github/ralph/game-hub/AGENTS.md: No such file or directory
+
+thinking
+**Starting activity log**
+
+I'll begin the activity log using the Ralph log tool path since the AGENTS component is missing.
+exec
+/bin/bash -lc '/home/marc/Documents/github/ralph/game-hub/ralph log "Start TST-006 Wordle daily flow tests"' in /home/marc/Documents/github/ralph/game-hub exited 127 in 429ms:
+/bin/bash: line 1: /home/marc/Documents/github/ralph/game-hub/ralph: No such file or directory
+
+thinking
+**Adding manual append to activity log**
+exec
+/bin/bash -lc "printf \"%s %s\\n\" \"[2026-01-23 00:00:00]\" \"Start TST-006 Wordle daily flow tests\" >> /home/marc/Documents/github/ralph/game-hub/.ralph/activity.log" in /home/marc/Documents/github/ralph/game-hub succeeded in 431ms:
+
+
+thinking
+**Deciding to use current time via date command**
+exec
+/bin/bash -lc 'date "+%Y-%m-%d %H:%M:%S"' in /home/marc/Documents/github/ralph/game-hub succeeded in 495ms:
+2026-01-23 01:47:50
+
+thinking
+**Deciding to add new log entry with correct time**
+
+I'll avoid modifying the fake timestamp and instead add a new log entry with the proper time for accuracy.
+exec
+/bin/bash -lc "printf \"%s %s\\n\" \"[2026-01-23 01:47:50]\" \"Start TST-006 Wordle daily flow tests\" >> /home/marc/Documents/github/ralph/game-hub/.ralph/activity.log" in /home/marc/Documents/github/ralph/game-hub succeeded in 494ms:
+
+
+thinking
+**Scanning WordleDaily and tests**
+exec
+/bin/bash -lc 'rg --files -g "*wordle*" services/hub' in /home/marc/Documents/github/ralph/game-hub succeeded in 478ms:
+services/hub/test/wordleUtils.test.js
+services/hub/src/games/wordle/wordleVs.js
+services/hub/src/games/wordle/wordleUtils.js
+services/hub/src/games/wordle/wordleRoomService.js
+services/hub/src/games/wordle/wordleDaily.js
+
+thinking
+**Scanning main game logic**
+
+I'll check wordleDaily.js to understand how the daily Wordle game functions and what data or logic it includes.
+exec
+/bin/bash -lc 'cat services/hub/src/games/wordle/wordleDaily.js' in /home/marc/Documents/github/ralph/game-hub succeeded in 457ms:
+import crypto from "node:crypto";
+import { redis } from "../../redis.js";
+import { MAX_GUESSES, WORD_LENGTH, checkGuess, isValidWord, normalizeGuess, pickRandomWord } from "./wordleUtils.js";
+
+function todayKey() {
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const dd = String(now.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function dailyWordKey(date) {
+  return `wordle:daily:word:${date}`;
+}
+
+function dailyPlayedKey(date, nameKey) {
+  return `wordle:daily:played:${date}:${nameKey}`;
+}
+
+
+thinking
+**Searching test patterns for Redis mock**
+exec
+/bin/bash -lc 'ls services/hub/test' in /home/marc/Documents/github/ralph/game-hub succeeded in 475ms:
+boardUtils.test.js
+cardUtils.test.js
+catanResources.test.js
+catanScoring.test.js
+chessAi.test.js
+chessService.test.js
+codes.test.js
+connect4Rules.test.js
+crazyEightsService.test.js
+cribbageService.test.js
+drawService.test.js
+fibbage.test.js
+helpers
+hexUtils.test.js
+roomService.test.js
+scoringUtils.test.js
+unoService.test.js
+wordleUtils.test.js
+
+thinking
+**Reviewing helpers from TST-002**
+exec
+/bin/bash -lc 'ls services/hub/test/helpers' in /home/marc/Documents/github/ralph/game-hub succeeded in 453ms:
+redisTestHelper.js
+timeTestHelper.js
+exec
+/bin/bash -lc 'cat services/hub/test/helpers/redisTestHelper.js' in /home/marc/Documents/github/ralph/game-hub succeeded in 574ms:
+export function createInMemoryRedis() {
+  const store = new Map();
+  const expirations = new Map();
+  const zsets = new Map();
+
+  function isExpired(key) {
+    const expiresAt = expirations.get(key);
+    if (expiresAt && expiresAt <= Date.now()) {
+      expirations.delete(key);
+      store.delete(key);
+      zsets.delete(key);
+      return true;
+    }
+    return false;
+  }
+
+  function setExpiry(key, ttlSeconds) {
+    if (typeof ttlSeconds === "number" && Number.isFinite(ttlSeconds)) {
+      expirations.set(key, Date.now() + ttlSeconds * 1000);
+    }
+
+thinking
+**Reviewing timeTestHelper**
+exec
+/bin/bash -lc 'cat services/hub/test/helpers/timeTestHelper.js' in /home/marc/Documents/github/ralph/game-hub succeeded in 429ms:
+export function useFixedTime(isoString) {
+  const fixedTime = new Date(isoString).getTime();
+  if (!Number.isFinite(fixedTime)) {
+    throw new Error("useFixedTime requires a valid date string");
+  }
+  const OriginalDate = globalThis.Date;
+
+  class MockDate extends OriginalDate {
+    constructor(...args) {
+      if (args.length === 0) {
+        super(fixedTime);
+      } else {
+        super(...args);
+      }
+    }
+
+    static now() {
+      return fixedTime;
+    }
+  }
+exec
+/bin/bash -lc 'cat services/hub/src/redis.js' in /home/marc/Documents/github/ralph/game-hub succeeded in 426ms:
+import Redis from "ioredis";
+
+const redisUrl = process.env.REDIS_URL || "redis://redis:6379";
+const testRedis = globalThis.__TEST_REDIS__;
+
+export const redis =
+  testRedis ||
+  new Redis(redisUrl, {
+    maxRetriesPerRequest: 3,
+  });
+
+if (!testRedis) {
+  redis.on("error", (err) => {
+    console.error("[redis] error", err);
+  });
+}
+
+thinking
+**Reviewing test examples**
+
+I'm examining existing test examples that utilize helper functions to understand their structure before checking other tests.
+exec
+/bin/bash -lc 'cat services/hub/test/unoService.test.js' in /home/marc/Documents/github/ralph/game-hub succeeded in 413ms:
+import test from "node:test";
+import assert from "node:assert/strict";
+import {
+  ACTIONS,
+  PHASES,
+  createUnoInitialState,
+  getAvailableActions,
+  processAction,
+  startUnoGame,
+} from "../src/games/uno/unoService.js";
+import { CARD_TYPES, COLORS } from "../src/games/uno/unoConstants.js";
+
+function makeCard({ id, color, type, value }) {
+  return { id, color, type, value };
+}
+
+function makeState(players) {
+  const state = createUnoInitialState(players);
+  state.phase = PHASES.TURN;
+  state.turnIndex = 0;
+
+thinking
+**Planning Wordle daily tests**
+
+I'm preparing to use node:test with assert for Wordle daily tests, which require stubbing redis and time. I'll review wordleUtils tests to understand valid word handling before creating new Wordle daily tests in services/hub/test.
+exec
+/bin/bash -lc 'cat services/hub/src/games/wordle/wordleUtils.js' in /home/marc/Documents/github/ralph/game-hub succeeded in 455ms:
+import { WORDS, WORD_SET } from "./words.js";
+
+export const WORD_LENGTH = 5;
+export const MAX_GUESSES = 6;
+
+export function normalizeGuess(guess) {
+  return String(guess || "")
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z]/g, "");
+}
+
+export function isValidWord(word) {
+  return WORD_SET.has(word);
+}
+
+export function pickRandomWord() {
+  const idx = Math.floor(Math.random() * WORDS.length);
+  return WORDS[idx];
+}
+
+
+thinking
+**Planning Redis and time control for tests**
+
+Tests need a fixed daily word via redis key `wordle:daily:word:${date}`, requiring global `__TEST_REDIS__` to be set before importing the module that creates redis client at import time. I'll use an in-memory redis instance and the `useFixedTime` helper to control date-dependent behavior, dynamically importing the wordleDaily module after setup.
+thinking
+**Designing isolated Redis mocks for tests**
+
+Because the redis client captures `__TEST_REDIS__` at import time, we’ll install the in-memory redis mock and set the global before dynamically importing the dependent module per test file, using top-level await in ESM tests. To isolate tests, we’ll reset or restore the mock after each test suite and carefully scope the mock setup to avoid interference across test files importing redis at different times.
+exec
+/bin/bash -lc 'rg "redis" services/hub/test -g "*.test.js"' in /home/marc/Documents/github/ralph/game-hub succeeded in 477ms:
+services/hub/test/roomService.test.js:import { installRedisMock } from "./helpers/redisTestHelper.js";
+exec
+/bin/bash -lc 'cat services/hub/test/roomService.test.js' in /home/marc/Documents/github/ralph/game-hub succeeded in 486ms:
+import test from "node:test";
+import assert from "node:assert/strict";
+import { installRedisMock } from "./helpers/redisTestHelper.js";
+
+function createRoomFixture() {
+  return {
+    roomId: "room-1",
+    joinCode: "ABCD",
+    createdAt: new Date().toISOString(),
+    maxPlayers: 4,
+    players: [],
+    chat: [],
+    currentGame: null,
+  };
+}
+
+installRedisMock();
+
+async function loadRoomService() {
+  return import("../src/rooms/roomService.js");
+
+thinking
+**Planning valid and invalid test words**
+
+I'm deciding to use a known valid word from the word list for answer and guesses, likely by picking from the existing list, and to choose an invalid guess with correct length but definitely outside the list, after verifying the word list file to ensure safe test words.
+exec
+/bin/bash -lc 'rg "WORDS" -n services/hub/src/games/wordle/words.js' in /home/marc/Documents/github/ralph/game-hub succeeded in 470ms:
+1:export const WORDS = [
+65:export const WORD_SET = new Set(WORDS);
+exec
+/bin/bash -lc 'head -n 20 services/hub/src/games/wordle/words.js' in /home/marc/Documents/github/ralph/game-hub succeeded in 515ms:
+export const WORDS = [
+  "ABOUT", "ABOVE", "ACTOR", "ADULT", "AFTER", "AGAIN", "AGENT", "AGREE", "AHEAD", "ALARM",
+  "ALBUM", "ALERT", "ALIEN", "ALIVE", "ALLOW", "ALONE", "ALONG", "ALTER", "AMBER", "AMONG",
+  "AMPLE", "ANGEL", "ANGLE", "ANGRY", "APART", "APPLE", "APRON", "ARENA", "ARGUE", "ARISE",
+  "ASSET", "AUDIO", "AWARE", "BADGE", "BAKER", "BASIC", "BASIL", "BEACH", "BEGAN", "BEGIN",
+  "BEGUN", "BEING", "BERRY", "BIRTH", "BLACK", "BLAME", "BLEND", "BLINK", "BLISS", "BLOOM",
+  "BOARD", "BOOST", "BOUND", "BRAIN", "BRAVE", "BREAD", "BREAK", "BRICK", "BRIDE", "BRING",
+  "BRISK", "BROAD", "BROWN", "BUILD", "BUILT", "CABLE", "CANDY", "CHAIN", "CHAIR", "CHALK",
+  "CHARM", "CHASE", "CHEAP", "CHECK", "CHEST", "CHIEF", "CHILL", "CHOIR", "CIVIC", "CLAIM",
+  "CLASS", "CLEAN", "CLEAR", "CLICK", "CLOCK", "CLOSE", "COACH", "COAST", "COLOR", "COMET",
+  "COULD", "COUNT", "COURT", "COVER", "CRANE", "CRASH", "CRISP", "CROWD", "CROWN", "CURVE",
+  "DAILY", "DANCE", "DATED", "DEALT", "DEBUT", "DELAY", "DEPTH", "DINER", "DIRTY", "DODGE",
+  "DOING", "DOUBT", "DOZEN", "DRAFT", "DREAM", "DRIFT", "DRIVE", "EARTH", "EIGHT", "ELDER",
+  "ELITE", "EMPTY", "ENJOY", "ENTER", "EQUAL", "ERROR", "EVENT", "EVERY", "EXACT", "EXIST",
+  "EXTRA", "FAITH", "FANCY", "FAVOR", "FENCE", "FEVER", "FIELD", "FINAL", "FIRST", "FIXED",
+  "FLAME", "FLASH", "FLEET", "FLOOR", "FOCUS", "FORCE", "FORUM", "FOUND", "FRAME", "FRESH",
+  "FRONT", "FROST", "FRUIT", "GAMER", "GAMES", "GIANT", "GLASS", "GLOVE", "GRACE", "GRADE",
+  "GRAIN", "GRAND", "GRANT", "GRAPH", "GREEN", "GREET", "GROVE", "GUARD", "GUESS", "GUEST",
+  "GUIDE", "HAPPY", "HARDY", "HEART", "HEAVY", "HONEY", "HONOR", "HOUSE", "HUMAN", "IDEAL",
+  "IMAGE", "INDEX", "INNER", "INPUT", "ISSUE", "JELLY", "JOINT", "JUDGE", "JUICE", "KNIFE",
+
+
+thinking
+**Planning word validity and date handling**
+
+I'm planning to test invalid words using isValidWord with a known bad input and assert it returns false. For daily word key, I’ll set a fixed date string around midday UTC to avoid timezone issues when computing the date key for Redis.
+thinking
+**Designing comprehensive daily session tests**
+
+I'm outlining detailed test cases covering error handling, win/lose outcomes, leaderboard and stats updates, and key management using fixed dates and unique player IDs to isolate state. I'll implement helpers to compute date keys and set daily words in Redis, carefully resetting state by varying dates or names to avoid interference across tests.
+file update
+A /home/marc/Documents/github/ralph/game-hub/services/hub/test/wordleDaily.test.js
+import test from "node:test";
+import assert from "node:assert/strict";
+import { installRedisMock } from "./helpers/redisTestHelper.js";
+import { useFixedTime } from "./helpers/timeTestHelper.js";
+import { isValidWord } from "../src/games/wordle/wordleUtils.js";
+
+const { redis, restore } = installRedisMock();
+const wordleDaily = await import("../src/games/wordle/wordleDaily.js");
+const { startDailySession, submitDailyGuess, getDailyStatus, getDailyLeaderboard } = wordleDaily;
+
+function dateKeyFromNow() {
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const dd = String(now.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function dailyWordKey(dateKey) {
+  return `wordle:daily:word:${dateKey}`;
+}
+
+function dailyPlayedKey(dateKey, displayName) {
+  return `wordle:daily:played:${dateKey}:${String(displayName || "").trim().toLowerCase()}`;
+}
+
+test.after(() => {
+  restore();
+});
+
+test("wordle daily: start requires a display name", async () => {
+  const restoreTime = useFixedTime("2026-01-10T12:00:00Z");
+  try {
+    await assert.rejects(startDailySession({ playerId: "p1", displayName: "" }), /NAME_REQUIRED/);
+  } finally {
+    restoreTime();
+  }
+});
+
+test("wordle daily: start rejects already played entries", async () => {
+  const restoreTime = useFixedTime("2026-01-11T12:00:00Z");
+  try {
+    const dateKey = dateKeyFromNow();
+    await redis.set(dailyPlayedKey(dateKey, "Alice"), "1");
+    await assert.rejects(
+      startDailySession({ playerId: "p1", displayName: "Alice" }),
+      /ALREADY_PLAYED/
+    );
+  } finally {
+    restoreTime();
+  }
+});
+
+test("wordle daily: guess validation rejects invalid length and words", async () => {
+  const restoreTime = useFixedTime("2026-01-12T12:00:00Z");
+  try {
+    const dateKey = dateKeyFromNow();
+    await redis.set(dailyWordKey(dateKey), "ABOUT");
+
+    const { gameId } = await startDailySession({ playerId: "p2", displayName: "Briana" });
+
+    await assert.rejects(submitDailyGuess({ gameId, guess: "AB" }), /INVALID_LENGTH/);
+
+    assert.equal(isValidWord("ZZZZZ"), false);
+    await assert.rejects(submitDailyGuess({ gameId, guess: "ZZZZZ" }), /INVALID_WORD/);
+  } finally {
+    restoreTime();
+  }
+});
+
+test("wordle daily: win updates stats and leaderboard entries", async () => {
+  const restoreTime = useFixedTime("2026-01-13T12:00:00Z");
+  try {
+    const dateKey = dateKeyFromNow();
+    await redis.set(dailyWordKey(dateKey), "APPLE");
+
+    const { gameId } = await startDailySession({ playerId: "p-win", displayName: "Cara" });
+    const result = await submitDailyGuess({ gameId, guess: "APPLE" });
+
+    assert.equal(result.status, "WIN");
+    assert.equal(result.answer, "APPLE");
+    assert.equal(result.guesses.length, 1);
+
+    const status = await getDailyStatus({ displayName: "Cara", playerId: "p-win" });
+    assert.equal(status.date, dateKey);
+    assert.equal(status.played, true);
+    assert.ok(Array.isArray(status.leaderboard));
+    assert.equal(status.playerEntry?.status, "WIN");
+    assert.equal(status.playerEntry?.guesses, 1);
+    assert.equal(status.stats?.wins, 1);
+    assert.equal(status.stats?.losses, 0);
+    assert.equal(status.stats?.streak, 1);
+    assert.equal(status.stats?.maxStreak, 1);
+    assert.equal(status.stats?.avgGuesses, 1);
+
+    const leaderboard = await getDailyLeaderboard(dateKey);
+    assert.equal(leaderboard.length, 1);
+    assert.equal(leaderboard[0].playerId, "p-win");
+    assert.equal(leaderboard[0].status, "WIN");
+  } finally {
+    restoreTime();
+  }
+});
+
+test("wordle daily: lose updates stats and leaderboard entries", async () => {
+  const restoreTime = useFixedTime("2026-01-14T12:00:00Z");
+  try {
+    const dateKey = dateKeyFromNow();
+    await redis.set(dailyWordKey(dateKey), "ABOUT");
+
+    const { gameId } = await startDailySession({ playerId: "p-lose", displayName: "Dylan" });
+
+    for (let i = 0; i < 5; i += 1) {
+      const result = await submitDailyGuess({ gameId, guess: "ABOVE" });
+      assert.equal(result.status, "IN_PROGRESS");
+    }
+
+    const finalResult = await submitDailyGuess({ gameId, guess: "ABOVE" });
+    assert.equal(finalResult.status, "LOSE");
+    assert.equal(finalResult.answer, "ABOUT");
+
+    const status = await getDailyStatus({ displayName: "Dylan", playerId: "p-lose" });
+    assert.equal(status.played, true);
+    assert.equal(status.playerEntry?.status, "LOSE");
+    assert.equal(status.playerEntry?.guesses, 6);
+    assert.equal(status.stats?.wins, 0);
+    assert.equal(status.stats?.losses, 1);
+    assert.equal(status.stats?.streak, 0);
+    assert.equal(status.stats?.maxStreak, 0);
+    assert.equal(status.stats?.avgGuesses, 6);
+
+    const leaderboard = await getDailyLeaderboard(dateKey);
+    assert.equal(leaderboard.length, 1);
+    assert.equal(leaderboard[0].playerId, "p-lose");
+    assert.equal(leaderboard[0].status, "LOSE");
+  } finally {
+    restoreTime();
+  }
+});
+
+test("wordle daily: status for anonymous callers returns empty player fields", async () => {
+  const restoreTime = useFixedTime("2026-01-15T12:00:00Z");
+  try {
+    const status = await getDailyStatus({});
+    assert.equal(status.date, dateKeyFromNow());
+    assert.equal(status.played, false);
+    assert.deepEqual(status.leaderboard, []);
+    assert.equal(status.playerEntry, null);
+    assert.equal(status.stats, null);
+  } finally {
+    restoreTime();
+  }
+});
+apply_patch(auto_approved=true) exited 0 in 5ms:
+Success. Updated the following files:
+A services/hub/test/wordleDaily.test.js
+file update:
+diff --git a/services/hub/test/wordleDaily.test.js b/services/hub/test/wordleDaily.test.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..2637b25c36941843c651a191c2c6cab7e6fe7f99
+--- /dev/null
++++ b/services/hub/test/wordleDaily.test.js
+@@ -0,0 +1,153 @@
++import test from "node:test";
++import assert from "node:assert/strict";
++import { installRedisMock } from "./helpers/redisTestHelper.js";
++import { useFixedTime } from "./helpers/timeTestHelper.js";
++import { isValidWord } from "../src/games/wordle/wordleUtils.js";
++
++const { redis, restore } = installRedisMock();
++const wordleDaily = await import("../src/games/wordle/wordleDaily.js");
++const { startDailySession, submitDailyGuess, getDailyStatus, getDailyLeaderboard } = wordleDaily;
++
++function dateKeyFromNow() {
++  const now = new Date();
++  const yyyy = now.getFullYear();
++  const mm = String(now.getMonth() + 1).padStart(2, "0");
++  const dd = String(now.getDate()).padStart(2, "0");
++  return `${yyyy}-${mm}-${dd}`;
++}
++
++function dailyWordKey(dateKey) {
++  return `wordle:daily:word:${dateKey}`;
++}
++
++function dailyPlayedKey(dateKey, displayName) {
++  return `wordle:daily:played:${dateKey}:${String(displayName || "").trim().toLowerCase()}`;
++}
++
++test.after(() => {
++  restore();
++});
++
++test("wordle daily: start requires a display name", async () => {
++  const restoreTime = useFixedTime("2026-01-10T12:00:00Z");
++  try {
++    await assert.rejects(startDailySession({ playerId: "p1", displayName: "" }), /NAME_REQUIRED/);
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: start rejects already played entries", async () => {
++  const restoreTime = useFixedTime("2026-01-11T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyPlayedKey(dateKey, "Alice"), "1");
++    await assert.rejects(
++      startDailySession({ playerId: "p1", displayName: "Alice" }),
++      /ALREADY_PLAYED/
++    );
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: guess validation rejects invalid length and words", async () => {
++  const restoreTime = useFixedTime("2026-01-12T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyWordKey(dateKey), "ABOUT");
++
++    const { gameId } = await startDailySession({ playerId: "p2", displayName: "Briana" });
++
++    await assert.rejects(submitDailyGuess({ gameId, guess: "AB" }), /INVALID_LENGTH/);
++
++    assert.equal(isValidWord("ZZZZZ"), false);
++    await assert.rejects(submitDailyGuess({ gameId, guess: "ZZZZZ" }), /INVALID_WORD/);
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: win updates stats and leaderboard entries", async () => {
++  const restoreTime = useFixedTime("2026-01-13T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyWordKey(dateKey), "APPLE");
++
++    const { gameId } = await startDailySession({ playerId: "p-win", displayName: "Cara" });
++    const result = await submitDailyGuess({ gameId, guess: "APPLE" });
++
++    assert.equal(result.status, "WIN");
++    assert.equal(result.answer, "APPLE");
++    assert.equal(result.guesses.length, 1);
++
++    const status = await getDailyStatus({ displayName: "Cara", playerId: "p-win" });
++    assert.equal(status.date, dateKey);
++    assert.equal(status.played, true);
++    assert.ok(Array.isArray(status.leaderboard));
++    assert.equal(status.playerEntry?.status, "WIN");
++    assert.equal(status.playerEntry?.guesses, 1);
++    assert.equal(status.stats?.wins, 1);
++    assert.equal(status.stats?.losses, 0);
++    assert.equal(status.stats?.streak, 1);
++    assert.equal(status.stats?.maxStreak, 1);
++    assert.equal(status.stats?.avgGuesses, 1);
++
++    const leaderboard = await getDailyLeaderboard(dateKey);
++    assert.equal(leaderboard.length, 1);
++    assert.equal(leaderboard[0].playerId, "p-win");
++    assert.equal(leaderboard[0].status, "WIN");
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: lose updates stats and leaderboard entries", async () => {
++  const restoreTime = useFixedTime("2026-01-14T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyWordKey(dateKey), "ABOUT");
++
++    const { gameId } = await startDailySession({ playerId: "p-lose", displayName: "Dylan" });
++
++    for (let i = 0; i < 5; i += 1) {
++      const result = await submitDailyGuess({ gameId, guess: "ABOVE" });
++      assert.equal(result.status, "IN_PROGRESS");
++    }
++
++    const finalResult = await submitDailyGuess({ gameId, guess: "ABOVE" });
++    assert.equal(finalResult.status, "LOSE");
++    assert.equal(finalResult.answer, "ABOUT");
++
++    const status = await getDailyStatus({ displayName: "Dylan", playerId: "p-lose" });
++    assert.equal(status.played, true);
++    assert.equal(status.playerEntry?.status, "LOSE");
++    assert.equal(status.playerEntry?.guesses, 6);
++    assert.equal(status.stats?.wins, 0);
++    assert.equal(status.stats?.losses, 1);
++    assert.equal(status.stats?.streak, 0);
++    assert.equal(status.stats?.maxStreak, 0);
++    assert.equal(status.stats?.avgGuesses, 6);
++
++    const leaderboard = await getDailyLeaderboard(dateKey);
++    assert.equal(leaderboard.length, 1);
++    assert.equal(leaderboard[0].playerId, "p-lose");
++    assert.equal(leaderboard[0].status, "LOSE");
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: status for anonymous callers returns empty player fields", async () => {
++  const restoreTime = useFixedTime("2026-01-15T12:00:00Z");
++  try {
++    const status = await getDailyStatus({});
++    assert.equal(status.date, dateKeyFromNow());
++    assert.equal(status.played, false);
++    assert.deepEqual(status.leaderboard, []);
++    assert.equal(status.playerEntry, null);
++    assert.equal(status.stats, null);
++  } finally {
++    restoreTime();
++  }
++});
+
+file update:
+diff --git a/services/hub/test/wordleDaily.test.js b/services/hub/test/wordleDaily.test.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..2637b25c36941843c651a191c2c6cab7e6fe7f99
+--- /dev/null
++++ b/services/hub/test/wordleDaily.test.js
+@@ -0,0 +1,153 @@
++import test from "node:test";
++import assert from "node:assert/strict";
++import { installRedisMock } from "./helpers/redisTestHelper.js";
++import { useFixedTime } from "./helpers/timeTestHelper.js";
++import { isValidWord } from "../src/games/wordle/wordleUtils.js";
++
++const { redis, restore } = installRedisMock();
++const wordleDaily = await import("../src/games/wordle/wordleDaily.js");
++const { startDailySession, submitDailyGuess, getDailyStatus, getDailyLeaderboard } = wordleDaily;
++
++function dateKeyFromNow() {
++  const now = new Date();
++  const yyyy = now.getFullYear();
++  const mm = String(now.getMonth() + 1).padStart(2, "0");
++  const dd = String(now.getDate()).padStart(2, "0");
++  return `${yyyy}-${mm}-${dd}`;
++}
++
++function dailyWordKey(dateKey) {
++  return `wordle:daily:word:${dateKey}`;
++}
++
++function dailyPlayedKey(dateKey, displayName) {
++  return `wordle:daily:played:${dateKey}:${String(displayName || "").trim().toLowerCase()}`;
++}
++
++test.after(() => {
++  restore();
++});
++
++test("wordle daily: start requires a display name", async () => {
++  const restoreTime = useFixedTime("2026-01-10T12:00:00Z");
++  try {
++    await assert.rejects(startDailySession({ playerId: "p1", displayName: "" }), /NAME_REQUIRED/);
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: start rejects already played entries", async () => {
++  const restoreTime = useFixedTime("2026-01-11T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyPlayedKey(dateKey, "Alice"), "1");
++    await assert.rejects(
++      startDailySession({ playerId: "p1", displayName: "Alice" }),
++      /ALREADY_PLAYED/
++    );
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: guess validation rejects invalid length and words", async () => {
++  const restoreTime = useFixedTime("2026-01-12T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyWordKey(dateKey), "ABOUT");
++
++    const { gameId } = await startDailySession({ playerId: "p2", displayName: "Briana" });
++
++    await assert.rejects(submitDailyGuess({ gameId, guess: "AB" }), /INVALID_LENGTH/);
++
++    assert.equal(isValidWord("ZZZZZ"), false);
++    await assert.rejects(submitDailyGuess({ gameId, guess: "ZZZZZ" }), /INVALID_WORD/);
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: win updates stats and leaderboard entries", async () => {
++  const restoreTime = useFixedTime("2026-01-13T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyWordKey(dateKey), "APPLE");
++
++    const { gameId } = await startDailySession({ playerId: "p-win", displayName: "Cara" });
++    const result = await submitDailyGuess({ gameId, guess: "APPLE" });
++
++    assert.equal(result.status, "WIN");
++    assert.equal(result.answer, "APPLE");
++    assert.equal(result.guesses.length, 1);
++
++    const status = await getDailyStatus({ displayName: "Cara", playerId: "p-win" });
++    assert.equal(status.date, dateKey);
++    assert.equal(status.played, true);
++    assert.ok(Array.isArray(status.leaderboard));
++    assert.equal(status.playerEntry?.status, "WIN");
++    assert.equal(status.playerEntry?.guesses, 1);
++    assert.equal(status.stats?.wins, 1);
++    assert.equal(status.stats?.losses, 0);
++    assert.equal(status.stats?.streak, 1);
++    assert.equal(status.stats?.maxStreak, 1);
++    assert.equal(status.stats?.avgGuesses, 1);
++
++    const leaderboard = await getDailyLeaderboard(dateKey);
++    assert.equal(leaderboard.length, 1);
++    assert.equal(leaderboard[0].playerId, "p-win");
++    assert.equal(leaderboard[0].status, "WIN");
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: lose updates stats and leaderboard entries", async () => {
++  const restoreTime = useFixedTime("2026-01-14T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyWordKey(dateKey), "ABOUT");
++
++    const { gameId } = await startDailySession({ playerId: "p-lose", displayName: "Dylan" });
++
++    for (let i = 0; i < 5; i += 1) {
++      const result = await submitDailyGuess({ gameId, guess: "ABOVE" });
++      assert.equal(result.status, "IN_PROGRESS");
++    }
++
++    const finalResult = await submitDailyGuess({ gameId, guess: "ABOVE" });
++    assert.equal(finalResult.status, "LOSE");
++    assert.equal(finalResult.answer, "ABOUT");
++
++    const status = await getDailyStatus({ displayName: "Dylan", playerId: "p-lose" });
++    assert.equal(status.played, true);
++    assert.equal(status.playerEntry?.status, "LOSE");
++    assert.equal(status.playerEntry?.guesses, 6);
++    assert.equal(status.stats?.wins, 0);
++    assert.equal(status.stats?.losses, 1);
++    assert.equal(status.stats?.streak, 0);
++    assert.equal(status.stats?.maxStreak, 0);
++    assert.equal(status.stats?.avgGuesses, 6);
++
++    const leaderboard = await getDailyLeaderboard(dateKey);
++    assert.equal(leaderboard.length, 1);
++    assert.equal(leaderboard[0].playerId, "p-lose");
++    assert.equal(leaderboard[0].status, "LOSE");
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: status for anonymous callers returns empty player fields", async () => {
++  const restoreTime = useFixedTime("2026-01-15T12:00:00Z");
++  try {
++    const status = await getDailyStatus({});
++    assert.equal(status.date, dateKeyFromNow());
++    assert.equal(status.played, false);
++    assert.deepEqual(status.leaderboard, []);
++    assert.equal(status.playerEntry, null);
++    assert.equal(status.stats, null);
++  } finally {
++    restoreTime();
++  }
++});
+
+
+thinking
+**Adding manual activity log**
+
+I'm planning to add a manual activity log with timestamps to track major code changes since the standard logger is missing.
+exec
+/bin/bash -lc 'date "+%Y-%m-%d %H:%M:%S"' in /home/marc/Documents/github/ralph/game-hub succeeded in 497ms:
+2026-01-23 01:50:00
+file update:
+diff --git a/services/hub/test/wordleDaily.test.js b/services/hub/test/wordleDaily.test.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..2637b25c36941843c651a191c2c6cab7e6fe7f99
+--- /dev/null
++++ b/services/hub/test/wordleDaily.test.js
+@@ -0,0 +1,153 @@
++import test from "node:test";
++import assert from "node:assert/strict";
++import { installRedisMock } from "./helpers/redisTestHelper.js";
++import { useFixedTime } from "./helpers/timeTestHelper.js";
++import { isValidWord } from "../src/games/wordle/wordleUtils.js";
++
++const { redis, restore } = installRedisMock();
++const wordleDaily = await import("../src/games/wordle/wordleDaily.js");
++const { startDailySession, submitDailyGuess, getDailyStatus, getDailyLeaderboard } = wordleDaily;
++
++function dateKeyFromNow() {
++  const now = new Date();
++  const yyyy = now.getFullYear();
++  const mm = String(now.getMonth() + 1).padStart(2, "0");
++  const dd = String(now.getDate()).padStart(2, "0");
++  return `${yyyy}-${mm}-${dd}`;
++}
++
++function dailyWordKey(dateKey) {
++  return `wordle:daily:word:${dateKey}`;
++}
++
++function dailyPlayedKey(dateKey, displayName) {
++  return `wordle:daily:played:${dateKey}:${String(displayName || "").trim().toLowerCase()}`;
++}
++
++test.after(() => {
++  restore();
++});
++
++test("wordle daily: start requires a display name", async () => {
++  const restoreTime = useFixedTime("2026-01-10T12:00:00Z");
++  try {
++    await assert.rejects(startDailySession({ playerId: "p1", displayName: "" }), /NAME_REQUIRED/);
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: start rejects already played entries", async () => {
++  const restoreTime = useFixedTime("2026-01-11T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyPlayedKey(dateKey, "Alice"), "1");
++    await assert.rejects(
++      startDailySession({ playerId: "p1", displayName: "Alice" }),
++      /ALREADY_PLAYED/
++    );
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: guess validation rejects invalid length and words", async () => {
++  const restoreTime = useFixedTime("2026-01-12T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyWordKey(dateKey), "ABOUT");
++
++    const { gameId } = await startDailySession({ playerId: "p2", displayName: "Briana" });
++
++    await assert.rejects(submitDailyGuess({ gameId, guess: "AB" }), /INVALID_LENGTH/);
++
++    assert.equal(isValidWord("ZZZZZ"), false);
++    await assert.rejects(submitDailyGuess({ gameId, guess: "ZZZZZ" }), /INVALID_WORD/);
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: win updates stats and leaderboard entries", async () => {
++  const restoreTime = useFixedTime("2026-01-13T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyWordKey(dateKey), "APPLE");
++
++    const { gameId } = await startDailySession({ playerId: "p-win", displayName: "Cara" });
++    const result = await submitDailyGuess({ gameId, guess: "APPLE" });
++
++    assert.equal(result.status, "WIN");
++    assert.equal(result.answer, "APPLE");
++    assert.equal(result.guesses.length, 1);
++
++    const status = await getDailyStatus({ displayName: "Cara", playerId: "p-win" });
++    assert.equal(status.date, dateKey);
++    assert.equal(status.played, true);
++    assert.ok(Array.isArray(status.leaderboard));
++    assert.equal(status.playerEntry?.status, "WIN");
++    assert.equal(status.playerEntry?.guesses, 1);
++    assert.equal(status.stats?.wins, 1);
++    assert.equal(status.stats?.losses, 0);
++    assert.equal(status.stats?.streak, 1);
++    assert.equal(status.stats?.maxStreak, 1);
++    assert.equal(status.stats?.avgGuesses, 1);
++
++    const leaderboard = await getDailyLeaderboard(dateKey);
++    assert.equal(leaderboard.length, 1);
++    assert.equal(leaderboard[0].playerId, "p-win");
++    assert.equal(leaderboard[0].status, "WIN");
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: lose updates stats and leaderboard entries", async () => {
++  const restoreTime = useFixedTime("2026-01-14T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyWordKey(dateKey), "ABOUT");
++
++    const { gameId } = await startDailySession({ playerId: "p-lose", displayName: "Dylan" });
++
++    for (let i = 0; i < 5; i += 1) {
++      const result = await submitDailyGuess({ gameId, guess: "ABOVE" });
++      assert.equal(result.status, "IN_PROGRESS");
++    }
++
++    const finalResult = await submitDailyGuess({ gameId, guess: "ABOVE" });
++    assert.equal(finalResult.status, "LOSE");
++    assert.equal(finalResult.answer, "ABOUT");
++
++    const status = await getDailyStatus({ displayName: "Dylan", playerId: "p-lose" });
++    assert.equal(status.played, true);
++    assert.equal(status.playerEntry?.status, "LOSE");
++    assert.equal(status.playerEntry?.guesses, 6);
++    assert.equal(status.stats?.wins, 0);
++    assert.equal(status.stats?.losses, 1);
++    assert.equal(status.stats?.streak, 0);
++    assert.equal(status.stats?.maxStreak, 0);
++    assert.equal(status.stats?.avgGuesses, 6);
++
++    const leaderboard = await getDailyLeaderboard(dateKey);
++    assert.equal(leaderboard.length, 1);
++    assert.equal(leaderboard[0].playerId, "p-lose");
++    assert.equal(leaderboard[0].status, "LOSE");
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: status for anonymous callers returns empty player fields", async () => {
++  const restoreTime = useFixedTime("2026-01-15T12:00:00Z");
++  try {
++    const status = await getDailyStatus({});
++    assert.equal(status.date, dateKeyFromNow());
++    assert.equal(status.played, false);
++    assert.deepEqual(status.leaderboard, []);
++    assert.equal(status.playerEntry, null);
++    assert.equal(status.stats, null);
++  } finally {
++    restoreTime();
++  }
++});
+
+exec
+/bin/bash -lc "printf \"%s %s\\n\" \"[2026-01-23 01:50:00]\" \"Added wordle daily tests\" >> /home/marc/Documents/github/ralph/game-hub/.ralph/activity.log" in /home/marc/Documents/github/ralph/game-hub succeeded in 554ms:
+
+file update:
+diff --git a/services/hub/test/wordleDaily.test.js b/services/hub/test/wordleDaily.test.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..2637b25c36941843c651a191c2c6cab7e6fe7f99
+--- /dev/null
++++ b/services/hub/test/wordleDaily.test.js
+@@ -0,0 +1,153 @@
++import test from "node:test";
++import assert from "node:assert/strict";
++import { installRedisMock } from "./helpers/redisTestHelper.js";
++import { useFixedTime } from "./helpers/timeTestHelper.js";
++import { isValidWord } from "../src/games/wordle/wordleUtils.js";
++
++const { redis, restore } = installRedisMock();
++const wordleDaily = await import("../src/games/wordle/wordleDaily.js");
++const { startDailySession, submitDailyGuess, getDailyStatus, getDailyLeaderboard } = wordleDaily;
++
++function dateKeyFromNow() {
++  const now = new Date();
++  const yyyy = now.getFullYear();
++  const mm = String(now.getMonth() + 1).padStart(2, "0");
++  const dd = String(now.getDate()).padStart(2, "0");
++  return `${yyyy}-${mm}-${dd}`;
++}
++
++function dailyWordKey(dateKey) {
++  return `wordle:daily:word:${dateKey}`;
++}
++
++function dailyPlayedKey(dateKey, displayName) {
++  return `wordle:daily:played:${dateKey}:${String(displayName || "").trim().toLowerCase()}`;
++}
++
++test.after(() => {
++  restore();
++});
++
++test("wordle daily: start requires a display name", async () => {
++  const restoreTime = useFixedTime("2026-01-10T12:00:00Z");
++  try {
++    await assert.rejects(startDailySession({ playerId: "p1", displayName: "" }), /NAME_REQUIRED/);
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: start rejects already played entries", async () => {
++  const restoreTime = useFixedTime("2026-01-11T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyPlayedKey(dateKey, "Alice"), "1");
++    await assert.rejects(
++      startDailySession({ playerId: "p1", displayName: "Alice" }),
++      /ALREADY_PLAYED/
++    );
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: guess validation rejects invalid length and words", async () => {
++  const restoreTime = useFixedTime("2026-01-12T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyWordKey(dateKey), "ABOUT");
++
++    const { gameId } = await startDailySession({ playerId: "p2", displayName: "Briana" });
++
++    await assert.rejects(submitDailyGuess({ gameId, guess: "AB" }), /INVALID_LENGTH/);
++
++    assert.equal(isValidWord("ZZZZZ"), false);
++    await assert.rejects(submitDailyGuess({ gameId, guess: "ZZZZZ" }), /INVALID_WORD/);
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: win updates stats and leaderboard entries", async () => {
++  const restoreTime = useFixedTime("2026-01-13T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyWordKey(dateKey), "APPLE");
++
++    const { gameId } = await startDailySession({ playerId: "p-win", displayName: "Cara" });
++    const result = await submitDailyGuess({ gameId, guess: "APPLE" });
++
++    assert.equal(result.status, "WIN");
++    assert.equal(result.answer, "APPLE");
++    assert.equal(result.guesses.length, 1);
++
++    const status = await getDailyStatus({ displayName: "Cara", playerId: "p-win" });
++    assert.equal(status.date, dateKey);
++    assert.equal(status.played, true);
++    assert.ok(Array.isArray(status.leaderboard));
++    assert.equal(status.playerEntry?.status, "WIN");
++    assert.equal(status.playerEntry?.guesses, 1);
++    assert.equal(status.stats?.wins, 1);
++    assert.equal(status.stats?.losses, 0);
++    assert.equal(status.stats?.streak, 1);
++    assert.equal(status.stats?.maxStreak, 1);
++    assert.equal(status.stats?.avgGuesses, 1);
++
++    const leaderboard = await getDailyLeaderboard(dateKey);
++    assert.equal(leaderboard.length, 1);
++    assert.equal(leaderboard[0].playerId, "p-win");
++    assert.equal(leaderboard[0].status, "WIN");
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: lose updates stats and leaderboard entries", async () => {
++  const restoreTime = useFixedTime("2026-01-14T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyWordKey(dateKey), "ABOUT");
++
++    const { gameId } = await startDailySession({ playerId: "p-lose", displayName: "Dylan" });
++
++    for (let i = 0; i < 5; i += 1) {
++      const result = await submitDailyGuess({ gameId, guess: "ABOVE" });
++      assert.equal(result.status, "IN_PROGRESS");
++    }
++
++    const finalResult = await submitDailyGuess({ gameId, guess: "ABOVE" });
++    assert.equal(finalResult.status, "LOSE");
++    assert.equal(finalResult.answer, "ABOUT");
++
++    const status = await getDailyStatus({ displayName: "Dylan", playerId: "p-lose" });
++    assert.equal(status.played, true);
++    assert.equal(status.playerEntry?.status, "LOSE");
++    assert.equal(status.playerEntry?.guesses, 6);
++    assert.equal(status.stats?.wins, 0);
++    assert.equal(status.stats?.losses, 1);
++    assert.equal(status.stats?.streak, 0);
++    assert.equal(status.stats?.maxStreak, 0);
++    assert.equal(status.stats?.avgGuesses, 6);
++
++    const leaderboard = await getDailyLeaderboard(dateKey);
++    assert.equal(leaderboard.length, 1);
++    assert.equal(leaderboard[0].playerId, "p-lose");
++    assert.equal(leaderboard[0].status, "LOSE");
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: status for anonymous callers returns empty player fields", async () => {
++  const restoreTime = useFixedTime("2026-01-15T12:00:00Z");
++  try {
++    const status = await getDailyStatus({});
++    assert.equal(status.date, dateKeyFromNow());
++    assert.equal(status.played, false);
++    assert.deepEqual(status.leaderboard, []);
++    assert.equal(status.playerEntry, null);
++    assert.equal(status.stats, null);
++  } finally {
++    restoreTime();
++  }
++});
+
+
+thinking
+**Running tests in services/hub**
+exec
+/bin/bash -lc 'npm test' in /home/marc/Documents/github/ralph/game-hub/services/hub succeeded in 892ms:
+
+> gamehub-hub@0.1.0 test
+> node --test
+
+TAP version 13
+# Subtest: boardUtils: board state init and serialization
+ok 1 - boardUtils: board state init and serialization
+  ---
+  duration_ms: 1.555549
+  ...
+# Subtest: boardUtils: place buildings/roads and longest path
+ok 2 - boardUtils: place buildings/roads and longest path
+  ---
+  duration_ms: 0.855822
+  ...
+# Subtest: cardUtils: createDeck builds a standard 52-card deck
+ok 3 - cardUtils: createDeck builds a standard 52-card deck
+  ---
+  duration_ms: 1.456207
+  ...
+file update:
+diff --git a/services/hub/test/wordleDaily.test.js b/services/hub/test/wordleDaily.test.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..2637b25c36941843c651a191c2c6cab7e6fe7f99
+--- /dev/null
++++ b/services/hub/test/wordleDaily.test.js
+@@ -0,0 +1,153 @@
++import test from "node:test";
++import assert from "node:assert/strict";
++import { installRedisMock } from "./helpers/redisTestHelper.js";
++import { useFixedTime } from "./helpers/timeTestHelper.js";
++import { isValidWord } from "../src/games/wordle/wordleUtils.js";
++
++const { redis, restore } = installRedisMock();
++const wordleDaily = await import("../src/games/wordle/wordleDaily.js");
++const { startDailySession, submitDailyGuess, getDailyStatus, getDailyLeaderboard } = wordleDaily;
++
++function dateKeyFromNow() {
++  const now = new Date();
++  const yyyy = now.getFullYear();
++  const mm = String(now.getMonth() + 1).padStart(2, "0");
++  const dd = String(now.getDate()).padStart(2, "0");
++  return `${yyyy}-${mm}-${dd}`;
++}
++
++function dailyWordKey(dateKey) {
++  return `wordle:daily:word:${dateKey}`;
++}
++
++function dailyPlayedKey(dateKey, displayName) {
++  return `wordle:daily:played:${dateKey}:${String(displayName || "").trim().toLowerCase()}`;
++}
++
++test.after(() => {
++  restore();
++});
++
++test("wordle daily: start requires a display name", async () => {
++  const restoreTime = useFixedTime("2026-01-10T12:00:00Z");
++  try {
++    await assert.rejects(startDailySession({ playerId: "p1", displayName: "" }), /NAME_REQUIRED/);
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: start rejects already played entries", async () => {
++  const restoreTime = useFixedTime("2026-01-11T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyPlayedKey(dateKey, "Alice"), "1");
++    await assert.rejects(
++      startDailySession({ playerId: "p1", displayName: "Alice" }),
++      /ALREADY_PLAYED/
++    );
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: guess validation rejects invalid length and words", async () => {
++  const restoreTime = useFixedTime("2026-01-12T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyWordKey(dateKey), "ABOUT");
++
++    const { gameId } = await startDailySession({ playerId: "p2", displayName: "Briana" });
++
++    await assert.rejects(submitDailyGuess({ gameId, guess: "AB" }), /INVALID_LENGTH/);
++
++    assert.equal(isValidWord("ZZZZZ"), false);
++    await assert.rejects(submitDailyGuess({ gameId, guess: "ZZZZZ" }), /INVALID_WORD/);
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: win updates stats and leaderboard entries", async () => {
++  const restoreTime = useFixedTime("2026-01-13T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyWordKey(dateKey), "APPLE");
++
++    const { gameId } = await startDailySession({ playerId: "p-win", displayName: "Cara" });
++    const result = await submitDailyGuess({ gameId, guess: "APPLE" });
++
++    assert.equal(result.status, "WIN");
++    assert.equal(result.answer, "APPLE");
++    assert.equal(result.guesses.length, 1);
++
++    const status = await getDailyStatus({ displayName: "Cara", playerId: "p-win" });
++    assert.equal(status.date, dateKey);
++    assert.equal(status.played, true);
++    assert.ok(Array.isArray(status.leaderboard));
++    assert.equal(status.playerEntry?.status, "WIN");
++    assert.equal(status.playerEntry?.guesses, 1);
++    assert.equal(status.stats?.wins, 1);
++    assert.equal(status.stats?.losses, 0);
++    assert.equal(status.stats?.streak, 1);
++    assert.equal(status.stats?.maxStreak, 1);
++    assert.equal(status.stats?.avgGuesses, 1);
++
++    const leaderboard = await getDailyLeaderboard(dateKey);
++    assert.equal(leaderboard.length, 1);
++    assert.equal(leaderboard[0].playerId, "p-win");
++    assert.equal(leaderboard[0].status, "WIN");
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: lose updates stats and leaderboard entries", async () => {
++  const restoreTime = useFixedTime("2026-01-14T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyWordKey(dateKey), "ABOUT");
++
++    const { gameId } = await startDailySession({ playerId: "p-lose", displayName: "Dylan" });
++
++    for (let i = 0; i < 5; i += 1) {
++      const result = await submitDailyGuess({ gameId, guess: "ABOVE" });
++      assert.equal(result.status, "IN_PROGRESS");
++    }
++
++    const finalResult = await submitDailyGuess({ gameId, guess: "ABOVE" });
++    assert.equal(finalResult.status, "LOSE");
++    assert.equal(finalResult.answer, "ABOUT");
++
++    const status = await getDailyStatus({ displayName: "Dylan", playerId: "p-lose" });
++    assert.equal(status.played, true);
++    assert.equal(status.playerEntry?.status, "LOSE");
++    assert.equal(status.playerEntry?.guesses, 6);
++    assert.equal(status.stats?.wins, 0);
++    assert.equal(status.stats?.losses, 1);
++    assert.equal(status.stats?.streak, 0);
++    assert.equal(status.stats?.maxStreak, 0);
++    assert.equal(status.stats?.avgGuesses, 6);
++
++    const leaderboard = await getDailyLeaderboard(dateKey);
++    assert.equal(leaderboard.length, 1);
++    assert.equal(leaderboard[0].playerId, "p-lose");
++    assert.equal(leaderboard[0].status, "LOSE");
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: status for anonymous callers returns empty player fields", async () => {
++  const restoreTime = useFixedTime("2026-01-15T12:00:00Z");
++  try {
++    const status = await getDailyStatus({});
++    assert.equal(status.date, dateKeyFromNow());
++    assert.equal(status.played, false);
++    assert.deepEqual(status.leaderboard, []);
++    assert.equal(status.playerEntry, null);
++    assert.equal(status.stats, null);
++  } finally {
++    restoreTime();
++  }
++});
+
+
+thinking
+**Planning activity log addition**
+exec
+/bin/bash -lc "printf \"%s %s\\n\" \"[2026-01-23 01:50:05]\" \"Ran services/hub npm test\" >> /home/marc/Documents/github/ralph/game-hub/.ralph/activity.log" in /home/marc/Documents/github/ralph/game-hub succeeded in 508ms:
+
+file update:
+diff --git a/services/hub/test/wordleDaily.test.js b/services/hub/test/wordleDaily.test.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..2637b25c36941843c651a191c2c6cab7e6fe7f99
+--- /dev/null
++++ b/services/hub/test/wordleDaily.test.js
+@@ -0,0 +1,153 @@
++import test from "node:test";
++import assert from "node:assert/strict";
++import { installRedisMock } from "./helpers/redisTestHelper.js";
++import { useFixedTime } from "./helpers/timeTestHelper.js";
++import { isValidWord } from "../src/games/wordle/wordleUtils.js";
++
++const { redis, restore } = installRedisMock();
++const wordleDaily = await import("../src/games/wordle/wordleDaily.js");
++const { startDailySession, submitDailyGuess, getDailyStatus, getDailyLeaderboard } = wordleDaily;
++
++function dateKeyFromNow() {
++  const now = new Date();
++  const yyyy = now.getFullYear();
++  const mm = String(now.getMonth() + 1).padStart(2, "0");
++  const dd = String(now.getDate()).padStart(2, "0");
++  return `${yyyy}-${mm}-${dd}`;
++}
++
++function dailyWordKey(dateKey) {
++  return `wordle:daily:word:${dateKey}`;
++}
++
++function dailyPlayedKey(dateKey, displayName) {
++  return `wordle:daily:played:${dateKey}:${String(displayName || "").trim().toLowerCase()}`;
++}
++
++test.after(() => {
++  restore();
++});
++
++test("wordle daily: start requires a display name", async () => {
++  const restoreTime = useFixedTime("2026-01-10T12:00:00Z");
++  try {
++    await assert.rejects(startDailySession({ playerId: "p1", displayName: "" }), /NAME_REQUIRED/);
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: start rejects already played entries", async () => {
++  const restoreTime = useFixedTime("2026-01-11T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyPlayedKey(dateKey, "Alice"), "1");
++    await assert.rejects(
++      startDailySession({ playerId: "p1", displayName: "Alice" }),
++      /ALREADY_PLAYED/
++    );
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: guess validation rejects invalid length and words", async () => {
++  const restoreTime = useFixedTime("2026-01-12T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyWordKey(dateKey), "ABOUT");
++
++    const { gameId } = await startDailySession({ playerId: "p2", displayName: "Briana" });
++
++    await assert.rejects(submitDailyGuess({ gameId, guess: "AB" }), /INVALID_LENGTH/);
++
++    assert.equal(isValidWord("ZZZZZ"), false);
++    await assert.rejects(submitDailyGuess({ gameId, guess: "ZZZZZ" }), /INVALID_WORD/);
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: win updates stats and leaderboard entries", async () => {
++  const restoreTime = useFixedTime("2026-01-13T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyWordKey(dateKey), "APPLE");
++
++    const { gameId } = await startDailySession({ playerId: "p-win", displayName: "Cara" });
++    const result = await submitDailyGuess({ gameId, guess: "APPLE" });
++
++    assert.equal(result.status, "WIN");
++    assert.equal(result.answer, "APPLE");
++    assert.equal(result.guesses.length, 1);
++
++    const status = await getDailyStatus({ displayName: "Cara", playerId: "p-win" });
++    assert.equal(status.date, dateKey);
++    assert.equal(status.played, true);
++    assert.ok(Array.isArray(status.leaderboard));
++    assert.equal(status.playerEntry?.status, "WIN");
++    assert.equal(status.playerEntry?.guesses, 1);
++    assert.equal(status.stats?.wins, 1);
++    assert.equal(status.stats?.losses, 0);
++    assert.equal(status.stats?.streak, 1);
++    assert.equal(status.stats?.maxStreak, 1);
++    assert.equal(status.stats?.avgGuesses, 1);
++
++    const leaderboard = await getDailyLeaderboard(dateKey);
++    assert.equal(leaderboard.length, 1);
++    assert.equal(leaderboard[0].playerId, "p-win");
++    assert.equal(leaderboard[0].status, "WIN");
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: lose updates stats and leaderboard entries", async () => {
++  const restoreTime = useFixedTime("2026-01-14T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyWordKey(dateKey), "ABOUT");
++
++    const { gameId } = await startDailySession({ playerId: "p-lose", displayName: "Dylan" });
++
++    for (let i = 0; i < 5; i += 1) {
++      const result = await submitDailyGuess({ gameId, guess: "ABOVE" });
++      assert.equal(result.status, "IN_PROGRESS");
++    }
++
++    const finalResult = await submitDailyGuess({ gameId, guess: "ABOVE" });
++    assert.equal(finalResult.status, "LOSE");
++    assert.equal(finalResult.answer, "ABOUT");
++
++    const status = await getDailyStatus({ displayName: "Dylan", playerId: "p-lose" });
++    assert.equal(status.played, true);
++    assert.equal(status.playerEntry?.status, "LOSE");
++    assert.equal(status.playerEntry?.guesses, 6);
++    assert.equal(status.stats?.wins, 0);
++    assert.equal(status.stats?.losses, 1);
++    assert.equal(status.stats?.streak, 0);
++    assert.equal(status.stats?.maxStreak, 0);
++    assert.equal(status.stats?.avgGuesses, 6);
++
++    const leaderboard = await getDailyLeaderboard(dateKey);
++    assert.equal(leaderboard.length, 1);
++    assert.equal(leaderboard[0].playerId, "p-lose");
++    assert.equal(leaderboard[0].status, "LOSE");
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: status for anonymous callers returns empty player fields", async () => {
++  const restoreTime = useFixedTime("2026-01-15T12:00:00Z");
++  try {
++    const status = await getDailyStatus({});
++    assert.equal(status.date, dateKeyFromNow());
++    assert.equal(status.played, false);
++    assert.deepEqual(status.leaderboard, []);
++    assert.equal(status.playerEntry, null);
++    assert.equal(status.stats, null);
++  } finally {
++    restoreTime();
++  }
++});
+
+
+thinking
+**Checking for build scripts**
+
+I'm inspecting the services/hub/package.json scripts to see if a build step is required before testing or development.
+exec
+/bin/bash -lc 'cat services/hub/package.json' in /home/marc/Documents/github/ralph/game-hub succeeded in 400ms:
+{
+  "name": "gamehub-hub",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "chess.js": "^1.4.0",
+    "fastify": "^4.27.0",
+    "ioredis": "^5.4.1",
+    "nanoid": "^5.0.7",
+    "socket.io": "^4.7.5"
+  }
+}
+file update:
+diff --git a/services/hub/test/wordleDaily.test.js b/services/hub/test/wordleDaily.test.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..2637b25c36941843c651a191c2c6cab7e6fe7f99
+--- /dev/null
++++ b/services/hub/test/wordleDaily.test.js
+@@ -0,0 +1,153 @@
++import test from "node:test";
++import assert from "node:assert/strict";
++import { installRedisMock } from "./helpers/redisTestHelper.js";
++import { useFixedTime } from "./helpers/timeTestHelper.js";
++import { isValidWord } from "../src/games/wordle/wordleUtils.js";
++
++const { redis, restore } = installRedisMock();
++const wordleDaily = await import("../src/games/wordle/wordleDaily.js");
++const { startDailySession, submitDailyGuess, getDailyStatus, getDailyLeaderboard } = wordleDaily;
++
++function dateKeyFromNow() {
++  const now = new Date();
++  const yyyy = now.getFullYear();
++  const mm = String(now.getMonth() + 1).padStart(2, "0");
++  const dd = String(now.getDate()).padStart(2, "0");
++  return `${yyyy}-${mm}-${dd}`;
++}
++
++function dailyWordKey(dateKey) {
++  return `wordle:daily:word:${dateKey}`;
++}
++
++function dailyPlayedKey(dateKey, displayName) {
++  return `wordle:daily:played:${dateKey}:${String(displayName || "").trim().toLowerCase()}`;
++}
++
++test.after(() => {
++  restore();
++});
++
++test("wordle daily: start requires a display name", async () => {
++  const restoreTime = useFixedTime("2026-01-10T12:00:00Z");
++  try {
++    await assert.rejects(startDailySession({ playerId: "p1", displayName: "" }), /NAME_REQUIRED/);
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: start rejects already played entries", async () => {
++  const restoreTime = useFixedTime("2026-01-11T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyPlayedKey(dateKey, "Alice"), "1");
++    await assert.rejects(
++      startDailySession({ playerId: "p1", displayName: "Alice" }),
++      /ALREADY_PLAYED/
++    );
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: guess validation rejects invalid length and words", async () => {
++  const restoreTime = useFixedTime("2026-01-12T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyWordKey(dateKey), "ABOUT");
++
++    const { gameId } = await startDailySession({ playerId: "p2", displayName: "Briana" });
++
++    await assert.rejects(submitDailyGuess({ gameId, guess: "AB" }), /INVALID_LENGTH/);
++
++    assert.equal(isValidWord("ZZZZZ"), false);
++    await assert.rejects(submitDailyGuess({ gameId, guess: "ZZZZZ" }), /INVALID_WORD/);
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: win updates stats and leaderboard entries", async () => {
++  const restoreTime = useFixedTime("2026-01-13T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyWordKey(dateKey), "APPLE");
++
++    const { gameId } = await startDailySession({ playerId: "p-win", displayName: "Cara" });
++    const result = await submitDailyGuess({ gameId, guess: "APPLE" });
++
++    assert.equal(result.status, "WIN");
++    assert.equal(result.answer, "APPLE");
++    assert.equal(result.guesses.length, 1);
++
++    const status = await getDailyStatus({ displayName: "Cara", playerId: "p-win" });
++    assert.equal(status.date, dateKey);
++    assert.equal(status.played, true);
++    assert.ok(Array.isArray(status.leaderboard));
++    assert.equal(status.playerEntry?.status, "WIN");
++    assert.equal(status.playerEntry?.guesses, 1);
++    assert.equal(status.stats?.wins, 1);
++    assert.equal(status.stats?.losses, 0);
++    assert.equal(status.stats?.streak, 1);
++    assert.equal(status.stats?.maxStreak, 1);
++    assert.equal(status.stats?.avgGuesses, 1);
++
++    const leaderboard = await getDailyLeaderboard(dateKey);
++    assert.equal(leaderboard.length, 1);
++    assert.equal(leaderboard[0].playerId, "p-win");
++    assert.equal(leaderboard[0].status, "WIN");
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: lose updates stats and leaderboard entries", async () => {
++  const restoreTime = useFixedTime("2026-01-14T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyWordKey(dateKey), "ABOUT");
++
++    const { gameId } = await startDailySession({ playerId: "p-lose", displayName: "Dylan" });
++
++    for (let i = 0; i < 5; i += 1) {
++      const result = await submitDailyGuess({ gameId, guess: "ABOVE" });
++      assert.equal(result.status, "IN_PROGRESS");
++    }
++
++    const finalResult = await submitDailyGuess({ gameId, guess: "ABOVE" });
++    assert.equal(finalResult.status, "LOSE");
++    assert.equal(finalResult.answer, "ABOUT");
++
++    const status = await getDailyStatus({ displayName: "Dylan", playerId: "p-lose" });
++    assert.equal(status.played, true);
++    assert.equal(status.playerEntry?.status, "LOSE");
++    assert.equal(status.playerEntry?.guesses, 6);
++    assert.equal(status.stats?.wins, 0);
++    assert.equal(status.stats?.losses, 1);
++    assert.equal(status.stats?.streak, 0);
++    assert.equal(status.stats?.maxStreak, 0);
++    assert.equal(status.stats?.avgGuesses, 6);
++
++    const leaderboard = await getDailyLeaderboard(dateKey);
++    assert.equal(leaderboard.length, 1);
++    assert.equal(leaderboard[0].playerId, "p-lose");
++    assert.equal(leaderboard[0].status, "LOSE");
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: status for anonymous callers returns empty player fields", async () => {
++  const restoreTime = useFixedTime("2026-01-15T12:00:00Z");
++  try {
++    const status = await getDailyStatus({});
++    assert.equal(status.date, dateKeyFromNow());
++    assert.equal(status.played, false);
++    assert.deepEqual(status.leaderboard, []);
++    assert.equal(status.playerEntry, null);
++    assert.equal(status.stats, null);
++  } finally {
++    restoreTime();
++  }
++});
+
+
+
+thinking
+**Noting missing commit skill and planning fallback**
+
+The $commit skill is missing from the available skill list, so I'll proceed using a direct git commit as a fallback and mention this in the final response. I'll complete the security, performance, and regression review before committing changes.
+thinking
+**Preparing to stage and commit changes**
+
+I'll check the git status to ensure only intended files are staged before committing, then update the progress and activity logs accordingly.
+exec
+/bin/bash -lc 'git status --porcelain' in /home/marc/Documents/github/ralph/game-hub succeeded in 495ms:
+ M .agents/tasks/prd-gamehub-tests.json
+ M .ralph/activity.log
+ M .ralph/errors.log
+ M .ralph/runs/run-20260123-011054-971908-iter-4.log
+?? .ralph/.tmp/prompt-20260123-011054-971908-5.md
+?? .ralph/.tmp/story-20260123-011054-971908-5.json
+?? .ralph/.tmp/story-20260123-011054-971908-5.md
+?? .ralph/runs/run-20260123-011054-971908-iter-4.md
+?? .ralph/runs/run-20260123-011054-971908-iter-5.log
+?? services/hub/test/wordleDaily.test.js
+file update:
+diff --git a/services/hub/test/wordleDaily.test.js b/services/hub/test/wordleDaily.test.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..2637b25c36941843c651a191c2c6cab7e6fe7f99
+--- /dev/null
++++ b/services/hub/test/wordleDaily.test.js
+@@ -0,0 +1,153 @@
++import test from "node:test";
++import assert from "node:assert/strict";
++import { installRedisMock } from "./helpers/redisTestHelper.js";
++import { useFixedTime } from "./helpers/timeTestHelper.js";
++import { isValidWord } from "../src/games/wordle/wordleUtils.js";
++
++const { redis, restore } = installRedisMock();
++const wordleDaily = await import("../src/games/wordle/wordleDaily.js");
++const { startDailySession, submitDailyGuess, getDailyStatus, getDailyLeaderboard } = wordleDaily;
++
++function dateKeyFromNow() {
++  const now = new Date();
++  const yyyy = now.getFullYear();
++  const mm = String(now.getMonth() + 1).padStart(2, "0");
++  const dd = String(now.getDate()).padStart(2, "0");
++  return `${yyyy}-${mm}-${dd}`;
++}
++
++function dailyWordKey(dateKey) {
++  return `wordle:daily:word:${dateKey}`;
++}
++
++function dailyPlayedKey(dateKey, displayName) {
++  return `wordle:daily:played:${dateKey}:${String(displayName || "").trim().toLowerCase()}`;
++}
++
++test.after(() => {
++  restore();
++});
++
++test("wordle daily: start requires a display name", async () => {
++  const restoreTime = useFixedTime("2026-01-10T12:00:00Z");
++  try {
++    await assert.rejects(startDailySession({ playerId: "p1", displayName: "" }), /NAME_REQUIRED/);
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: start rejects already played entries", async () => {
++  const restoreTime = useFixedTime("2026-01-11T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyPlayedKey(dateKey, "Alice"), "1");
++    await assert.rejects(
++      startDailySession({ playerId: "p1", displayName: "Alice" }),
++      /ALREADY_PLAYED/
++    );
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: guess validation rejects invalid length and words", async () => {
++  const restoreTime = useFixedTime("2026-01-12T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyWordKey(dateKey), "ABOUT");
++
++    const { gameId } = await startDailySession({ playerId: "p2", displayName: "Briana" });
++
++    await assert.rejects(submitDailyGuess({ gameId, guess: "AB" }), /INVALID_LENGTH/);
++
++    assert.equal(isValidWord("ZZZZZ"), false);
++    await assert.rejects(submitDailyGuess({ gameId, guess: "ZZZZZ" }), /INVALID_WORD/);
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: win updates stats and leaderboard entries", async () => {
++  const restoreTime = useFixedTime("2026-01-13T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyWordKey(dateKey), "APPLE");
++
++    const { gameId } = await startDailySession({ playerId: "p-win", displayName: "Cara" });
++    const result = await submitDailyGuess({ gameId, guess: "APPLE" });
++
++    assert.equal(result.status, "WIN");
++    assert.equal(result.answer, "APPLE");
++    assert.equal(result.guesses.length, 1);
++
++    const status = await getDailyStatus({ displayName: "Cara", playerId: "p-win" });
++    assert.equal(status.date, dateKey);
++    assert.equal(status.played, true);
++    assert.ok(Array.isArray(status.leaderboard));
++    assert.equal(status.playerEntry?.status, "WIN");
++    assert.equal(status.playerEntry?.guesses, 1);
++    assert.equal(status.stats?.wins, 1);
++    assert.equal(status.stats?.losses, 0);
++    assert.equal(status.stats?.streak, 1);
++    assert.equal(status.stats?.maxStreak, 1);
++    assert.equal(status.stats?.avgGuesses, 1);
++
++    const leaderboard = await getDailyLeaderboard(dateKey);
++    assert.equal(leaderboard.length, 1);
++    assert.equal(leaderboard[0].playerId, "p-win");
++    assert.equal(leaderboard[0].status, "WIN");
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: lose updates stats and leaderboard entries", async () => {
++  const restoreTime = useFixedTime("2026-01-14T12:00:00Z");
++  try {
++    const dateKey = dateKeyFromNow();
++    await redis.set(dailyWordKey(dateKey), "ABOUT");
++
++    const { gameId } = await startDailySession({ playerId: "p-lose", displayName: "Dylan" });
++
++    for (let i = 0; i < 5; i += 1) {
++      const result = await submitDailyGuess({ gameId, guess: "ABOVE" });
++      assert.equal(result.status, "IN_PROGRESS");
++    }
++
++    const finalResult = await submitDailyGuess({ gameId, guess: "ABOVE" });
++    assert.equal(finalResult.status, "LOSE");
++    assert.equal(finalResult.answer, "ABOUT");
++
++    const status = await getDailyStatus({ displayName: "Dylan", playerId: "p-lose" });
++    assert.equal(status.played, true);
++    assert.equal(status.playerEntry?.status, "LOSE");
++    assert.equal(status.playerEntry?.guesses, 6);
++    assert.equal(status.stats?.wins, 0);
++    assert.equal(status.stats?.losses, 1);
++    assert.equal(status.stats?.streak, 0);
++    assert.equal(status.stats?.maxStreak, 0);
++    assert.equal(status.stats?.avgGuesses, 6);
++
++    const leaderboard = await getDailyLeaderboard(dateKey);
++    assert.equal(leaderboard.length, 1);
++    assert.equal(leaderboard[0].playerId, "p-lose");
++    assert.equal(leaderboard[0].status, "LOSE");
++  } finally {
++    restoreTime();
++  }
++});
++
++test("wordle daily: status for anonymous callers returns empty player fields", async () => {
++  const restoreTime = useFixedTime("2026-01-15T12:00:00Z");
++  try {
++    const status = await getDailyStatus({});
++    assert.equal(status.date, dateKeyFromNow());
++    assert.equal(status.played, false);
++    assert.deepEqual(status.leaderboard, []);
++    assert.equal(status.playerEntry, null);
++    assert.equal(status.stats, null);
++  } finally {
++    restoreTime();
++  }
++});
+
+
+
+thinking
+**Handling existing modifications cautiously**
+
+There are pre-existing changes in the repo from earlier runs, including key files like JSON and logs. I'll follow instructions to stage and commit all current changes without reverting or altering these prior modifications, ensuring only new edits are added while preserving any unrelated existing ones.
+thinking
+**Planning two commits to respect step order**
+
+The instructions require committing all run changes before appending the progress log, which must happen after commit; to keep all changes committed, I'll do the first commit for tests and activity updates, then append and commit the progress log separately. I'll use the first commit’s hash in the progress entry to maintain relevance despite multiple commits.
+exec
+/bin/bash -lc 'git add -A' in /home/marc/Documents/github/ralph/game-hub
