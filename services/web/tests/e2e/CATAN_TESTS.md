@@ -70,9 +70,28 @@ Comprehensive Playwright tests for the Catan game implementation covering the fu
 
 ## Running the Tests
 
+### Prerequisites
+**IMPORTANT:** The hub service (backend) must be running for E2E tests to work.
+
+### Option 1: Using the Helper Script (Easiest)
 ```bash
-# Run all Catan tests
+cd services/web/tests
+./run-e2e-tests.sh catan.spec.js
+```
+
+### Option 2: Manual Setup (Recommended for Development)
+
+**Terminal 1 - Start Hub Service:**
+```bash
+cd services/hub
+npm start
+```
+
+**Terminal 2 - Run Tests:**
+```bash
 cd services/web
+
+# Run all Catan tests
 npm run test:e2e -- catan.spec.js
 
 # Run in headed mode (see browser)
@@ -87,6 +106,16 @@ npm run test:e2e:debug -- catan.spec.js
 # Run only on chromium
 npm run test:e2e -- catan.spec.js --project=chromium-desktop
 ```
+
+### Common Issues
+
+**404 Errors on Room Creation:**
+- Cause: Hub service not running
+- Solution: Start hub service first (`cd services/hub && npm start`)
+
+**Port Already in Use:**
+- Check if another instance is running: `lsof -i :8081`
+- Kill existing process or use a different port
 
 ## Browser Coverage
 
