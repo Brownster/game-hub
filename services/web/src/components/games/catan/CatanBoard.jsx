@@ -6,10 +6,35 @@ import CatanResourceHand from "./CatanResourceHand";
 import CatanTradeModal from "./CatanTradeModal";
 import CatanDice from "./CatanDice";
 
+// Hook for responsive hex sizing
+function useResponsiveHexSize() {
+  const [hexSize, setHexSize] = useState(50);
+
+  useEffect(() => {
+    const updateHexSize = () => {
+      const width = window.innerWidth;
+      // Calculate hex size: board needs ~16 hexes horizontally
+      // Leave 40px padding (20px each side)
+      const availableWidth = width - 40;
+      const calculatedSize = Math.floor(availableWidth / 16);
+      // Clamp between 25 (minimum usable) and 50 (maximum for desktop)
+      const newSize = Math.max(25, Math.min(50, calculatedSize));
+      setHexSize(newSize);
+    };
+
+    updateHexSize();
+    window.addEventListener('resize', updateHexSize);
+    return () => window.removeEventListener('resize', updateHexSize);
+  }, []);
+
+  return hexSize;
+}
+
 export default function CatanBoard({ state, playerId, onAction }) {
   const [interactionMode, setInteractionMode] = useState(null);
   const [showTradeModal, setShowTradeModal] = useState(false);
   const [selectedTradeTarget, setSelectedTradeTarget] = useState(null);
+  const hexSize = useResponsiveHexSize();
 
   const myPlayer = useMemo(
     () => state.players.find((p) => p.playerId === playerId),
@@ -258,7 +283,7 @@ export default function CatanBoard({ state, playerId, onAction }) {
           tiles={state.board.tiles}
           corners={processedCorners}
           edges={processedEdges}
-          hexSize={50}
+          hexSize={hexSize}
           onTileClick={interactionMode === "moveRobber" ? handleTileClick : null}
           onCornerClick={
             ["placeSettlement", "buildSettlement", "buildCity"].includes(interactionMode)

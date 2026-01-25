@@ -87,6 +87,7 @@ body {
 
 .button {
   padding: 14px 18px;
+  min-height: 48px;
   font-size: 18px;
   border: none;
   border-radius: 14px;
@@ -2443,7 +2444,8 @@ body.room-mode {
 }
 
 .room-btn {
-  padding: 10px 20px;
+  padding: 12px 20px;
+  min-height: 44px;
   font-size: 14px;
   font-family: "Rajdhani", sans-serif;
   font-weight: 600;
@@ -3025,6 +3027,7 @@ body.room-mode {
 
 .uno-color-btn {
   padding: 12px 20px;
+  min-height: 44px;
   border-radius: 12px;
   border: 3px solid rgba(255, 255, 255, 0.3);
   font-weight: 700;
@@ -3090,6 +3093,26 @@ body.room-mode {
 
 /* Mobile responsive */
 @media (max-width: 600px) {
+  .uno-card {
+    width: 70px;
+    height: 100px;
+    border-radius: 10px;
+    border-width: 2px;
+  }
+
+  .uno-card-value {
+    font-size: 20px;
+  }
+
+  .uno-card-img {
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  .uno-hand {
+    gap: 6px;
+  }
+
   .uno-header {
     flex-direction: column;
     align-items: flex-start;
@@ -3099,11 +3122,6 @@ body.room-mode {
   .uno-current-color {
     align-self: stretch;
     text-align: center;
-  }
-
-  .uno-card {
-    width: 70px;
-    height: 100px;
   }
 
   .uno-piles {
@@ -3124,7 +3142,8 @@ body.room-mode {
   }
 
   .uno-color-btn {
-    padding: 10px 16px;
+    padding: 12px 16px;
+    min-height: 44px;
     font-size: 12px;
   }
 }
@@ -4857,11 +4876,23 @@ body.room-mode {
   .room-header {
     flex-direction: column;
     gap: 12px;
+    padding: 12px 16px;
   }
 
   .room-header-actions {
     width: 100%;
     justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .room-btn {
+    padding: 12px 16px;
+    font-size: 13px;
+    min-width: 44px;
+  }
+
+  .room-title {
+    text-align: center;
   }
 
   .game-grid {
@@ -5732,7 +5763,8 @@ body.room-mode {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 10px 16px;
+  padding: 12px 16px;
+  min-height: 44px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -6148,6 +6180,24 @@ body.room-mode {
 
   .trade-arrow {
     transform: rotate(90deg);
+  }
+}
+
+/* Extra small mobile (iPhone SE) */
+@media (max-width: 375px) {
+  .catan-board-container {
+    margin: 0 -16px;
+    padding: 0 8px;
+  }
+
+  .action-btn {
+    font-size: 12px;
+    padding: 10px 12px;
+  }
+
+  .action-btn img {
+    width: 16px;
+    height: 16px;
   }
 }
 
@@ -6973,14 +7023,14 @@ body.room-mode {
   }
 
   .wordle-key {
-    min-width: 32px;
+    min-width: 44px;
     height: 46px;
     padding: 0 8px;
     font-size: 12px;
   }
 
   .wordle-key.special {
-    min-width: 52px;
+    min-width: 65px;
     font-size: 10px;
   }
 
@@ -7010,15 +7060,15 @@ body.room-mode {
   }
 
   .wordle-key {
-    min-width: 26px;
-    height: 42px;
-    padding: 0 6px;
-    font-size: 11px;
-    gap: 4px;
+    min-width: 44px;
+    height: 44px;
+    padding: 0 4px;
+    font-size: 10px;
+    gap: 3px;
   }
 
   .wordle-key.special {
-    min-width: 44px;
+    min-width: 48px;
   }
 
   .wordle-keyboard-row {
