@@ -1,0 +1,330 @@
+{
+  "title": "GameHub Production Finishing",
+  "summary": "Complete, polish, bug-fix, and production-ready the GameHub multi-game platform with comprehensive UI testing, security review, and deployment preparation",
+  "priority": "high",
+  "nonGoals": [
+    "Adding new games beyond the existing 14",
+    "Major architectural refactors unless blocking production",
+    "Monetization features",
+    "Analytics and tracking (defer to post-launch)"
+  ],
+  "qualityGates": [
+    "All critical game flows have Playwright UI tests",
+    "No blocking security vulnerabilities in socket/room handling",
+    "Mobile-responsive for all core screens (lobby, game rooms)",
+    "Hub service passes all existing + new tests",
+    "Web service passes all existing + new tests",
+    "Production deployment documentation complete",
+    "Core games (Catan, UNO, Wordle, Chess) fully tested end-to-end"
+  ],
+  "stories": [
+    {
+      "id": "FIN-001",
+      "title": "Set up Playwright UI testing infrastructure",
+      "description": "Add Playwright to services/web with test helpers for common game flows (join room, start game, take turn). Configure for both desktop and mobile viewports. Create reusable page objects for lobby, game room, and player components.",
+      "acceptanceCriteria": [
+        "Playwright installed and configured in services/web",
+        "Test helpers created for: joining room, starting game, sending socket events",
+        "Page objects created for: HubHome, GameLobby, GameRoom",
+        "Can run tests headless and headed modes",
+        "Mobile viewport tests configured (375x667)"
+      ],
+      "status": "completed",
+      "complexity": 7,
+      "agent": "test-architect",
+      "estimatedCost": 1.5,
+      "dependsOn": []
+    },
+    {
+      "id": "FIN-002",
+      "title": "Add Playwright tests for Catan game flow",
+      "description": "Create end-to-end tests for Catan covering: room creation, player joining, game start, dice roll, resource collection, building (settlement/road), trading, and victory. Use test helpers from FIN-001.",
+      "acceptanceCriteria": [
+        "Test covers full game initialization",
+        "Test validates dice rolls and resource distribution",
+        "Test verifies building placement and validation",
+        "Test checks victory point calculation",
+        "Test handles player disconnection gracefully"
+      ],
+      "status": "completed",
+      "complexity": 8,
+      "agent": "test-architect",
+      "estimatedCost": 1.8,
+      "dependsOn": ["FIN-001"]
+    },
+    {
+      "id": "FIN-003",
+      "title": "Add Playwright tests for UNO game flow",
+      "description": "Create end-to-end tests for UNO covering: room setup, game start, card playing (number/color match), special cards (skip, reverse, draw2/draw4), color choice, UNO call, and win detection.",
+      "acceptanceCriteria": [
+        "Test covers full game from join to win",
+        "Test validates playable card logic",
+        "Test verifies special card behaviors (draw, skip, reverse)",
+        "Test checks UNO call penalty",
+        "Test confirms winner detection and scoring"
+      ],
+      "status": "open",
+      "complexity": 7,
+      "agent": "test-architect",
+      "estimatedCost": 1.5,
+      "dependsOn": ["FIN-001"]
+    },
+    {
+      "id": "FIN-004",
+      "title": "Add Playwright tests for Wordle daily flow",
+      "description": "Create UI tests for Wordle daily mode covering: start game with name, submit guesses, visual feedback (green/yellow/gray tiles), win/lose outcomes, and leaderboard display.",
+      "acceptanceCriteria": [
+        "Test covers name entry and game start",
+        "Test validates guess submission and feedback",
+        "Test checks win outcome (6 guesses or less)",
+        "Test checks lose outcome (6 failed guesses)",
+        "Test verifies leaderboard updates"
+      ],
+      "status": "open",
+      "complexity": 6,
+      "agent": "test-architect",
+      "estimatedCost": 1.2,
+      "dependsOn": ["FIN-001"]
+    },
+    {
+      "id": "FIN-005",
+      "title": "Mobile responsiveness review and fixes",
+      "description": "Review all core screens (HubHome, GameLobby, game rooms for Catan/UNO/Wordle/Chess) on mobile viewports. Fix layout issues, ensure buttons are tappable, and improve touch interactions. Test on 375x667 (iPhone SE) and 360x640 (Android).",
+      "acceptanceCriteria": [
+        "HubHome renders correctly on mobile",
+        "Game lobbies are usable on mobile (join, start game)",
+        "Game boards scale appropriately (Catan board, UNO cards)",
+        "Buttons are min 44x44px for touch targets",
+        "No horizontal scroll on mobile viewports"
+      ],
+      "status": "open",
+      "complexity": 6,
+      "agent": "frontend-reviewer",
+      "estimatedCost": 1.2,
+      "dependsOn": []
+    },
+    {
+      "id": "FIN-006",
+      "title": "Security review: Socket authentication and room authorization",
+      "description": "Audit services/hub socket handling for authentication weaknesses, room authorization bypasses, and input validation gaps. Review: socket connection auth, room join permissions, player actions authorization, and admin commands.",
+      "acceptanceCriteria": [
+        "Socket connections validate player identity",
+        "Room join requests check permissions (public/private rooms)",
+        "Player actions verify room membership and turn order",
+        "Admin commands (kick, start game) verify host permissions",
+        "Input validation prevents injection attacks",
+        "No sensitive data leaks in error messages"
+      ],
+      "status": "open",
+      "complexity": 8,
+      "agent": "security-auditor",
+      "estimatedCost": 1.8,
+      "dependsOn": []
+    },
+    {
+      "id": "FIN-007",
+      "title": "Bug fix: Room synchronization on player disconnect",
+      "description": "Fix race conditions when players disconnect during active games. Ensure room state updates correctly, other players are notified, and game can continue or end gracefully. Test with Catan (mid-turn disconnect) and UNO (disconnect before UNO call).",
+      "acceptanceCriteria": [
+        "Player disconnect removes player from room.players",
+        "Other players receive 'player-left' event",
+        "Active games handle disconnects without crashing",
+        "Turn progression skips disconnected players",
+        "Game ends if too few players remain"
+      ],
+      "status": "open",
+      "complexity": 7,
+      "agent": "debugger",
+      "estimatedCost": 1.5,
+      "dependsOn": []
+    },
+    {
+      "id": "FIN-008",
+      "title": "Bug fix: Catan resource distribution edge cases",
+      "description": "Fix edge cases in Catan resource distribution: 7-roll discard validation, bank trade ratio enforcement, monopoly card resource transfer, and year-of-plenty card validation. Add comprehensive unit tests.",
+      "acceptanceCriteria": [
+        "7-roll discard only triggers if player has >7 resources",
+        "Bank trades validate 4:1 or 3:1 (port) ratios",
+        "Monopoly transfers all specified resources from all players",
+        "Year-of-plenty validates requested resources exist in bank",
+        "Unit tests cover all edge cases"
+      ],
+      "status": "open",
+      "complexity": 6,
+      "agent": "debugger",
+      "estimatedCost": 1.0,
+      "dependsOn": []
+    },
+    {
+      "id": "FIN-009",
+      "title": "Performance: Load test room management",
+      "description": "Create load tests for room management: 100 concurrent rooms, 1000+ total players, rapid join/leave cycles. Identify bottlenecks in Redis operations, socket broadcasts, and room state updates. Optimize if needed.",
+      "acceptanceCriteria": [
+        "Load test script created (Node.js or Artillery)",
+        "Test validates 100 concurrent rooms with 4 players each",
+        "Test validates 1000+ socket connections",
+        "Response times documented for room operations",
+        "Bottlenecks identified and prioritized"
+      ],
+      "status": "open",
+      "complexity": 7,
+      "agent": "debugger",
+      "estimatedCost": 1.5,
+      "dependsOn": []
+    },
+    {
+      "id": "FIN-010",
+      "title": "Polish: Improve lobby UX and game start flow",
+      "description": "Enhance lobby experience: show player avatars/names clearly, add ready-up mechanism, show game type icons, improve room code display, add copy-to-clipboard for room codes, and smoother transitions to game screens.",
+      "acceptanceCriteria": [
+        "Player list shows names clearly with visual indicators",
+        "Ready-up button added for players (host can start when all ready)",
+        "Game type icons/badges visible in lobby",
+        "Room code displayed prominently with copy button",
+        "Transition to game screen has loading indicator",
+        "Mobile-friendly layout"
+      ],
+      "status": "open",
+      "complexity": 6,
+      "agent": "frontend-reviewer",
+      "estimatedCost": 1.2,
+      "dependsOn": []
+    },
+    {
+      "id": "FIN-011",
+      "title": "Documentation: Deployment guide and README",
+      "description": "Create comprehensive documentation covering: local development setup, environment variables, Redis configuration, production deployment (Docker/cloud platforms), monitoring setup, and troubleshooting common issues.",
+      "acceptanceCriteria": [
+        "README.md includes quick start for developers",
+        "DEPLOYMENT.md covers production setup",
+        "Environment variables documented (hub + web)",
+        "Redis setup instructions provided",
+        "Docker Compose configuration included",
+        "Troubleshooting section for common issues"
+      ],
+      "status": "open",
+      "complexity": 5,
+      "agent": "code-reviewer",
+      "estimatedCost": 0.8,
+      "dependsOn": []
+    },
+    {
+      "id": "FIN-012",
+      "title": "Production readiness: Environment configs and health checks",
+      "description": "Add production environment configurations, health check endpoints for hub service, graceful shutdown handling, and error monitoring setup (Sentry or similar). Ensure CORS is properly configured for production domains.",
+      "acceptanceCriteria": [
+        "Environment-specific configs (dev, staging, prod)",
+        "Health check endpoint: GET /health returns 200 OK",
+        "Graceful shutdown closes socket connections properly",
+        "CORS configured for production domain",
+        "Error monitoring configured (console.error in dev, Sentry in prod)",
+        "Logging strategy documented"
+      ],
+      "status": "open",
+      "complexity": 6,
+      "agent": "code-reviewer",
+      "estimatedCost": 1.0,
+      "dependsOn": []
+    },
+    {
+      "id": "FIN-013",
+      "title": "Code quality: ESLint and formatting consistency",
+      "description": "Ensure consistent code formatting across hub and web services. Add ESLint rules, Prettier config, and pre-commit hooks. Fix existing linting issues (warnings only, don't block).",
+      "acceptanceCriteria": [
+        "ESLint configured for hub (JavaScript) and web (TypeScript)",
+        "Prettier config added and applied to all files",
+        "Pre-commit hook runs linter (warn only, don't block)",
+        "Existing linting warnings fixed or suppressed with comments",
+        "Formatting consistent across codebase"
+      ],
+      "status": "open",
+      "complexity": 4,
+      "agent": "code-reviewer",
+      "estimatedCost": 0.6,
+      "dependsOn": []
+    },
+    {
+      "id": "FIN-014",
+      "title": "Accessibility: A11y review for lobby and game screens",
+      "description": "Review accessibility for HubHome, GameLobby, and core game screens. Add ARIA labels, keyboard navigation support, focus indicators, and screen reader announcements for game events.",
+      "acceptanceCriteria": [
+        "All interactive elements have ARIA labels",
+        "Keyboard navigation works for lobby and game actions",
+        "Focus indicators visible on all focusable elements",
+        "Screen reader announcements for key events (game start, turn change, win)",
+        "Color contrast meets WCAG AA standards",
+        "Automated a11y tests added (jest-axe or playwright-axe)"
+      ],
+      "status": "open",
+      "complexity": 7,
+      "agent": "frontend-reviewer",
+      "estimatedCost": 1.5,
+      "dependsOn": []
+    },
+    {
+      "id": "FIN-015",
+      "title": "Integration: CI/CD pipeline setup",
+      "description": "Set up GitHub Actions for continuous integration: run tests on push, lint checks, type checking (web service), and automated deployment preview. Configure for monorepo structure (hub + web).",
+      "acceptanceCriteria": [
+        "GitHub Actions workflow runs on push/PR",
+        "Hub tests run in CI (npm test)",
+        "Web tests run in CI (npm test)",
+        "TypeScript type checking runs for web service",
+        "ESLint runs for both services",
+        "Deployment preview available for PRs (Vercel/Netlify)"
+      ],
+      "status": "open",
+      "complexity": 6,
+      "agent": "code-reviewer",
+      "estimatedCost": 1.0,
+      "dependsOn": []
+    }
+  ],
+  "phases": [
+    {
+      "phase_id": "testing",
+      "title": "UI Testing Setup",
+      "story_ids": ["FIN-001", "FIN-002", "FIN-003", "FIN-004"],
+      "execution_mode": "sequential"
+    },
+    {
+      "phase_id": "polish",
+      "title": "UX Polish and Responsiveness",
+      "story_ids": ["FIN-005", "FIN-010"],
+      "execution_mode": "parallel"
+    },
+    {
+      "phase_id": "security",
+      "title": "Security and Bug Fixes",
+      "story_ids": ["FIN-006", "FIN-007", "FIN-008"],
+      "execution_mode": "parallel"
+    },
+    {
+      "phase_id": "performance",
+      "title": "Performance and Production Readiness",
+      "story_ids": ["FIN-009", "FIN-012"],
+      "execution_mode": "sequential"
+    },
+    {
+      "phase_id": "quality",
+      "title": "Code Quality and Accessibility",
+      "story_ids": ["FIN-013", "FIN-014"],
+      "execution_mode": "parallel"
+    },
+    {
+      "phase_id": "deployment",
+      "title": "Documentation and CI/CD",
+      "story_ids": ["FIN-011", "FIN-015"],
+      "execution_mode": "parallel"
+    }
+  ],
+  "estimatedTotalCost": 19.6,
+  "estimatedDuration": "2-3 weeks with parallel execution",
+  "notes": [
+    "Use multi-agent ralph for complexity 6+ stories",
+    "Use simple ralph for FIN-011, FIN-013 (documentation/formatting)",
+    "Parallel execution in polish/security/quality phases for speed",
+    "UI tests (FIN-002 to FIN-004) can run in parallel after FIN-001",
+    "Security review (FIN-006) should block production deployment"
+  ]
+}
