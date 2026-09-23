@@ -3911,63 +3911,88 @@ body.room-mode {
 
 .game-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+  /* Room for the floating action bar, so the last row is never hidden. */
+  margin-bottom: 120px;
 }
 
 .game-card {
+  --game-accent: #94a3b8;
+
+  /* Rows are laid out identically so cards line up regardless of how long a
+     description runs. Before this, a three-line description made its whole row
+     taller and punched holes in the grid. */
+  display: grid;
+  grid-template-rows: auto auto 1fr auto auto;
+  gap: 6px;
+  justify-items: center;
+
   background: rgba(255, 255, 255, 0.05);
   border: 2px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 24px 16px;
+  border-radius: 14px;
+  padding: 18px 14px 14px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
   text-align: center;
   color: #fff;
 }
 
+.game-card__icon {
+  width: 34px;
+  height: 34px;
+  color: var(--game-accent);
+  transition: transform 0.2s ease;
+}
+
 .game-card:hover:not(.disabled) {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.09);
+  border-color: color-mix(in srgb, var(--game-accent) 55%, transparent);
   transform: translateY(-2px);
 }
 
+.game-card:hover:not(.disabled) .game-card__icon {
+  transform: scale(1.12);
+}
+
+.game-card:focus-visible {
+  outline: 2px solid var(--game-accent);
+  outline-offset: 2px;
+}
+
 .game-card.selected {
-  border-color: #4ade80;
-  background: rgba(74, 222, 128, 0.1);
+  border-color: var(--game-accent);
+  background: color-mix(in srgb, var(--game-accent) 14%, transparent);
 }
 
 .game-card.disabled {
-  opacity: 0.5;
+  opacity: 0.38;
   cursor: not-allowed;
 }
 
 .game-card-name {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: bold;
-  margin-bottom: 8px;
 }
 
 .game-card-desc {
-  font-size: 14px;
+  font-size: 13px;
+  line-height: 1.35;
   color: rgba(255, 255, 255, 0.6);
-  margin-bottom: 12px;
 }
 
 .game-card-players {
   font-size: 12px;
-  color: #60a5fa;
+  color: rgba(255, 255, 255, 0.45);
 }
 
 .game-card-warning {
   font-size: 12px;
   color: #f87171;
-  margin-top: 8px;
 }
 
 .game-card-actions {
-  margin-top: 12px;
+  margin-top: 4px;
   display: flex;
   justify-content: center;
 }
@@ -4019,28 +4044,49 @@ body.room-mode {
   font-size: 14px;
 }
 
+/* Floats above the bottom of the viewport. Previously this panel sat below an
+   11-card grid, so selecting a game appeared to do nothing until you scrolled
+   down to find the confirm button.
+   Fixed rather than sticky: .room-shell is min-height:100vh, so the document
+   scrolls rather than any inner pane, and a sticky element has no scrollport
+   to pin itself to. */
 .game-mode-select {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  padding: 24px;
-  margin-top: 24px;
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  width: min(660px, calc(100vw - 24px));
+  z-index: 40;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+
+  padding: 14px 20px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(17, 25, 44, 0.92);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.5);
 }
 
 .mode-label {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.6);
-  margin-bottom: 12px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .mode-options {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   justify-content: center;
-  margin-bottom: 24px;
+  flex-wrap: wrap;
 }
 
 .mode-btn {
-  padding: 10px 20px;
+  padding: 8px 16px;
+  font-size: 14px;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
@@ -4059,8 +4105,45 @@ body.room-mode {
 }
 
 .confirm-btn {
-  font-size: 18px;
-  padding: 14px 32px;
+  font-size: 16px;
+  padding: 12px 28px;
+  margin-left: auto;
+}
+
+@media (max-width: 640px) {
+  .game-mode-select {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .confirm-btn {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+/* Two up on a phone: eleven full-width cards is a lot of scrolling to find a
+   game. The icon and name carry the identification, so the blurb steps aside. */
+@media (max-width: 540px) {
+  .game-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 150px;
+  }
+
+  .game-card {
+    padding: 14px 10px 12px;
+    gap: 4px;
+  }
+
+  .game-card-desc {
+    display: none;
+  }
+
+  .game-card-name {
+    font-size: 16px;
+  }
 }
 
 .game-end-actions {
@@ -4070,127 +4153,269 @@ body.room-mode {
 }
 
 /* Reversi Board in Room */
-.reversi-game-area {
+.othello {
+  /* One knob drives the whole board; coordinates and discs follow the cell. */
+  --cell: clamp(32px, min(9.6vw, 6.8vh), 58px);
+  --felt: #1e6741;
+  --line: #0c3421;
+
   width: 100%;
-  max-width: 600px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
 }
 
-.reversi-scoreboard {
+/* ----- Scoreboard ----- */
+
+.othello__scores {
   display: flex;
   align-items: center;
-  gap: 24px;
-  width: 100%;
+  gap: 16px;
+  flex-wrap: wrap;
   justify-content: center;
 }
 
-.reversi-score-card {
+.othello-score {
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 200px;
+  padding: 10px 16px;
+  border-radius: 14px;
   background: rgba(255, 255, 255, 0.05);
-  padding: 12px 20px;
-  border-radius: 12px;
-  border: 2px solid transparent;
-  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: border-color 0.2s ease, background 0.2s ease;
 }
 
-.reversi-score-card.active {
-  border-color: #4ade80;
-  background: rgba(74, 222, 128, 0.1);
+.othello-score__chip {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.45));
 }
 
-.reversi-score-card.winner {
-  border-color: #ffd93d;
-  background: rgba(255, 217, 61, 0.15);
-}
-
-.score-vs {
-  font-family: "Orbitron", monospace;
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.4);
-}
-
-.score-info {
+.othello-score__who {
   display: flex;
   flex-direction: column;
+  line-height: 1.2;
+  margin-right: auto;
 }
 
-.score-label {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.5);
+.othello-score__label {
+  font-size: 11px;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
 }
 
-.score-name {
+.othello-score__name {
   font-size: 14px;
-  font-weight: bold;
+  font-weight: 700;
 }
 
-.score-count {
+.othello-score__count {
   font-family: "Orbitron", monospace;
-  font-size: 24px;
-  font-weight: bold;
+  font-size: 26px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
-.reversi-status {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 16px;
+.othello-score.is-turn {
+  border-color: #4ade80;
+  background: rgba(74, 222, 128, 0.12);
 }
 
-.reversi-board-wrap {
-  background: var(--board-green);
-  padding: 12px;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+.othello-score.is-winner {
+  border-color: var(--accent);
+  background: rgba(255, 178, 63, 0.16);
 }
 
-.reversi-board {
+.othello__versus {
+  font-family: "Orbitron", monospace;
+  font-size: 14px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.othello__status {
+  margin: 0;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.othello__status.is-active {
+  color: #4ade80;
+  font-weight: 700;
+}
+
+/* ----- Board ----- */
+
+.othello__frame {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 2px;
+  grid-template-columns: auto auto;
+  grid-template-rows: auto auto;
+  gap: 6px;
+  padding: 12px 16px 16px;
+  border-radius: 16px;
+  background: linear-gradient(158deg, #c49a6e, var(--wood-dark) 68%);
+  box-shadow:
+    0 20px 46px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.25);
 }
 
-.reversi-cell {
-  width: 48px;
-  height: 48px;
-  background: #5a8c00;
+.othello__coords {
+  display: grid;
+  font-size: clamp(9px, calc(var(--cell) * 0.24), 12px);
+  font-weight: 700;
+  color: rgba(27, 18, 11, 0.55);
+  user-select: none;
+}
+
+.othello__coords span {
+  display: grid;
+  place-items: center;
+}
+
+.othello__coords--file {
+  grid-column: 2;
+  grid-row: 1;
+  grid-template-columns: repeat(8, var(--cell));
+}
+
+.othello__coords--rank {
+  grid-column: 1;
+  grid-row: 2;
+  grid-template-rows: repeat(8, var(--cell));
+}
+
+.othello__grid {
+  grid-column: 2;
+  grid-row: 2;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(8, var(--cell));
+  grid-template-rows: repeat(8, var(--cell));
+
+  /* The gap is the grid line: one continuous felt surface ruled into squares,
+     rather than 64 detached tiles floating apart. */
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
   border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.4);
+}
+
+.othello__cell {
+  position: relative;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background:
+    radial-gradient(ellipse at 34% 26%, rgba(255, 255, 255, 0.05), transparent 68%),
+    var(--felt);
+  display: grid;
+  place-items: center;
+  perspective: 600px;
+  cursor: default;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.othello__cell.is-legal {
   cursor: pointer;
-  transition: background 0.15s ease;
 }
 
-.reversi-cell.legal {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.reversi-cell.legal:hover {
-  background: rgba(255, 255, 255, 0.35);
-}
-
-.reversi-cell.last-move {
-  box-shadow: inset 0 0 0 3px rgba(255, 215, 0, 0.6);
-}
-
-.reversi-cell .piece {
-  width: 38px;
-  height: 38px;
+/* A dot, not a lit square: a lightened square reads as already occupied. */
+.othello__hint {
+  width: 26%;
+  height: 26%;
   border-radius: 50%;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.26);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  transition: transform 0.18s ease, background 0.18s ease;
 }
 
-.reversi-cell .piece.black {
-  background: radial-gradient(circle at 30% 30%, #444, #111);
+.othello__cell.is-legal:hover .othello__hint,
+.othello__cell.is-legal:focus-visible .othello__hint {
+  transform: scale(1.55);
+  background: rgba(255, 255, 255, 0.42);
 }
 
-.reversi-cell .piece.white {
-  background: radial-gradient(circle at 30% 30%, #fff, #ccc);
+.othello__cell:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  z-index: 2;
+}
+
+.othello__cell.is-last::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 2px rgba(255, 178, 63, 0.75);
+  pointer-events: none;
+}
+
+.othello__star {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  border-radius: 50%;
+  background: #0c3421;
+  pointer-events: none;
+}
+
+/* ----- Discs ----- */
+
+.othello-disc {
+  position: relative;
+  width: 84%;
+  aspect-ratio: 1;
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.25, 1);
+  /* `scale` is animated separately from `transform` so the placement pop does
+     not clobber the rotation that drives the flip. */
+  animation: othello-place 0.24s ease-out;
+}
+
+.othello-disc.is-dark {
+  transform: rotateY(0deg);
+}
+
+.othello-disc.is-light {
+  transform: rotateY(180deg);
+}
+
+.othello-disc__face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.45));
+}
+
+.othello-disc__face.is-light {
+  transform: rotateY(180deg);
+}
+
+@keyframes othello-place {
+  from {
+    scale: 0.4;
+  }
+  to {
+    scale: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .othello-disc {
+    transition-duration: 0.01ms;
+    animation: none;
+  }
 }
 
 /* Connect4 Board in Room */
@@ -4815,10 +5040,18 @@ body.room-mode {
 
   .room-sidebar {
     width: 100%;
+    order: 2;
     flex-direction: row;
     flex-wrap: wrap;
     border-right: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: none;
+  }
+
+  .room-main {
+    order: 1;
+    justify-content: flex-start;
+    padding: 16px 12px 24px;
   }
 
   .room-sidebar .room-panel {
@@ -4846,14 +5079,20 @@ body.room-mode {
     max-height: 150px;
   }
 
-  .reversi-cell {
-    width: 36px;
-    height: 36px;
+  .othello-score {
+    min-width: 0;
+    flex: 1 1 0;
+    gap: 8px;
+    padding: 8px 10px;
   }
 
-  .reversi-cell .piece {
-    width: 28px;
-    height: 28px;
+  .othello-score__chip {
+    width: 26px;
+    height: 26px;
+  }
+
+  .othello-score__count {
+    font-size: 20px;
   }
 
   .c4-cell {
@@ -4896,16 +5135,22 @@ body.room-mode {
   }
 
   .game-grid {
-    grid-template-columns: 1fr;
+    /* Two up, not one: this rule previously forced a single column and won on
+       source order over the narrower breakpoint below. */
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .reversi-scoreboard,
   .c4-scoreboard {
     flex-direction: column;
     gap: 12px;
   }
 
-  .score-vs,
+  .othello__scores {
+    gap: 8px;
+    width: 100%;
+  }
+
+  .othello__versus,
   .c4-vs {
     display: none;
   }
