@@ -284,11 +284,12 @@
         "ESLint runs for both services",
         "Deployment preview available for PRs (Vercel/Netlify)"
       ],
-      "status": "open",
+      "status": "completed",
       "complexity": 6,
       "agent": "code-reviewer",
       "estimatedCost": 1.0,
-      "dependsOn": []
+      "dependsOn": [],
+      "statusNote": "CI runs hub unit + integration tests, web unit tests + build, and an image asset check. Each check verified to fail against the bug it guards. Playwright e2e deliberately left out of CI: it needs browser downloads and a full stack, and the hub smoke test covers the same ground more cheaply."
     }
   ],
   "phases": [

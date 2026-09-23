@@ -36,7 +36,14 @@ npm install
 npm run dev
 ```
 
-Then open `http://localhost:5173`.
+Then open `http://localhost:5173`. The dev server proxies `/api` and the socket
+connection to the hub on port 8081, so the hub must be running. Point it
+elsewhere with `HUB_URL`, and give the hub a reachable Redis:
+
+```bash
+cd services/hub && REDIS_URL=redis://127.0.0.1:6379 PORT=8090 npm run dev
+cd services/web && HUB_URL=http://127.0.0.1:8090 npm run dev
+```
 
 ## Testing
 
@@ -47,12 +54,31 @@ cd services/hub
 npm test
 ```
 
-Web tests run in Vitest + jsdom to cover routing and key HubHome interactions while keeping browser APIs mocked.
+Web tests run in Vitest + jsdom to cover routing, key HubHome interactions, and
+the socket session handshake, while keeping browser APIs mocked.
 
 ```bash
 cd services/web
 npm test
 ```
+
+### Integration smoke test
+
+The unit suites are fully mocked, which let several app-breaking bugs through.
+This one boots the real server and real socket handlers in-process and drives an
+actual room to a started chess game. It needs a real Redis:
+
+```bash
+cd services/hub
+REDIS_URL=redis://127.0.0.1:6379 npm run test:integration
+```
+
+### Continuous integration
+
+`.github/workflows/ci.yml` runs on every push and pull request: hub unit and
+integration tests, web unit tests and build, and a check that the built Docker
+image actually contains the game art. Each check was written against a bug that
+had already reached `main`, and verified to fail without its fix.
 
 ### Coverage (optional, non-blocking)
 
