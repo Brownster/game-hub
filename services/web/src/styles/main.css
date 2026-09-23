@@ -49,6 +49,49 @@ body {
 
 #root {
   min-height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------------------------------------------------------------------------
+   Arcade cabinet treatment for the entry screens.
+   Scoped away from .room-mode and .slither-mode: in a room the board is the
+   subject and a scanline haze over a chessboard is just noise.
+   --------------------------------------------------------------------------- */
+
+/* The floor: a perspective grid running to a horizon, masked out as it rises. */
+body:not(.room-mode):not(.slither-mode)::before {
+  content: "";
+  position: fixed;
+  left: -60%;
+  right: -60%;
+  bottom: -12vh;
+  height: 62vh;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(90deg, rgba(53, 231, 255, 0.5) 0 2px, transparent 2px 90px),
+    repeating-linear-gradient(0deg, rgba(255, 79, 216, 0.4) 0 2px, transparent 2px 70px);
+  transform: perspective(320px) rotateX(72deg);
+  transform-origin: bottom center;
+  -webkit-mask-image: linear-gradient(to top, #000 4%, transparent 72%);
+  mask-image: linear-gradient(to top, #000 4%, transparent 72%);
+  opacity: 0.5;
+}
+
+/* The glass: CRT scanlines over everything, kept faint enough to read through. */
+body:not(.room-mode):not(.slither-mode)::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.16) 0 1px,
+    transparent 1px 3px
+  );
+  mix-blend-mode: multiply;
 }
 
 .app-shell {
@@ -60,32 +103,77 @@ body {
 }
 
 .reversi-title {
+  position: relative;
   text-align: center;
-  font-size: clamp(42px, 7vw, 72px);
-  letter-spacing: 6px;
+  font-size: clamp(46px, 8vw, 86px);
+  letter-spacing: 8px;
   text-transform: uppercase;
+  margin: 8px 0 4px;
+}
+
+/* A lit rule under the wordmark, like the underside of a sign. */
+.reversi-title::after {
+  content: "";
+  display: block;
+  width: min(420px, 70%);
+  height: 2px;
+  margin: 18px auto 0;
+  background: linear-gradient(90deg, transparent, var(--neon-cyan), var(--neon-magenta), transparent);
+  box-shadow: 0 0 14px rgba(53, 231, 255, 0.6);
 }
 
 .reversi-title span {
   font-family: "Orbitron", "Archivo Black", sans-serif;
+  /* The title is split per character, so the word gap is its own span. As an
+     inline-block that span collapses to nothing and the sign reads GAMEHUB. */
+  display: inline-block;
+  white-space: pre;
+  animation: neon-hum 5.5s ease-in-out infinite;
+}
+
+/* Each letter drifts on its own cycle, so the sign breathes rather than
+   pulsing in lockstep like a warning light. */
+.reversi-title span:nth-child(2n) { animation-delay: -1.4s; }
+.reversi-title span:nth-child(3n) { animation-delay: -2.9s; }
+.reversi-title span:nth-child(5n) { animation-delay: -4.1s; }
+
+@keyframes neon-hum {
+  0%, 100% { opacity: 1; }
+  46% { opacity: 1; }
+  48% { opacity: 0.82; }
+  50% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reversi-title span {
+    animation: none;
+  }
 }
 
 /* The wordmark alternates the two signature colours rather than light/dark
    letters; the class names are kept so the existing markup still works. */
 .reversi-title .light {
-  color: var(--neon-cyan);
-  text-shadow: 0 0 6px rgba(53, 231, 255, 0.85), 0 0 22px rgba(53, 231, 255, 0.45);
+  color: #d8fbff;
+  text-shadow:
+    0 0 4px #fff,
+    0 0 12px var(--neon-cyan),
+    0 0 30px rgba(53, 231, 255, 0.8),
+    0 0 62px rgba(53, 231, 255, 0.45);
 }
 
 .reversi-title .dark {
-  color: var(--neon-magenta);
-  text-shadow: 0 0 6px rgba(255, 79, 216, 0.85), 0 0 22px rgba(255, 79, 216, 0.4);
+  color: #ffe2f8;
+  text-shadow:
+    0 0 4px #fff,
+    0 0 12px var(--neon-magenta),
+    0 0 30px rgba(255, 79, 216, 0.8),
+    0 0 62px rgba(255, 79, 216, 0.45);
 }
 
 .panel {
   position: relative;
   background: var(--neon-panel);
-  border-radius: 16px;
+  border-radius: 6px;
   padding: 24px;
   border: 1px solid var(--neon-line);
   box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);
@@ -98,9 +186,25 @@ body {
   position: absolute;
   inset: 0 0 auto 0;
   height: 1px;
-  border-radius: 16px 16px 0 0;
+  border-radius: 6px 6px 0 0;
   background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
-  opacity: 0.7;
+  opacity: 0.85;
+}
+
+/* Bracket marks at the corners, the way a HUD frames a panel. */
+.panel::after {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  pointer-events: none;
+  border: 1px solid transparent;
+  border-image: linear-gradient(
+      135deg,
+      var(--neon-cyan) 0 14px,
+      transparent 14px calc(100% - 14px),
+      var(--neon-magenta) calc(100% - 14px) 100%
+    ) 1;
+  opacity: 0.45;
 }
 
 .panel.highlight {
@@ -112,13 +216,33 @@ body {
 }
 
 .panel-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-family: "Orbitron", sans-serif;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   letter-spacing: 3px;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
   text-transform: uppercase;
   color: var(--neon-cyan);
+}
+
+.panel-title::before {
+  content: "";
+  width: 3px;
+  height: 16px;
+  flex: none;
+  background: currentColor;
+  box-shadow: 0 0 10px currentColor;
+}
+
+.panel-title::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, currentColor, transparent);
+  opacity: 0.4;
 }
 
 .panel.highlight .panel-title {
@@ -143,7 +267,7 @@ body {
   font-weight: 700;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  border-radius: 12px;
+  border-radius: 6px;
   cursor: pointer;
   color: var(--neon-text);
   background: rgba(53, 231, 255, 0.08);
@@ -162,7 +286,19 @@ body {
   color: #041018;
   background: linear-gradient(180deg, var(--neon-cyan), #14b6d6);
   border-color: transparent;
-  box-shadow: 0 0 22px rgba(53, 231, 255, 0.4);
+  animation: cta-pulse 3.2s ease-in-out infinite;
+}
+
+@keyframes cta-pulse {
+  0%, 100% { box-shadow: 0 0 18px rgba(53, 231, 255, 0.35); }
+  50% { box-shadow: 0 0 34px rgba(53, 231, 255, 0.65); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button.primary {
+    animation: none;
+    box-shadow: 0 0 22px rgba(53, 231, 255, 0.4);
+  }
 }
 
 .button.primary:hover {
@@ -193,7 +329,7 @@ body {
 .input {
   padding: 12px 14px;
   font-size: 18px;
-  border-radius: 10px;
+  border-radius: 6px;
   border: 1px solid var(--neon-line);
   background: rgba(0, 0, 0, 0.35);
   color: var(--neon-text);
@@ -654,6 +790,49 @@ body.slither-mode {
 
 body.slither-mode #root {
   min-height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------------------------------------------------------------------------
+   Arcade cabinet treatment for the entry screens.
+   Scoped away from .room-mode and .slither-mode: in a room the board is the
+   subject and a scanline haze over a chessboard is just noise.
+   --------------------------------------------------------------------------- */
+
+/* The floor: a perspective grid running to a horizon, masked out as it rises. */
+body:not(.room-mode):not(.slither-mode)::before {
+  content: "";
+  position: fixed;
+  left: -60%;
+  right: -60%;
+  bottom: -12vh;
+  height: 62vh;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(90deg, rgba(53, 231, 255, 0.5) 0 2px, transparent 2px 90px),
+    repeating-linear-gradient(0deg, rgba(255, 79, 216, 0.4) 0 2px, transparent 2px 70px);
+  transform: perspective(320px) rotateX(72deg);
+  transform-origin: bottom center;
+  -webkit-mask-image: linear-gradient(to top, #000 4%, transparent 72%);
+  mask-image: linear-gradient(to top, #000 4%, transparent 72%);
+  opacity: 0.5;
+}
+
+/* The glass: CRT scanlines over everything, kept faint enough to read through. */
+body:not(.room-mode):not(.slither-mode)::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.16) 0 1px,
+    transparent 1px 3px
+  );
+  mix-blend-mode: multiply;
 }
 
 .slither-root {
