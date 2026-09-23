@@ -9,5 +9,8 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     setupFiles: "./src/setupTests.js",
+    // tests/ holds Playwright specs, which must not be collected by vitest.
+    include: ["src/**/*.{test,spec}.{js,jsx}"],
+    exclude: ["node_modules/**", "dist/**", "tests/**"],
   },
 });
