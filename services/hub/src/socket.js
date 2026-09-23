@@ -14,9 +14,24 @@ import {
   getHost,
   isPlayerInRoom,
   isRoomReady,
+  canJoinRoom,
 } from "./rooms/roomService.js";
 import { createInitialState } from "./games/registry.js";
 import { registerSlitherNamespace } from "./games/slither/slitherSocket.js";
+import {
+  chatMessageLimiter,
+  gameActionLimiter,
+  roomJoinLimiter,
+} from "./util/rateLimiter.js";
+import {
+  isValidPlayerId,
+  isValidDisplayName,
+  isValidJoinCode,
+  isValidGameKey,
+  isValidGameMode,
+  isValidChatMessage,
+  isValidActionType,
+} from "./util/inputValidation.js";
 
 // Game-specific imports for handling actions
 import * as reversiService from "./games/reversi/reversiService.js";
@@ -260,6 +275,119 @@ export function registerSocketHandlers(httpServer) {
     }
 
     io.to(roomChannel(room.roomId)).emit("room:state", sanitizedRoom);
+  }
+
+  function removeCatanPlayer(state, playerId) {
+    const idx = state.players.findIndex((p) => p.playerId === playerId);
+    if (idx === -1) return false;
+
+    const wasCurrent = state.turnIndex === idx;
+    state.players.splice(idx, 1);
+
+    if (state.pendingDiscards) {
+      state.pendingDiscards = state.pendingDiscards.filter((id) => id !== playerId);
+      if (state.pendingDiscards.length === 0 && state.phase === catanService.PHASES.DISCARD) {
+        state.pendingDiscards = null;
+        state.robberReturnPhase = catanService.PHASES.MAIN;
+        state.phase = catanService.PHASES.ROBBER_MOVE;
+      }
+    }
+
+    if (state.pendingAction?.type === "STEAL" && state.pendingAction.targets) {
+      state.pendingAction.targets = state.pendingAction.targets.filter((id) => id !== playerId);
+      if (state.pendingAction.targets.length === 0 && state.phase === catanService.PHASES.ROBBER_STEAL) {
+        state.pendingAction = null;
+        state.phase = state.robberReturnPhase || catanService.PHASES.MAIN;
+        state.robberReturnPhase = catanService.PHASES.MAIN;
+      }
+    }
+
+    if (wasCurrent) {
+      if (state.phase === catanService.PHASES.ROBBER_STEAL) {
+        state.pendingAction = null;
+        state.phase = state.robberReturnPhase || catanService.PHASES.MAIN;
+        state.robberReturnPhase = catanService.PHASES.MAIN;
+      }
+
+      if (state.pendingAction?.type !== "STEAL") {
+        state.pendingAction = null;
+      }
+
+      if (state.phase === catanService.PHASES.SETUP_ROAD_1) {
+        state.phase = catanService.PHASES.SETUP_SETTLEMENT_1;
+      } else if (state.phase === catanService.PHASES.SETUP_ROAD_2) {
+        state.phase = catanService.PHASES.SETUP_SETTLEMENT_2;
+      }
+    }
+
+    if (state.turnIndex > idx) {
+      state.turnIndex -= 1;
+    } else if (state.turnIndex === idx) {
+      state.turnIndex = Math.min(idx, state.players.length - 1);
+    }
+
+    if (state.turnIndex < 0 || state.turnIndex >= state.players.length) {
+      state.turnIndex = 0;
+    }
+
+    return true;
+  }
+
+  function applyPlayerRemoval(room, playerId) {
+    const player = room.players.find((p) => p.playerId === playerId);
+    if (!player) return { removed: false, player: null };
+
+    removePlayer(room, playerId);
+
+    if (room.currentGame) {
+      const gameKey = room.currentGame.gameKey;
+      const state = room.currentGame.state;
+
+      if (gameKey === "draw") {
+        drawService.removePlayer(state, playerId);
+        if (state.players.length < 2) {
+          state.phase = "LOBBY";
+          clearGameTimer(room.roomId);
+        }
+      } else if (gameKey === "charades") {
+        charadesService.removePlayer(state, playerId);
+        if (state.players.length < 2) {
+          state.phase = "LOBBY";
+          clearGameTimer(room.roomId);
+        }
+      } else if (gameKey === "cribbage") {
+        cribbageService.removePlayer(state, playerId);
+        if (state.players.length < 2) {
+          state.phase = "LOBBY";
+        }
+      } else if (gameKey === "fibbage") {
+        fibbageService.removePlayer(state, playerId);
+        if (state.players.length < 3) {
+          state.phase = "LOBBY";
+          clearGameTimer(room.roomId);
+        }
+      } else if (gameKey === "wordle") {
+        wordleRoomService.removePlayer(state, playerId);
+        if (state.players.length < 2) {
+          state.phase = wordleRoomService.PHASES.LOBBY;
+          clearGameTimer(room.roomId);
+        }
+      } else if (gameKey === "uno") {
+        unoService.removePlayer(state, playerId);
+        if (state.players.length < 2) {
+          state.phase = unoService.PHASES.FINISHED;
+          room.currentGame.status = "FINISHED";
+        }
+      } else if (gameKey === "catan") {
+        removeCatanPlayer(state, playerId);
+        if (state.players.length < GAME_CONFIG.catan.minPlayers) {
+          state.phase = catanService.PHASES.FINISHED;
+          room.currentGame.status = "FINISHED";
+        }
+      }
+    }
+
+    return { removed: true, player };
   }
 
   function clearGameTimer(roomId) {
@@ -835,27 +963,75 @@ export function registerSocketHandlers(httpServer) {
   io.on("connection", (socket) => {
     let session = null;
     let currentRoomId = null;
-
-    // Session establishment
+    // Session establishment.
+    //
+    // Identity is client-supplied: GameHub runs on the LAN or over Tailscale, where
+    // the network itself is the trust boundary. Validation here guards against
+    // malformed input and accidental collisions between family members, not against
+    // a motivated attacker. If this is ever exposed publicly, identity must move
+    // server-side (server mints the playerId) before anything else.
     socket.on("session:hello", (payload) => {
-      if (!payload?.playerId || !payload?.displayName) return;
-      session = { playerId: payload.playerId, displayName: payload.displayName };
+      const playerId = payload?.playerId;
+      const displayName = payload?.displayName;
+
+      if (!isValidPlayerId(playerId)) {
+        return socket.emit("session:error", {
+          code: "INVALID_PLAYER_ID",
+          message: "Invalid player ID",
+        });
+      }
+
+      if (!isValidDisplayName(displayName)) {
+        return socket.emit("session:error", {
+          code: "INVALID_DISPLAY_NAME",
+          message: "Invalid display name",
+        });
+      }
+
+      session = { playerId, displayName };
 
       const existing = playerSockets.get(session.playerId) || new Set();
       existing.add(socket.id);
       playerSockets.set(session.playerId, existing);
+
+      socket.emit("session:authenticated", { playerId: session.playerId });
     });
 
     // ===== Room Events =====
 
-    socket.on("room:join", async ({ joinCode }) => {
+    socket.on("room:join", async ({ joinCode, password }) => {
+      // VULN-001 fix: Require authenticated session
       if (!session) {
         return socket.emit("room:error", { code: "NO_SESSION", message: "Session required" });
       }
 
-      const room = await getRoomByCode(String(joinCode || "").toUpperCase());
+      // VULN-006 fix: Rate limiting
+      const rateLimitCheck = roomJoinLimiter.checkLimit(session.playerId);
+      if (!rateLimitCheck.allowed) {
+        return socket.emit("room:error", {
+          code: "RATE_LIMIT_EXCEEDED",
+          message: `Too many room joins. Try again in ${rateLimitCheck.retryAfter}s`,
+        });
+      }
+
+      // VULN-005 fix: Input validation
+      const normalizedCode = String(joinCode || "").toUpperCase();
+      if (!isValidJoinCode(normalizedCode)) {
+        return socket.emit("room:error", { code: "INVALID_JOIN_CODE", message: "Invalid join code format" });
+      }
+
+      const room = await getRoomByCode(normalizedCode);
       if (!room) {
         return socket.emit("room:error", { code: "ROOM_NOT_FOUND", message: "Room not found" });
+      }
+
+      // VULN-003 fix: Check room permissions
+      const permissionCheck = canJoinRoom(room, session.playerId, password);
+      if (!permissionCheck.ok) {
+        return socket.emit("room:error", {
+          code: permissionCheck.error,
+          message: permissionCheck.error,
+        });
       }
 
       const result = addPlayer(room, session);
@@ -883,52 +1059,16 @@ export function registerSocketHandlers(httpServer) {
 
       const room = await getRoom(currentRoomId);
       if (room && session) {
-        removePlayer(room, session.playerId);
+        const { removed } = applyPlayerRemoval(room, session.playerId);
+        if (removed) {
+          await saveRoom(room);
 
-        // Handle party game player removal
-        if (room.currentGame) {
-          const gameKey = room.currentGame.gameKey;
-          const state = room.currentGame.state;
+          socket.to(roomChannel(room.roomId)).emit("room:playerLeft", {
+            playerId: session.playerId,
+          });
 
-          if (gameKey === "draw") {
-            drawService.removePlayer(state, session.playerId);
-            if (state.players.length < 2) {
-              state.phase = "LOBBY";
-              clearGameTimer(room.roomId);
-            }
-          } else if (gameKey === "charades") {
-            charadesService.removePlayer(state, session.playerId);
-            if (state.players.length < 2) {
-              state.phase = "LOBBY";
-              clearGameTimer(room.roomId);
-            }
-          } else if (gameKey === "cribbage") {
-            cribbageService.removePlayer(state, session.playerId);
-            if (state.players.length < 2) {
-              state.phase = "LOBBY";
-            }
-          } else if (gameKey === "fibbage") {
-            fibbageService.removePlayer(state, session.playerId);
-            if (state.players.length < 3) {
-              state.phase = "LOBBY";
-              clearGameTimer(room.roomId);
-            }
-          } else if (gameKey === "wordle") {
-            wordleRoomService.removePlayer(state, session.playerId);
-            if (state.players.length < 2) {
-              state.phase = wordleRoomService.PHASES.LOBBY;
-              clearGameTimer(room.roomId);
-            }
-          }
+          broadcastRoomState(room);
         }
-
-        await saveRoom(room);
-
-        socket.to(roomChannel(room.roomId)).emit("room:playerLeft", {
-          playerId: session.playerId,
-        });
-
-        broadcastRoomState(room);
       }
 
       socket.leave(roomChannel(currentRoomId));
@@ -938,9 +1078,27 @@ export function registerSocketHandlers(httpServer) {
     socket.on("room:chat", async ({ message }) => {
       if (!session || !currentRoomId || !message) return;
 
+      // VULN-006 fix: Rate limiting for chat
+      const rateLimitCheck = chatMessageLimiter.checkLimit(session.playerId);
+      if (!rateLimitCheck.allowed) {
+        return socket.emit("room:error", {
+          code: "RATE_LIMIT_CHAT",
+          message: `Slow down! Try again in ${rateLimitCheck.retryAfter}s`,
+        });
+      }
+
+      // VULN-005 fix: Input validation
+      if (!isValidChatMessage(message)) {
+        return socket.emit("room:error", {
+          code: "INVALID_MESSAGE",
+          message: "Message must be 1-500 characters",
+        });
+      }
+
       const room = await getRoom(currentRoomId);
       if (!room) return;
 
+      // VULN-007 fix: Sanitization done in addChatMessage
       const chatMessage = addChatMessage(room, session.playerId, message);
       if (!chatMessage) return;
 
@@ -1064,10 +1222,15 @@ export function registerSocketHandlers(httpServer) {
     socket.on("room:selectGame", async ({ gameKey, mode }) => {
       if (!session || !currentRoomId) return;
 
+      // VULN-005 fix: Input validation
+      if (!isValidGameKey(gameKey)) {
+        return socket.emit("room:error", { code: "INVALID_GAME_KEY", message: "Invalid game key" });
+      }
+
       const room = await getRoom(currentRoomId);
       if (!room) return;
 
-      // Only host can select game
+      // VULN-002 fix: Host authorization (relies on authenticated session from VULN-001)
       const host = getHost(room);
       if (!host || host.playerId !== session.playerId) {
         return socket.emit("room:error", { code: "NOT_HOST", message: "Only host can select game" });
@@ -1076,6 +1239,11 @@ export function registerSocketHandlers(httpServer) {
       const config = GAME_CONFIG[gameKey];
       if (!config) {
         return socket.emit("room:error", { code: "UNKNOWN_GAME", message: "Unknown game" });
+      }
+
+      // VULN-005 fix: Validate game mode
+      if (mode && !isValidGameMode(gameKey, mode)) {
+        return socket.emit("room:error", { code: "INVALID_MODE", message: "Invalid game mode" });
       }
 
       const safeMode = config.modes.includes(mode) ? mode : config.defaultMode;
@@ -1294,10 +1462,28 @@ export function registerSocketHandlers(httpServer) {
     socket.on("game:action", async ({ action }) => {
       if (!session || !currentRoomId || !action) return;
 
+      // VULN-006 fix: Rate limiting for game actions
+      const rateLimitCheck = gameActionLimiter.checkLimit(session.playerId);
+      if (!rateLimitCheck.allowed) {
+        return socket.emit("game:error", {
+          code: "RATE_LIMIT_EXCEEDED",
+          message: "Too many actions. Slow down!",
+        });
+      }
+
+      // VULN-005 fix: Input validation
+      if (!action.type || !isValidActionType(action.type)) {
+        return socket.emit("game:error", {
+          code: "INVALID_ACTION_TYPE",
+          message: "Invalid action type",
+        });
+      }
+
       const room = await getRoom(currentRoomId);
       if (!room || !room.currentGame) return;
       if (room.currentGame.status !== "PLAYING") return;
 
+      // VULN-004 fix: Player action authorization (uses authenticated session.playerId)
       const result = await handleGameAction(room, session.playerId, action);
 
       if (!result.ok) {
@@ -1339,6 +1525,7 @@ export function registerSocketHandlers(httpServer) {
 
             // Clean up voice state when all sockets for player disconnect
             if (currentRoomId) {
+              const room = await getRoom(currentRoomId);
               const peers = voicePeers.get(currentRoomId);
               if (peers && peers.has(session.playerId)) {
                 peers.delete(session.playerId);
@@ -1357,6 +1544,17 @@ export function registerSocketHandlers(httpServer) {
                 // Clean up empty set
                 if (peers.size === 0) {
                   voicePeers.delete(currentRoomId);
+                }
+              }
+
+              if (room) {
+                const { removed } = applyPlayerRemoval(room, session.playerId);
+                if (removed) {
+                  await saveRoom(room);
+                  io.to(roomChannel(room.roomId)).emit("room:playerLeft", {
+                    playerId: session.playerId,
+                  });
+                  broadcastRoomState(room);
                 }
               }
             }

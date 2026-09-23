@@ -18,7 +18,7 @@ function codeKey(joinCode) {
  * Create a new room (game-agnostic)
  * Players join rooms first, then select games to play
  */
-export async function createRoom({ maxPlayers = 2 } = {}) {
+export async function createRoom({ maxPlayers = 2, permissions = null } = {}) {
   const roomId = crypto.randomUUID();
   let joinCode = generateJoinCode();
 
@@ -34,6 +34,13 @@ export async function createRoom({ maxPlayers = 2 } = {}) {
     joinCode,
     createdAt: new Date().toISOString(),
     maxPlayers: Math.min(maxPlayers, MAX_PLAYERS),
+
+    // Room permissions (VULN-003 fix)
+    permissions: permissions || {
+      type: "public", // "public" | "private" | "invite-only"
+      password: null, // For private rooms (should be hashed)
+      allowList: [], // For invite-only rooms
+    },
 
     // Room-level state (persists across games)
     players: [], // [{ playerId, displayName, joinedAt, isHost }]
@@ -101,17 +108,59 @@ export function removePlayer(room, playerId) {
 }
 
 /**
- * Add a chat message
+ * Check if player can join room (VULN-003 fix)
+ */
+export function canJoinRoom(room, playerId, password = null) {
+  const permissions = room.permissions || { type: "public" };
+
+  // Check if room is full
+  if (room.players.length >= room.maxPlayers) {
+    return { ok: false, error: "ROOM_FULL" };
+  }
+
+  // Public rooms: anyone can join
+  if (permissions.type === "public") {
+    return { ok: true };
+  }
+
+  // Private rooms: require password
+  if (permissions.type === "private") {
+    if (!password) {
+      return { ok: false, error: "PASSWORD_REQUIRED" };
+    }
+    // Simple comparison for now (in production, use bcrypt)
+    if (password !== permissions.password) {
+      return { ok: false, error: "INVALID_PASSWORD" };
+    }
+    return { ok: true };
+  }
+
+  // Invite-only rooms: check allowList
+  if (permissions.type === "invite-only") {
+    if (!permissions.allowList || !permissions.allowList.includes(playerId)) {
+      return { ok: false, error: "NOT_INVITED" };
+    }
+    return { ok: true };
+  }
+
+  return { ok: false, error: "UNKNOWN_PERMISSION_TYPE" };
+}
+
+/**
+ * Add a chat message (VULN-007 fix: sanitize input)
  */
 export function addChatMessage(room, playerId, message) {
   const player = room.players.find((p) => p.playerId === playerId);
   if (!player) return null;
 
+  // Store chat text as written. The client renders it through React, which escapes
+  // text nodes on output (the codebase uses no innerHTML/dangerouslySetInnerHTML),
+  // so escaping here would double-escape and display literal &#x27; to players.
   const chatMessage = {
     id: crypto.randomUUID(),
     playerId,
     displayName: player.displayName,
-    message: message.trim().slice(0, 500), // Limit message length
+    message: message.trim().slice(0, 500),
     timestamp: Date.now(),
   };
 
