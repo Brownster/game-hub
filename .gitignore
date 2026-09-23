@@ -10,6 +10,10 @@ playwright-report/
 playwright/.cache/
 coverage/
 
+# Python bytecode (Blender writes these when it imports the asset modules)
+__pycache__/
+*.pyc
+
 # Local scratch
 /examples/
 .ralph/.tmp/
