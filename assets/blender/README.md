@@ -27,12 +27,13 @@ scratch on every run.
 npm run --prefix services/web assets:chess
 ```
 
-or directly:
+That runs two stages: Blender renders into `services/web/.render-cache/chess`
+(gitignored), then `trim_sprites.py` crops each sprite to its alpha bounding box
+on the way into `services/web/public/chess/pieces/wood`. To run just the render:
 
 ```bash
 blender --background --python assets/blender/render_chess.py -- \
-  --out services/web/public/chess/pieces/wood \
-  --resolution 512 --samples 96
+  --out /tmp/chess --resolution 512 --samples 96
 ```
 
 Options:
@@ -65,8 +66,14 @@ pushing vertices in a GUI.
 
 Heights live in `chesslib.PIECE_HEIGHTS` in "pawn units", so the set stays in
 proportion. One orthographic camera frames the tallest piece and renders every
-piece through it, which is why a pawn is genuinely shorter than a king in the
-output PNGs rather than each being scaled to fill its own canvas.
+piece through it, so a pawn is genuinely shorter than a king in the raw render.
+
+That honest proportion does not survive contact with a chessboard: on squares of
+equal size the pawns floated with dead space around them and looked undersized.
+So `trim_sprites.py` crops each sprite to its own content as a second stage, and
+the board CSS sizes each piece to fill its square — which is what the original
+flat art did. The render keeps the true proportions; trimming is a presentation
+choice applied on the way out, and dropping it is a one-line change.
 
 Piece colours are **boxwood** (`#f0e2c8`) and **ebony** (`#3b2415`), converted
 sRGB → linear on the way in. They deliberately do *not* use `--wood-light` and

@@ -2,3 +2,6 @@
 /test-results/
 /playwright-report/
 /playwright/.cache/
+
+# Intermediate Blender renders, trimmed into public/ by assets:chess
+/.render-cache/
