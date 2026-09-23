@@ -154,13 +154,13 @@
         "README or a testing doc explains how to run hub/web tests and what they cover.",
         "Optional: add a lightweight coverage target note or script (non-blocking)."
       ],
-      "status": "in_progress",
+      "status": "done",
       "dependsOn": [
         "TST-001"
       ],
       "startedAt": "2026-01-23T02:11:12.324338+00:00",
-      "completedAt": null,
-      "updatedAt": "2026-01-23T02:11:12.324351+00:00"
+      "completedAt": "2026-01-23T02:21:59.834467+00:00",
+      "updatedAt": "2026-01-23T02:21:59.834456+00:00"
     }
   ]
 }

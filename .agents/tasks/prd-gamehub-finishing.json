@@ -50,7 +50,9 @@
       "complexity": 8,
       "agent": "test-architect",
       "estimatedCost": 1.8,
-      "dependsOn": ["FIN-001"]
+      "dependsOn": [
+        "FIN-001"
+      ]
     },
     {
       "id": "FIN-003",
@@ -63,11 +65,13 @@
         "Test checks UNO call penalty",
         "Test confirms winner detection and scoring"
       ],
-      "status": "open",
+      "status": "completed",
       "complexity": 7,
       "agent": "test-architect",
       "estimatedCost": 1.5,
-      "dependsOn": ["FIN-001"]
+      "dependsOn": [
+        "FIN-001"
+      ]
     },
     {
       "id": "FIN-004",
@@ -80,11 +84,13 @@
         "Test checks lose outcome (6 failed guesses)",
         "Test verifies leaderboard updates"
       ],
-      "status": "open",
+      "status": "completed",
       "complexity": 6,
       "agent": "test-architect",
       "estimatedCost": 1.2,
-      "dependsOn": ["FIN-001"]
+      "dependsOn": [
+        "FIN-001"
+      ]
     },
     {
       "id": "FIN-005",
@@ -97,11 +103,12 @@
         "Buttons are min 44x44px for touch targets",
         "No horizontal scroll on mobile viewports"
       ],
-      "status": "open",
+      "status": "completed",
       "complexity": 6,
       "agent": "frontend-reviewer",
       "estimatedCost": 1.2,
-      "dependsOn": []
+      "dependsOn": [],
+      "statusNote": "Shipped in commit 7003ae57 (mobile responsiveness). Status field had drifted."
     },
     {
       "id": "FIN-006",
@@ -115,11 +122,12 @@
         "Input validation prevents injection attacks",
         "No sensitive data leaks in error messages"
       ],
-      "status": "open",
+      "status": "partial",
       "complexity": 8,
       "agent": "security-auditor",
       "estimatedCost": 1.8,
-      "dependsOn": []
+      "dependsOn": [],
+      "statusNote": "Validation and rate limiting landed; host authorization landed. Session-token auth reverted as broken and unnecessary for a LAN/Tailscale deployment - see services/hub/SECURITY_NOTES.md. Re-scoped: identity stays client-supplied."
     },
     {
       "id": "FIN-007",
@@ -132,11 +140,12 @@
         "Turn progression skips disconnected players",
         "Game ends if too few players remain"
       ],
-      "status": "open",
+      "status": "partial",
       "complexity": 7,
       "agent": "debugger",
       "estimatedCost": 1.5,
-      "dependsOn": []
+      "dependsOn": [],
+      "statusNote": "Disconnect removal landed for all games incl. UNO. Still needs tests covering mid-turn disconnect per game."
     },
     {
       "id": "FIN-008",
@@ -166,11 +175,12 @@
         "Response times documented for room operations",
         "Bottlenecks identified and prioritized"
       ],
-      "status": "open",
+      "status": "cut",
       "complexity": 7,
       "agent": "debugger",
       "estimatedCost": 1.5,
-      "dependsOn": []
+      "dependsOn": [],
+      "statusNote": "Cut 2026-09-23: LAN/Tailscale family deployment does not face 100 concurrent rooms or 1000+ players."
     },
     {
       "id": "FIN-010",
@@ -220,11 +230,12 @@
         "Error monitoring configured (console.error in dev, Sentry in prod)",
         "Logging strategy documented"
       ],
-      "status": "open",
+      "status": "rescoped",
       "complexity": 6,
       "agent": "code-reviewer",
       "estimatedCost": 1.0,
-      "dependsOn": []
+      "dependsOn": [],
+      "statusNote": "Keep health check and graceful shutdown. Sentry/error monitoring cut for a LAN deployment."
     },
     {
       "id": "FIN-013",
@@ -284,37 +295,58 @@
     {
       "phase_id": "testing",
       "title": "UI Testing Setup",
-      "story_ids": ["FIN-001", "FIN-002", "FIN-003", "FIN-004"],
+      "story_ids": [
+        "FIN-001",
+        "FIN-002",
+        "FIN-003",
+        "FIN-004"
+      ],
       "execution_mode": "sequential"
     },
     {
       "phase_id": "polish",
       "title": "UX Polish and Responsiveness",
-      "story_ids": ["FIN-005", "FIN-010"],
+      "story_ids": [
+        "FIN-005",
+        "FIN-010"
+      ],
       "execution_mode": "parallel"
     },
     {
       "phase_id": "security",
       "title": "Security and Bug Fixes",
-      "story_ids": ["FIN-006", "FIN-007", "FIN-008"],
+      "story_ids": [
+        "FIN-006",
+        "FIN-007",
+        "FIN-008"
+      ],
       "execution_mode": "parallel"
     },
     {
       "phase_id": "performance",
       "title": "Performance and Production Readiness",
-      "story_ids": ["FIN-009", "FIN-012"],
+      "story_ids": [
+        "FIN-009",
+        "FIN-012"
+      ],
       "execution_mode": "sequential"
     },
     {
       "phase_id": "quality",
       "title": "Code Quality and Accessibility",
-      "story_ids": ["FIN-013", "FIN-014"],
+      "story_ids": [
+        "FIN-013",
+        "FIN-014"
+      ],
       "execution_mode": "parallel"
     },
     {
       "phase_id": "deployment",
       "title": "Documentation and CI/CD",
-      "story_ids": ["FIN-011", "FIN-015"],
+      "story_ids": [
+        "FIN-011",
+        "FIN-015"
+      ],
       "execution_mode": "parallel"
     }
   ],
@@ -325,6 +357,8 @@
     "Use simple ralph for FIN-011, FIN-013 (documentation/formatting)",
     "Parallel execution in polish/security/quality phases for speed",
     "UI tests (FIN-002 to FIN-004) can run in parallel after FIN-001",
-    "Security review (FIN-006) should block production deployment"
+    "Security review (FIN-006) should block production deployment",
+    "2026-09-23 re-scope: deployment target is LAN/Tailscale family use, not public internet. Threat and load model narrowed accordingly; see services/hub/SECURITY_NOTES.md.",
+    "Verify claims by running the command. The earlier loop filed passing-test reports for suites that never terminated."
   ]
 }
