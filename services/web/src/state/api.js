@@ -1,8 +1,11 @@
-export async function createRoom({ gameKey, mode }) {
+export async function createRoom({ maxPlayers = 2 } = {}) {
+  // POST /api/rooms creates a game-agnostic room and reads only maxPlayers.
+  // It previously took gameKey and mode, which the server silently ignored.
+  // Callers choose the game afterwards, over the socket.
   const res = await fetch("/api/rooms", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ gameKey, mode })
+    body: JSON.stringify({ maxPlayers })
   });
 
   if (!res.ok) {

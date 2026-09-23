@@ -24,8 +24,11 @@ export default function ReversiHome() {
     unlockAudio();
     playSound("beep");
     try {
-      const room = await createRoom({ gameKey: "reversi", mode });
-      navigate(`/lobby/${room.joinCode}`);
+      const room = await createRoom({ maxPlayers: 2 });
+      // Into the room flow, not /lobby: that page reads room.players.black and
+      // room.mode, a room shape the hub stopped using, so it sat on
+      // "waiting for both players" forever. The game and mode ride in the URL.
+      navigate(`/room/${room.joinCode}?game=reversi&mode=${mode}`);
     } catch (err) {
       setError(err.message || "Unable to create room");
     } finally {

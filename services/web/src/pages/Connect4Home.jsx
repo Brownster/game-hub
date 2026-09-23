@@ -29,8 +29,10 @@ export default function Connect4Home() {
     unlockAudio();
     playSound("beep");
     try {
-      const room = await createRoom({ gameKey: "connect4", mode });
-      navigate(`/connect4/${room.joinCode}`);
+      const room = await createRoom({ maxPlayers: 2 });
+      // Into the room flow: /connect4/:code reads room.state and
+      // room.players.red, a room shape the hub stopped using.
+      navigate(`/room/${room.joinCode}?game=connect4&mode=${mode}`);
     } catch (err) {
       setError(err.message || "Unable to create room");
     } finally {
