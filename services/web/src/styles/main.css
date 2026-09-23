@@ -1,5 +1,20 @@
 :root {
-  color-scheme: light;
+  /* The shell — landing page, room chrome, lobby — is one retro-neon world.
+     Individual game boards deliberately keep their own: Othello and chess use
+     the wood tokens below, which are theirs and are not shell colours. */
+  color-scheme: dark;
+  --neon-bg: #070b18;
+  --neon-bg-2: #111a33;
+  --neon-panel: rgba(17, 26, 51, 0.78);
+  --neon-panel-strong: rgba(13, 20, 40, 0.94);
+  --neon-line: rgba(120, 226, 255, 0.22);
+  --neon-cyan: #35e7ff;
+  --neon-magenta: #ff4fd8;
+  --neon-lime: #7dff9b;
+  --neon-text: #e8f0ff;
+  --neon-dim: rgba(232, 240, 255, 0.55);
+  --neon-glow: 0 0 18px rgba(53, 231, 255, 0.35);
+
   --wood-light: #d4b08a;
   --wood-dark: #8b5e3c;
   --ink: #1b120b;
@@ -19,12 +34,16 @@
 body {
   margin: 0;
   font-family: "Archivo Black", "DM Serif Display", serif;
-  color: var(--ink);
+  color: var(--neon-text);
   min-height: 100vh;
+  /* A faint grid over a deep gradient: arcade cabinet, not wood panelling. */
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent 45%),
-    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.08) 8px, transparent 8px, transparent 18px),
-    linear-gradient(160deg, var(--wood-light), var(--wood-dark));
+    radial-gradient(ellipse at 20% -10%, rgba(255, 79, 216, 0.16), transparent 55%),
+    radial-gradient(ellipse at 85% 0%, rgba(53, 231, 255, 0.14), transparent 50%),
+    repeating-linear-gradient(0deg, rgba(120, 226, 255, 0.045) 0 1px, transparent 1px 44px),
+    repeating-linear-gradient(90deg, rgba(120, 226, 255, 0.045) 0 1px, transparent 1px 44px),
+    linear-gradient(170deg, var(--neon-bg-2), var(--neon-bg) 60%);
+  background-attachment: fixed;
   padding: 24px 16px 48px;
 }
 
@@ -48,31 +67,62 @@ body {
 }
 
 .reversi-title span {
-  text-shadow: 1px 1px 0 #000, 2px 2px 0 #000, 4px 4px 12px rgba(0, 0, 0, 0.35);
+  font-family: "Orbitron", "Archivo Black", sans-serif;
 }
 
+/* The wordmark alternates the two signature colours rather than light/dark
+   letters; the class names are kept so the existing markup still works. */
 .reversi-title .light {
-  color: #f5f5f5;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 6px rgba(53, 231, 255, 0.85), 0 0 22px rgba(53, 231, 255, 0.45);
 }
 
 .reversi-title .dark {
-  color: #2d2d2d;
+  color: var(--neon-magenta);
+  text-shadow: 0 0 6px rgba(255, 79, 216, 0.85), 0 0 22px rgba(255, 79, 216, 0.4);
 }
 
 .panel {
-  background: var(--panel);
-  border-radius: 18px;
+  position: relative;
+  background: var(--neon-panel);
+  border-radius: 16px;
   padding: 24px;
-  box-shadow: var(--shadow-strong);
-  border: 2px solid rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(6px);
+  border: 1px solid var(--neon-line);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+}
+
+/* A lit edge along the top, like a cabinet bezel. */
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  border-radius: 16px 16px 0 0;
+  background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+  opacity: 0.7;
+}
+
+.panel.highlight {
+  border-color: rgba(255, 79, 216, 0.45);
+}
+
+.panel.highlight::before {
+  background: linear-gradient(90deg, transparent, var(--neon-magenta), transparent);
 }
 
 .panel-title {
-  font-size: 20px;
-  letter-spacing: 2px;
+  font-family: "Orbitron", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 3px;
   margin-bottom: 16px;
   text-transform: uppercase;
+  color: var(--neon-cyan);
+}
+
+.panel.highlight .panel-title {
+  color: var(--neon-magenta);
 }
 
 .menu {
@@ -88,42 +138,86 @@ body {
 .button {
   padding: 14px 18px;
   min-height: 48px;
-  font-size: 18px;
-  border: none;
-  border-radius: 14px;
-  font-family: "DM Serif Display", serif;
+  font-size: 16px;
+  font-family: "Rajdhani", sans-serif;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  border-radius: 12px;
   cursor: pointer;
-  background: linear-gradient(180deg, var(--accent), var(--accent-deep));
-  color: #1c1207;
-  letter-spacing: 1px;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  color: var(--neon-text);
+  background: rgba(53, 231, 255, 0.08);
+  border: 1px solid rgba(53, 231, 255, 0.45);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease, border-color 0.15s ease;
+}
+
+.button:hover {
+  background: rgba(53, 231, 255, 0.16);
+  border-color: var(--neon-cyan);
+  box-shadow: var(--neon-glow);
+}
+
+.button.primary {
+  color: #041018;
+  background: linear-gradient(180deg, var(--neon-cyan), #14b6d6);
+  border-color: transparent;
+  box-shadow: 0 0 22px rgba(53, 231, 255, 0.4);
+}
+
+.button.primary:hover {
+  box-shadow: 0 0 30px rgba(53, 231, 255, 0.6);
 }
 
 .button.secondary {
-  background: linear-gradient(180deg, #f7f1e6, #e6d8c7);
-  color: #2b1b10;
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.button.secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: none;
 }
 
 .button:active {
   transform: translateY(2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 .input {
   padding: 12px 14px;
   font-size: 18px;
-  border-radius: 12px;
-  border: 2px solid rgba(0, 0, 0, 0.2);
-  background: rgba(255, 255, 255, 0.8);
-  font-family: "Indie Flower", cursive;
-  letter-spacing: 2px;
+  border-radius: 10px;
+  border: 1px solid var(--neon-line);
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--neon-text);
+  font-family: "Orbitron", monospace;
+  letter-spacing: 4px;
   text-align: center;
+  text-transform: uppercase;
+}
+
+.input::placeholder {
+  color: rgba(232, 240, 255, 0.3);
+  letter-spacing: 2px;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--neon-cyan);
+  box-shadow: var(--neon-glow);
 }
 
 .subtle {
-  font-family: "Indie Flower", cursive;
-  font-size: 18px;
+  font-family: "Rajdhani", sans-serif;
+  font-size: 15px;
+  color: var(--neon-dim);
 }
 
 .lobby-header {
@@ -2385,7 +2479,11 @@ body.charades-mode {
    ======================================== */
 
 body.room-mode {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  background:
+    radial-gradient(ellipse at 15% -10%, rgba(255, 79, 216, 0.14), transparent 55%),
+    radial-gradient(ellipse at 88% 0%, rgba(53, 231, 255, 0.12), transparent 50%),
+    linear-gradient(170deg, var(--neon-bg-2), var(--neon-bg) 65%);
+  background-attachment: fixed;
   padding: 0;
 }
 
@@ -2401,8 +2499,9 @@ body.room-mode {
   justify-content: space-between;
   align-items: center;
   padding: 16px 24px;
-  background: rgba(0, 0, 0, 0.3);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(4, 8, 20, 0.6);
+  border-bottom: 1px solid var(--neon-line);
+  backdrop-filter: blur(8px);
 }
 
 .room-title {
@@ -2456,29 +2555,30 @@ body.room-mode {
 }
 
 .room-btn.primary {
-  background: linear-gradient(135deg, #4ade80, #22c55e);
-  color: #000;
+  background: linear-gradient(180deg, var(--neon-cyan), #14b6d6);
+  color: #041018;
 }
 
 .room-btn.primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(74, 222, 128, 0.4);
+  box-shadow: 0 0 22px rgba(53, 231, 255, 0.5);
 }
 
 .room-btn.secondary {
-  background: linear-gradient(135deg, #60a5fa, #3b82f6);
-  color: #fff;
+  background: rgba(255, 79, 216, 0.16);
+  color: var(--neon-text);
+  border: 1px solid rgba(255, 79, 216, 0.5);
 }
 
 .room-btn.secondary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 0 20px rgba(255, 79, 216, 0.4);
 }
 
 .room-btn.ghost {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--neon-text);
+  border: 1px solid var(--neon-line);
 }
 
 .room-btn.ghost:hover {
@@ -2503,7 +2603,8 @@ body.room-mode {
 }
 
 .room-panel {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--neon-panel);
+  border: 1px solid var(--neon-line);
   border-radius: 12px;
   padding: 16px;
 }
@@ -3568,6 +3669,36 @@ body.room-mode {
    piece would fill the square to the same height. The spread is compressed
    from the true modelled ratios, which would leave a pawn barely half the
    height of a king and hard to hit on a phone. */
+/* Coordinates ride in the corners of the edge squares, as on a printed board,
+   rather than in gutters around it — the board already fills its space. */
+.chess__coord {
+  position: absolute;
+  font-size: clamp(8px, 21%, 12px);
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0.7;
+  pointer-events: none;
+  user-select: none;
+}
+
+.chess__coord--rank {
+  top: 4%;
+  left: 5%;
+}
+
+.chess__coord--file {
+  bottom: 3%;
+  right: 5%;
+}
+
+.chess__tile.light .chess__coord {
+  color: #6b4b3e;
+}
+
+.chess__tile.dark .chess__coord {
+  color: #d7c3a4;
+}
+
 .chess__piece {
   /* Absolute, so the sprite never contributes to the square's height and its
      percentage height resolves against the square the grid decided on. */
@@ -4337,8 +4468,8 @@ body.room-mode {
 }
 
 .othello-score.is-turn {
-  border-color: #4ade80;
-  background: rgba(74, 222, 128, 0.12);
+  border-color: var(--neon-cyan);
+  background: rgba(53, 231, 255, 0.12);
 }
 
 .othello-score.is-winner {
@@ -4360,7 +4491,7 @@ body.room-mode {
 }
 
 .othello__status.is-active {
-  color: #4ade80;
+  color: var(--neon-cyan);
   font-weight: 700;
 }
 
@@ -5138,8 +5269,10 @@ body.room-mode {
 
 /* Highlight panel */
 .panel.highlight {
-  border: 2px solid var(--accent);
-  background: rgba(255, 178, 63, 0.1);
+  /* Magenta, matching the shell palette. This rule sits after the base one and
+     used to reinstate the old amber border. */
+  border: 1px solid rgba(255, 79, 216, 0.5);
+  background: rgba(255, 79, 216, 0.07);
 }
 
 .button.primary:disabled {

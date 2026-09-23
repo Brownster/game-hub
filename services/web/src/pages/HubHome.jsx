@@ -134,7 +134,7 @@ export default function HubHome() {
           <button className="button" onClick={goToSerpent}>
             SERPENT.IO Arena
           </button>
-          <div className="subtle">Quick play uses legacy game modes without the unified room system.</div>
+          <div className="subtle">Jump straight in — Reversi and Connect 4 open a room for you.</div>
         </div>
       </section>
     </div>
