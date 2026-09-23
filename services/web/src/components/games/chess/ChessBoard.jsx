@@ -154,7 +154,7 @@ export default function ChessBoard({ state, playerId, onAction }) {
                       <img
                         src={getPieceImage(piece)}
                         alt={`${piece.color}${piece.type}`}
-                        className="chess__piece"
+                        className={`chess__piece is-${piece.type}`}
                         draggable={false}
                       />
                     )}

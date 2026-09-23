@@ -3425,6 +3425,8 @@ body.room-mode {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  width: 100%;
+  max-width: 1040px;
 }
 
 .chess__header {
@@ -3486,12 +3488,31 @@ body.room-mode {
   gap: 18px;
 }
 
+@media (max-width: 860px) {
+  .chess__layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .chess__board {
+    max-width: min(100%, 62vh);
+  }
+
+  .chess__sidebar {
+    order: 2;
+  }
+}
+
 .chess__board {
   width: 100%;
+  /* Cap against viewport height too. With only width:100% and a 1:1 ratio the
+     board grew as tall as the pane was wide and ran off the bottom of the
+     screen, so the back rank was never visible. */
+  max-width: min(100%, 68vh);
+  margin-inline: auto;
   aspect-ratio: 1 / 1;
   display: grid;
   grid-template-rows: repeat(8, 1fr);
-  border-radius: 16px;
+  border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
 }
@@ -3507,6 +3528,11 @@ body.room-mode {
   padding: 0;
   background: #2f4a3c;
   cursor: pointer;
+  /* Pieces stand on the square rather than floating centred in it. */
+  display: grid;
+  align-items: end;
+  justify-items: center;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .chess__tile.light {
@@ -3530,12 +3556,26 @@ body.room-mode {
   background: rgba(255, 231, 165, 0.7);
 }
 
+/* Heights are set per piece so a king towers over a pawn the way a real set
+   does. The sprites are trimmed to their own content, so without this every
+   piece would fill the square to the same height. The spread is compressed
+   from the true modelled ratios, which would leave a pawn barely half the
+   height of a king and hard to hit on a phone. */
 .chess__piece {
-  width: 100%;
-  height: 100%;
+  width: 92%;
+  height: 84%;
   object-fit: contain;
+  object-position: bottom center;
   pointer-events: none;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.4));
 }
+
+.chess__piece.is-p { height: 69%; }
+.chess__piece.is-r { height: 75%; }
+.chess__piece.is-n { height: 79%; }
+.chess__piece.is-b { height: 83%; }
+.chess__piece.is-q { height: 88%; }
+.chess__piece.is-k { height: 94%; }
 
 .chess__sidebar {
   display: flex;
