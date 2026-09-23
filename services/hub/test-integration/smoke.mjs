@@ -26,6 +26,21 @@ import { redis } from "../src/redis.js";
 
 const STEP_TIMEOUT_MS = 8000;
 
+// gameKey, minimum players, mode — mirrors GAME_CONFIG in src/socket.js.
+const EVERY_GAME = [
+  ["reversi", 2, "PVP"],
+  ["connect4", 2, "PVP"],
+  ["draw", 2, "PARTY"],
+  ["charades", 2, "PARTY"],
+  ["cribbage", 2, "2P"],
+  ["catan", 3, "3P"],
+  ["uno", 2, "STANDARD"],
+  ["crazy_eights", 2, "STANDARD"],
+  ["chess", 2, "PVP"],
+  ["fibbage", 3, "PARTY"],
+  ["wordle", 2, "STANDARD"],
+];
+
 let passed = 0;
 const failures = [];
 
@@ -162,6 +177,48 @@ async function main() {
       (s) => s.currentGame?.status === "PLAYING", "guest sees started game")
       .catch((e) => ({ error: e.message }));
     check("guest also receives the started game", !guestSees.error, guestSees.error || "");
+    // Every game, at its minimum player count. Only three games have an AI
+    // opponent, so with one player in the room the rest are correctly locked —
+    // this is the check that they actually work once people do join.
+    console.log("");
+    for (const [gameKey, minPlayers, mode] of EVERY_GAME) {
+      const sockets = [];
+      try {
+        const room = await fetch(`${url}/api/rooms`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ maxPlayers: 8 }),
+        }).then((r) => r.json());
+
+        for (let i = 0; i < minPlayers; i += 1) {
+          const p = await connectPlayer(url, i === 0 ? "Host" : `P${i + 1}`);
+          sockets.push(p);
+          const joined = waitFor(p.socket, "room:state",
+            (s) => s.players?.length >= i + 1, `${gameKey} join ${i + 1}`);
+          p.socket.emit("room:join", { joinCode: room.joinCode });
+          await joined;
+        }
+
+        const owner = sockets[0].socket;
+        const selected = waitFor(owner, "room:state",
+          (s) => s.currentGame?.gameKey === gameKey, `${gameKey} selected`);
+        owner.emit("room:selectGame", { gameKey, mode });
+        await selected;
+
+        const playing = waitFor(owner, "room:state",
+          (s) => s.currentGame?.status === "PLAYING", `${gameKey} started`);
+        owner.emit("room:startGame");
+        const state = await playing;
+
+        check(`${gameKey} starts with ${minPlayers} player(s)`,
+          Object.keys(state.currentGame?.state || {}).length > 0,
+          "game state is empty");
+      } catch (err) {
+        check(`${gameKey} starts with ${minPlayers} player(s)`, false, err.message);
+      } finally {
+        sockets.forEach((p) => p.socket.close());
+      }
+    }
   } catch (err) {
     failures.push(err.message);
     console.log(`  FAIL ${err.message}`);
