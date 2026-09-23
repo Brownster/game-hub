@@ -3379,4 +3379,259 @@ thinking
 
 Planning a last commit of all changes to the run log with a clear message, then stopping all commands to conclude the process.
 exec
-/bin/bash -lc 'git add -A' in /home/marc/Documents/github/ralph/game-hub
+/bin/bash -lc 'git add -A' in /home/marc/Documents/github/ralph/game-hub succeeded in 524ms:
+
+file update:
+diff --git a/.ralph/progress.md b/.ralph/progress.md
+index 7562d225e88a08f45af196c6f4ccc56760b33796..32a3f232b3cf727f104999a0fddf042680fa17c8
+--- a/.ralph/progress.md
++++ b/.ralph/progress.md
+@@ -125,7 +125,7 @@
+ - Guardrails reviewed: yes
+ - No-commit run: false
+ - Commit: fce9da5 test: add uno service unit tests
+-- Post-commit status: clean
++- Post-commit status: .ralph/runs/run-20260123-011054-971908-iter-8.log
+ - Verification:
+   - Command: npm test -> PASS
+ - Files changed:
+diff --git a/AGENTS.md b/AGENTS.md
+index 5aa2925d9499280dd5d2c24db2b29f87c2ec7da6..5d1a46a68b591cc2e59c78af14d5f93a4f5d0fd5
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -4,6 +4,8 @@
+ - Tests: `cd services/web && npm test`
+ - Build: `cd services/web && npm run build`
+ - Dev server: `cd services/web && npm run dev`
++- Coverage (optional): `cd services/web && npx vitest --coverage` (requires `@vitest/coverage-v8`)
+ 
+ ## services/hub
+ - Tests: `cd services/hub && npm test`
++- Coverage (optional): `cd services/hub && node --test --coverage`
+diff --git a/README.md b/README.md
+index 4031d88e7cf0f2ea5daf07b0e8d8b4e3603b45b7..26be698afa8823be31ce9ed867e6b5c025a3f781
+--- a/README.md
++++ b/README.md
+@@ -38,6 +38,29 @@
+ 
+ Then open `http://localhost:5173`.
+ 
++## Testing
++
++Hub tests use Node's built-in test runner to keep game logic and API behavior deterministic (room lifecycle, game services/utilities, and Wordle flows) without real Redis or network dependencies.
++
++```bash
++cd services/hub
++npm test
++```
++
++Web tests run in Vitest + jsdom to cover routing and key HubHome interactions while keeping browser APIs mocked.
++
++```bash
++cd services/web
++npm test
++```
++
++### Coverage (optional, non-blocking)
++
++Coverage is not enforced. If you want a quick snapshot, keep core game logic and routing around ~70% lines/branches and use:
++
++- `cd services/hub && node --test --coverage`
++- `cd services/web && npx vitest --coverage` (requires adding `@vitest/coverage-v8`)
++
+ ## Notes
+ 
+ - Room codes are 4 characters; share the lobby link to join.
+
+
+thinking
+**Committing changes**
+exec
+/bin/bash -lc 'git commit -m "chore: update run log"' in /home/marc/Documents/github/ralph/game-hub succeeded in 418ms:
+[main 5e982b9] chore: update run log
+ 1 file changed, 219 insertions(+)
+file update:
+diff --git a/.ralph/progress.md b/.ralph/progress.md
+index 7562d225e88a08f45af196c6f4ccc56760b33796..32a3f232b3cf727f104999a0fddf042680fa17c8
+--- a/.ralph/progress.md
++++ b/.ralph/progress.md
+@@ -125,7 +125,7 @@
+ - Guardrails reviewed: yes
+ - No-commit run: false
+ - Commit: fce9da5 test: add uno service unit tests
+-- Post-commit status: clean
++- Post-commit status: .ralph/runs/run-20260123-011054-971908-iter-8.log
+ - Verification:
+   - Command: npm test -> PASS
+ - Files changed:
+diff --git a/AGENTS.md b/AGENTS.md
+index 5aa2925d9499280dd5d2c24db2b29f87c2ec7da6..5d1a46a68b591cc2e59c78af14d5f93a4f5d0fd5
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -4,6 +4,8 @@
+ - Tests: `cd services/web && npm test`
+ - Build: `cd services/web && npm run build`
+ - Dev server: `cd services/web && npm run dev`
++- Coverage (optional): `cd services/web && npx vitest --coverage` (requires `@vitest/coverage-v8`)
+ 
+ ## services/hub
+ - Tests: `cd services/hub && npm test`
++- Coverage (optional): `cd services/hub && node --test --coverage`
+diff --git a/README.md b/README.md
+index 4031d88e7cf0f2ea5daf07b0e8d8b4e3603b45b7..26be698afa8823be31ce9ed867e6b5c025a3f781
+--- a/README.md
++++ b/README.md
+@@ -38,6 +38,29 @@
+ 
+ Then open `http://localhost:5173`.
+ 
++## Testing
++
++Hub tests use Node's built-in test runner to keep game logic and API behavior deterministic (room lifecycle, game services/utilities, and Wordle flows) without real Redis or network dependencies.
++
++```bash
++cd services/hub
++npm test
++```
++
++Web tests run in Vitest + jsdom to cover routing and key HubHome interactions while keeping browser APIs mocked.
++
++```bash
++cd services/web
++npm test
++```
++
++### Coverage (optional, non-blocking)
++
++Coverage is not enforced. If you want a quick snapshot, keep core game logic and routing around ~70% lines/branches and use:
++
++- `cd services/hub && node --test --coverage`
++- `cd services/web && npx vitest --coverage` (requires adding `@vitest/coverage-v8`)
++
+ ## Notes
+ 
+ - Room codes are 4 characters; share the lobby link to join.
+
+
+
+thinking
+**Settling on using commit output for hash and subject**
+
+Deciding to skip running git show after the final commit to avoid dirtying the run log, instead using the commit output captured earlier as the commit hash and subject per instruction constraints.
+thinking
+**Summarizing final changes, tests, and review**
+
+The final response will detail updates to the README and AGENTS files, including coverage guidance. Tests run include `npm test` in hub and web services, web build, and a dev server run that timed out after 5 seconds (exit 124). Security, performance, and regression reviews found no issues. The last commit hash is 5e982b9 with subject "chore: update run log", plus the main work commit cd2c239 noted. We'll clarify the working tree was last checked clean before the final commit but not afterward to avoid dirtying logs. The missing $commit skill will be briefly mentioned. Next steps include optionally adding @vitest/coverage-v8 for web coverage. The response will end with `<promise>COMPLETE</promise>`.
+codex
+Added a Testing section in `README.md` with why the tests exist, what they cover, and how to run them, plus optional coverage guidance. Updated `AGENTS.md` with optional coverage commands for quick reference. Note: `$commit` skill isn’t available in this session, so I committed via `git` directly.
+
+Tests and verification:
+- `cd services/hub && npm test` -> PASS
+- `cd services/web && npm test` -> PASS (React Router future-flag warnings only)
+- `cd services/web && npm run build` -> PASS
+- `cd services/web && timeout 5s npm run dev` -> PASS (Vite ready output before timeout exit)
+
+Security/perf/regression review: no issues found; doc-only changes.
+
+Commits (most recent first):
+- 5e982b9 chore: update run log
+- 35e85a6 chore: update activity log
+- 7ea2fef chore: update progress status
+- 0b7d0a2 chore: update progress log
+- 9069f51 chore: update run log
+- cd2c239 docs: add testing and coverage guidance
+
+Note on repo status: I committed the run log updates created by the final commands; I didn’t re-run `git status` after the last commit to avoid re-dirtying `.ralph/runs/run-20260123-011054-971908-iter-8.log`.
+
+Next steps (optional):
+1) Add `@vitest/coverage-v8` in `services/web` if you want `npx vitest --coverage` to run without installing per-use.
+
+<promise>COMPLETE</promise>
+file update:
+diff --git a/.ralph/progress.md b/.ralph/progress.md
+index 7562d225e88a08f45af196c6f4ccc56760b33796..32a3f232b3cf727f104999a0fddf042680fa17c8
+--- a/.ralph/progress.md
++++ b/.ralph/progress.md
+@@ -125,7 +125,7 @@
+ - Guardrails reviewed: yes
+ - No-commit run: false
+ - Commit: fce9da5 test: add uno service unit tests
+-- Post-commit status: clean
++- Post-commit status: .ralph/runs/run-20260123-011054-971908-iter-8.log
+ - Verification:
+   - Command: npm test -> PASS
+ - Files changed:
+diff --git a/AGENTS.md b/AGENTS.md
+index 5aa2925d9499280dd5d2c24db2b29f87c2ec7da6..5d1a46a68b591cc2e59c78af14d5f93a4f5d0fd5
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -4,6 +4,8 @@
+ - Tests: `cd services/web && npm test`
+ - Build: `cd services/web && npm run build`
+ - Dev server: `cd services/web && npm run dev`
++- Coverage (optional): `cd services/web && npx vitest --coverage` (requires `@vitest/coverage-v8`)
+ 
+ ## services/hub
+ - Tests: `cd services/hub && npm test`
++- Coverage (optional): `cd services/hub && node --test --coverage`
+diff --git a/README.md b/README.md
+index 4031d88e7cf0f2ea5daf07b0e8d8b4e3603b45b7..26be698afa8823be31ce9ed867e6b5c025a3f781
+--- a/README.md
++++ b/README.md
+@@ -38,6 +38,29 @@
+ 
+ Then open `http://localhost:5173`.
+ 
++## Testing
++
++Hub tests use Node's built-in test runner to keep game logic and API behavior deterministic (room lifecycle, game services/utilities, and Wordle flows) without real Redis or network dependencies.
++
++```bash
++cd services/hub
++npm test
++```
++
++Web tests run in Vitest + jsdom to cover routing and key HubHome interactions while keeping browser APIs mocked.
++
++```bash
++cd services/web
++npm test
++```
++
++### Coverage (optional, non-blocking)
++
++Coverage is not enforced. If you want a quick snapshot, keep core game logic and routing around ~70% lines/branches and use:
++
++- `cd services/hub && node --test --coverage`
++- `cd services/web && npx vitest --coverage` (requires adding `@vitest/coverage-v8`)
++
+ ## Notes
+ 
+ - Room codes are 4 characters; share the lobby link to join.
+
+tokens used
+71,912
+Added a Testing section in `README.md` with why the tests exist, what they cover, and how to run them, plus optional coverage guidance. Updated `AGENTS.md` with optional coverage commands for quick reference. Note: `$commit` skill isn’t available in this session, so I committed via `git` directly.
+
+Tests and verification:
+- `cd services/hub && npm test` -> PASS
+- `cd services/web && npm test` -> PASS (React Router future-flag warnings only)
+- `cd services/web && npm run build` -> PASS
+- `cd services/web && timeout 5s npm run dev` -> PASS (Vite ready output before timeout exit)
+
+Security/perf/regression review: no issues found; doc-only changes.
+
+Commits (most recent first):
+- 5e982b9 chore: update run log
+- 35e85a6 chore: update activity log
+- 7ea2fef chore: update progress status
+- 0b7d0a2 chore: update progress log
+- 9069f51 chore: update run log
+- cd2c239 docs: add testing and coverage guidance
+
+Note on repo status: I committed the run log updates created by the final commands; I didn’t re-run `git status` after the last commit to avoid re-dirtying `.ralph/runs/run-20260123-011054-971908-iter-8.log`.
+
+Next steps (optional):
+1) Add `@vitest/coverage-v8` in `services/web` if you want `npx vitest --coverage` to run without installing per-use.
+
+<promise>COMPLETE</promise>
