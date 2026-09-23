@@ -8,6 +8,7 @@ RUN npm install
 COPY services/web/index.html ./
 COPY services/web/vite.config.js ./
 COPY services/web/src ./src
+COPY services/web/public ./public
 
 RUN npm run build
 
