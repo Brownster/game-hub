@@ -49,6 +49,18 @@ A full set at 512px takes a few minutes on 8 CPU cores. Use
 `--resolution 256 --samples 32` while iterating on geometry; it is roughly
 sixteen times faster and shape problems show up just as clearly.
 
+## Rendering the Othello discs
+
+```bash
+npm run --prefix services/web assets:reversi
+```
+
+Two faces of one lathed disc, shot from straight overhead, into
+`services/web/public/reversi/`. The board shows one face per side of a CSS 3D
+flip and drives the rotation from the disc's colour, so a captured disc turns
+over without the board remembering anything. No trim stage: both faces must
+stay the same size and centred or the flip would wobble.
+
 ## How the chess pieces are built
 
 `chesslib.py` holds the geometry primitives, `render_chess.py` the scene.

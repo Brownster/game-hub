@@ -14,7 +14,8 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:report": "playwright show-report",
-    "assets:chess": "blender --background --python ../../assets/blender/render_chess.py -- --out .render-cache/chess --resolution 512 --samples 96 && python3 ../../assets/blender/trim_sprites.py .render-cache/chess public/chess/pieces/wood"
+    "assets:chess": "blender --background --python ../../assets/blender/render_chess.py -- --out .render-cache/chess --resolution 512 --samples 96 && python3 ../../assets/blender/trim_sprites.py .render-cache/chess public/chess/pieces/wood",
+    "assets:reversi": "blender --background --python ../../assets/blender/render_reversi.py -- --out public/reversi --resolution 256 --samples 160"
   },
   "dependencies": {
     "@fontsource/archivo-black": "^5.0.20",
