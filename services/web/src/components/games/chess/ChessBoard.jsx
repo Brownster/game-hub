@@ -15,7 +15,7 @@ function getPieceImage(piece) {
   if (!piece) return "";
   const name = PIECE_NAMES[piece.type];
   const color = piece.color === "w" ? "w" : "b";
-  return `/chess/pieces/256h/${color}_${name}_png_256px.png`;
+  return `/chess/pieces/wood/${color}_${name}.png`;
 }
 
 function buildMoveRows(moves) {
