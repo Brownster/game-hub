@@ -467,4 +467,81 @@ export function processAction(state, playerId, action) {
   return { ok: false, error: "UNKNOWN_ACTION" };
 }
 
+export function removePlayer(state, playerId) {
+  const idx = state.players.findIndex((p) => p.playerId === playerId);
+  if (idx === -1) return false;
+
+  const wasCurrent = state.turnIndex === idx;
+  state.players.splice(idx, 1);
+  delete state.hands[playerId];
+
+  if (state.hostId === playerId) {
+    state.hostId = state.players[0]?.playerId || null;
+  }
+
+  if (state.unoPendingPlayerId === playerId) {
+    state.unoPendingPlayerId = null;
+  }
+
+  if (state.pendingColorChoiceFor === playerId) {
+    state.pendingColorChoiceFor = null;
+    state.phase = PHASES.TURN;
+    if (!state.currentColor) {
+      state.currentColor = "red";
+    }
+
+    if (state.pendingDrawTargetId) {
+      const targetIndex = state.players.findIndex((p) => p.playerId === state.pendingDrawTargetId);
+      state.turnIndex = targetIndex >= 0 ? targetIndex : state.turnIndex;
+      state.pendingDrawTargetId = null;
+    } else {
+      advanceTurn(state, 1);
+    }
+  }
+
+  if (state.pendingDrawTargetId === playerId) {
+    const remaining = state.players.length;
+    if (remaining > 0) {
+      const replacementIndex = state.direction === 1
+        ? Math.min(idx, remaining - 1)
+        : (idx - 1 + remaining) % remaining;
+      state.pendingDrawTargetId = state.players[replacementIndex]?.playerId || null;
+    } else {
+      state.pendingDrawTargetId = null;
+    }
+  }
+
+  if (state.drawnPlayerId === playerId) {
+    state.drawnPlayerId = null;
+    state.drawnCardId = null;
+  }
+
+  const remainingPlayers = state.players.length;
+  if (remainingPlayers === 0) {
+    state.turnIndex = 0;
+    return true;
+  }
+
+  if (wasCurrent) {
+    if (state.direction === 1) {
+      state.turnIndex = Math.min(idx, remainingPlayers - 1);
+    } else {
+      state.turnIndex = (idx - 1 + remainingPlayers) % remainingPlayers;
+    }
+  } else if (idx < state.turnIndex) {
+    state.turnIndex = Math.max(0, state.turnIndex - 1);
+  }
+
+  if (state.turnIndex >= remainingPlayers) {
+    state.turnIndex = 0;
+  }
+
+  if (remainingPlayers === 1) {
+    state.phase = PHASES.FINISHED;
+    state.winner = state.players[0]?.playerId || null;
+  }
+
+  return true;
+}
+
 export { PHASES, ACTIONS };
