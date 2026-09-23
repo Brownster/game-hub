@@ -1,0 +1,110 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+# A newer push to the same branch makes the in-flight run irrelevant.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  hub:
+    name: Hub tests
+    runs-on: ubuntu-latest
+
+    # The integration smoke test drives a real room through a real Redis.
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20" # Matches the node:20-alpine base in the Dockerfiles.
+          cache: npm
+          cache-dependency-path: services/hub/package-lock.json
+
+      - name: Install
+        working-directory: services/hub
+        run: npm ci
+
+      - name: Unit tests
+        working-directory: services/hub
+        run: npm test
+
+      - name: Integration smoke test
+        working-directory: services/hub
+        env:
+          REDIS_URL: redis://127.0.0.1:6379
+        run: npm run test:integration
+
+  web:
+    name: Web tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: services/web/package-lock.json
+
+      - name: Install
+        working-directory: services/web
+        run: npm ci
+
+      - name: Unit tests
+        working-directory: services/web
+        run: npm test
+
+      - name: Build
+        working-directory: services/web
+        run: npm run build
+
+  image:
+    name: Image builds with its assets
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: gamehub:ci
+
+      - name: Game art is present in the image
+        # The Dockerfiles once omitted services/web/public, so images shipped
+        # with no card faces, chess pieces, Catan icons or audio. A successful
+        # build does not catch that on its own — the files have to be checked.
+        run: |
+          missing=0
+          for dir in cards uno chess catan audio; do
+            if docker run --rm gamehub:ci sh -c "[ -d /usr/share/nginx/html/$dir ]"; then
+              echo "ok   /usr/share/nginx/html/$dir"
+            else
+              echo "FAIL /usr/share/nginx/html/$dir is missing"
+              missing=1
+            fi
+          done
+          exit $missing
