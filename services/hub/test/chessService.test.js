@@ -102,3 +102,28 @@ test("chess: move history accumulates across turns", () => {
   assert.deepEqual(state.moves, ["e4", "Nc6", "Nf3"], "history keeps growing");
   assert.equal(state.phase, PHASES.TURN);
 });
+
+// A Chess instance loaded from a FEN has no history, so threefold repetition
+// was invisible and a repeated position never drew.
+test("chess: threefold repetition is detected", () => {
+  const state = createChessInitialState(createPlayers(), "PVP");
+  startChessGame(state);
+
+  const play = (playerId, from, to) => {
+    const result = processAction(state, playerId, { type: ACTIONS.MOVE, from, to });
+    assert.equal(result.ok, true, `${from}${to}: ${result.error || ""}`);
+  };
+
+  // Shuffle both knights out and back twice, returning to the start position
+  // for the third time.
+  for (let i = 0; i < 2; i += 1) {
+    play("p1", "g1", "f3");
+    play("p2", "g8", "f6");
+    play("p1", "f3", "g1");
+    play("p2", "f6", "g8");
+  }
+
+  assert.equal(state.phase, PHASES.FINISHED, "a thrice-repeated position is a draw");
+  assert.equal(state.drawReason, "threefold", "and is reported as repetition, not a generic draw");
+  assert.equal(state.winnerColor, null);
+});

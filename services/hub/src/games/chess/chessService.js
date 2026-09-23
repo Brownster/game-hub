@@ -61,6 +61,27 @@ function getDrawReason(chess) {
   return null;
 }
 
+/**
+ * Rebuild the position by replaying the recorded moves.
+ *
+ * A Chess instance loaded straight from a FEN has no history, so it cannot see
+ * threefold repetition and isDraw() silently never fires for it. Games always
+ * begin from the standard position with an empty move list, so replaying is
+ * safe; if the replay ever disagrees with the stored FEN, the FEN wins and we
+ * lose only repetition detection rather than corrupting the board.
+ */
+function loadPosition(state) {
+  const replay = new Chess();
+  for (const san of state.moves || []) {
+    try {
+      replay.move(san);
+    } catch {
+      return new Chess(state.fen);
+    }
+  }
+  return replay.fen() === state.fen ? replay : new Chess(state.fen);
+}
+
 export function createChessInitialState(players = [], mode = "PVP") {
   const playerStates = players.slice(0, 2).map(createPlayerState);
   const hostId = playerStates.find((p) => p.isHost)?.playerId || playerStates[0]?.playerId || null;
@@ -185,7 +206,7 @@ export function processAction(state, playerId, action) {
     return { ok: false, error: "NOT_YOUR_TURN" };
   }
 
-  const chess = new Chess(state.fen);
+  const chess = loadPosition(state);
   const { from, to, promotion } = action;
   if (!from || !to) return { ok: false, error: "INVALID_MOVE" };
 
