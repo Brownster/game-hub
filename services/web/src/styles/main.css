@@ -3511,7 +3511,12 @@ body.room-mode {
   margin-inline: auto;
   aspect-ratio: 1 / 1;
   display: grid;
-  grid-template-rows: repeat(8, 1fr);
+  /* minmax(0, 1fr), not 1fr: a bare 1fr is minmax(auto, 1fr) and refuses to
+     shrink a row below its content. The piece sprites are trimmed to their own
+     content and so differ wildly in aspect (the king is 268x501), which made
+     rows holding tall pieces balloon — row heights ran 139/99/43/43/43/43/99/139
+     and the squares stopped being square. */
+  grid-template-rows: repeat(8, minmax(0, 1fr));
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
@@ -3519,7 +3524,8 @@ body.room-mode {
 
 .chess__row {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  min-height: 0;
 }
 
 .chess__tile {
@@ -3528,10 +3534,11 @@ body.room-mode {
   padding: 0;
   background: #2f4a3c;
   cursor: pointer;
-  /* Pieces stand on the square rather than floating centred in it. */
-  display: grid;
-  align-items: end;
-  justify-items: center;
+  /* The square takes its height from the grid row, never from the piece on it.
+     While the sprite was in normal flow its intrinsic height forced the tile
+     taller than its row, so tall pieces spilled into the rank below. */
+  min-height: 0;
+  overflow: hidden;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -3562,6 +3569,12 @@ body.room-mode {
    from the true modelled ratios, which would leave a pawn barely half the
    height of a king and hard to hit on a phone. */
 .chess__piece {
+  /* Absolute, so the sprite never contributes to the square's height and its
+     percentage height resolves against the square the grid decided on. */
+  position: absolute;
+  left: 50%;
+  bottom: 4%;
+  transform: translateX(-50%);
   width: 92%;
   height: 84%;
   object-fit: contain;
