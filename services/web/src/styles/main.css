@@ -3962,6 +3962,68 @@ body.room-mode {
   color: #4ade80;
 }
 
+/* Shown while games are locked. A one-player room used to present eight greyed
+   cards reading "Needs 2 players" with no hint of what to do about it, and the
+   Share button sits far away in the header. */
+.game-invite {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 178, 63, 0.35);
+  background: rgba(255, 178, 63, 0.09);
+}
+
+.game-invite__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-right: auto;
+  text-align: left;
+}
+
+.game-invite__text strong {
+  font-size: 15px;
+}
+
+.game-invite__text span {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.game-invite__code {
+  font-family: "Orbitron", monospace;
+  font-size: 20px;
+  letter-spacing: 0.18em;
+  padding: 6px 14px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+@media (max-width: 640px) {
+  .game-invite {
+    gap: 10px;
+    padding: 12px 14px;
+  }
+
+  .game-invite__text {
+    margin-right: 0;
+    flex: 1 1 100%;
+  }
+
+  .game-invite__code {
+    font-size: 18px;
+  }
+
+  .game-invite .room-btn {
+    flex: 1;
+  }
+}
+
 .game-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));

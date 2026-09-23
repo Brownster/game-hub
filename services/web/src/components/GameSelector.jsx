@@ -198,6 +198,12 @@ const ICONS = {
   wordle: <><rect x="2.5" y="8" width="6" height="8" rx="1.2" fill="currentColor" /><rect x="9.5" y="8" width="6" height="8" rx="1.2" fill="none" stroke="currentColor" strokeWidth="1.8" /><rect x="16.5" y="8" width="5" height="8" rx="1.2" fill="none" stroke="currentColor" strokeWidth="1.8" /></>,
 };
 
+function listNames(games) {
+  const names = games.map((g) => g.name);
+  if (names.length === 1) return names[0];
+  return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+}
+
 function GameIcon({ gameKey }) {
   return (
     <svg className="game-card__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -206,7 +212,7 @@ function GameIcon({ gameKey }) {
   );
 }
 
-export default function GameSelector({ onSelect, playerCount, isHost }) {
+export default function GameSelector({ onSelect, playerCount, isHost, joinCode, onCopyLink }) {
   const [selectedGame, setSelectedGame] = useState(null);
   const [selectedMode, setSelectedMode] = useState(null);
   const [rulesGame, setRulesGame] = useState(null);
@@ -233,6 +239,23 @@ export default function GameSelector({ onSelect, playerCount, isHost }) {
     setSelectedMode(firstAvailableMode?.value || null);
   };
 
+  // Which games this room cannot start yet, so the invite prompt can name them.
+  const lockedGames = GAMES.filter((game) =>
+    hasAiMode(game) ? playerCount < 1 : playerCount < game.minPlayers
+  );
+  const lockedCount = lockedGames.length;
+
+  // Once only a couple are locked, naming them beats a generic nudge.
+  const shortfall = lockedCount
+    ? Math.min(...lockedGames.map((g) => g.minPlayers)) - playerCount
+    : 0;
+  const lockedDetail =
+    lockedCount === 0
+      ? ""
+      : lockedCount <= 3
+        ? `${listNames(lockedGames)} need ${Math.min(...lockedGames.map((g) => g.minPlayers))} players.`
+        : "Only Reversi, Connect 4 and Chess have a computer opponent. Share the room to unlock the rest.";
+
   const handleConfirm = () => {
     if (!selectedGame || !selectedMode) return;
     onSelect(selectedGame.key, selectedMode);
@@ -254,6 +277,25 @@ export default function GameSelector({ onSelect, playerCount, isHost }) {
     <div className="game-selector">
       <h2 className="game-selector-title">Choose a Game</h2>
       <p className="game-selector-subtitle">{playerCount} player{playerCount !== 1 ? "s" : ""} in room</p>
+
+      {lockedCount > 0 && (
+        <div className="game-invite">
+          <div className="game-invite__text">
+            <strong>
+              {lockedCount} more game{lockedCount !== 1 ? "s" : ""} need
+              {lockedCount === 1 ? "s" : ""}{" "}
+              {shortfall > 1 ? `${shortfall} more players` : "another player"}
+            </strong>
+            <span>{lockedDetail}</span>
+          </div>
+          {joinCode && <span className="game-invite__code">{joinCode}</span>}
+          {onCopyLink && (
+            <button type="button" className="room-btn primary" onClick={onCopyLink}>
+              Copy invite link
+            </button>
+          )}
+        </div>
+      )}
 
       <div className="game-grid">
         {GAMES.map((game) => {

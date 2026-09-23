@@ -229,6 +229,8 @@ export default function Room() {
           onSelect={selectGame}
           playerCount={players.length}
           isHost={isHost}
+          joinCode={joinCode}
+          onCopyLink={copyLink}
         />
       );
     }
