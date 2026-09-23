@@ -150,6 +150,16 @@ export default function ChessBoard({ state, playerId, onAction }) {
                       }
                     }}
                   >
+                    {col === 0 && (
+                      <span className="chess__coord chess__coord--rank" aria-hidden="true">
+                        {square[1]}
+                      </span>
+                    )}
+                    {row === 7 && (
+                      <span className="chess__coord chess__coord--file" aria-hidden="true">
+                        {square[0]}
+                      </span>
+                    )}
                     {piece && (
                       <img
                         src={getPieceImage(piece)}
