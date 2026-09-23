@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ensureSession } from "../state/session.js";
 import { getSocket } from "../state/socket.js";
 import { playSound, unlockAudio } from "../state/sounds.js";
@@ -22,9 +22,11 @@ import WordleBoard from "../components/games/wordle/WordleBoard.jsx";
 export default function Room() {
   const navigate = useNavigate();
   const { code } = useParams();
+  const [searchParams] = useSearchParams();
   const session = useMemo(() => ensureSession(), []);
   const joinCode = String(code || "").toUpperCase();
   const socketRef = useRef(null);
+  const autoSelectedRef = useRef(false);
 
   const [room, setRoom] = useState(null);
   const [chatOpen, setChatOpen] = useState(false);
@@ -123,6 +125,23 @@ export default function Room() {
       typingTimeoutsRef.current.clear();
     };
   }, [joinCode]);
+
+  // Quick-play links (/room/CODE?game=reversi&mode=AI) carry their choice in the
+  // URL. Selecting a game is a host-only socket call that can only happen once
+  // we are in the room, so it waits for the first room:state and runs once.
+  useEffect(() => {
+    if (autoSelectedRef.current) return;
+    if (!room || !isHost || room.currentGame) return;
+
+    const wanted = searchParams.get("game");
+    if (!wanted) return;
+
+    autoSelectedRef.current = true;
+    socketRef.current?.emit("room:selectGame", {
+      gameKey: wanted,
+      mode: searchParams.get("mode") || undefined,
+    });
+  }, [room, isHost, searchParams]);
 
   // Timer countdown for timed games
   useEffect(() => {
@@ -295,7 +314,9 @@ export default function Room() {
     }
   };
 
-  const canStart = players.length >= 2 && isHost && currentGame && !gameFinished && gameState?.phase === "LOBBY";
+  // A game against the computer needs one human, matching the hub's own rule.
+  const enoughPlayers = players.length >= 2 || currentGame?.mode === "AI";
+  const canStart = enoughPlayers && isHost && currentGame && !gameFinished && gameState?.phase === "LOBBY";
 
   return (
     <div className="room-shell">

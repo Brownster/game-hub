@@ -211,12 +211,15 @@ export default function GameSelector({ onSelect, playerCount, isHost }) {
   const [selectedMode, setSelectedMode] = useState(null);
   const [rulesGame, setRulesGame] = useState(null);
 
+  // Playing the computer takes one human, whichever game it is.
+  const hasAiMode = (game) => game.modes.some((mode) => mode.value === "AI");
+
   const isModeAvailable = (game, modeValue) => {
     if (game.key === "catan") {
       if (modeValue === "4P") return playerCount >= 4;
       if (modeValue === "3P") return playerCount >= 3;
     }
-    if (game.key === "chess" && modeValue === "AI") {
+    if (modeValue === "AI") {
       return playerCount >= 1;
     }
     return playerCount >= game.minPlayers;
@@ -254,7 +257,9 @@ export default function GameSelector({ onSelect, playerCount, isHost }) {
 
       <div className="game-grid">
         {GAMES.map((game) => {
-          const canPlay = game.key === "chess" ? playerCount >= 1 : playerCount >= game.minPlayers;
+          const canPlay = hasAiMode(game)
+            ? playerCount >= 1
+            : playerCount >= game.minPlayers;
           const isSelected = selectedGame?.key === game.key;
 
           return (

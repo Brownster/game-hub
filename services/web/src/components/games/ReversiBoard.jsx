@@ -70,9 +70,12 @@ export default function ReversiBoard({
       if (isAiGame && winner === "W") return "Computer wins";
       return `${SIDE_LABEL[winner]} wins`;
     }
-    if (!players.length || players.length < 2) return "Waiting for an opponent…";
+    // The opponent check has to come after the AI check: a game against the
+    // computer has one human, and this used to sit on "Waiting for an
+    // opponent…" for the whole game.
     if (isYourTurn) return "Your turn";
-    if (isAiGame && gameState?.turn === "W") return "Computer is thinking…";
+    if (isAiGame) return "Computer is thinking…";
+    if (!players.length || players.length < 2) return "Waiting for an opponent…";
     return `Waiting for ${SIDE_LABEL[gameState?.turn] || "opponent"}…`;
   };
 

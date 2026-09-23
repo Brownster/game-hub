@@ -1304,7 +1304,10 @@ export function registerSocketHandlers(httpServer) {
       const gameKey = room.currentGame.gameKey;
       const config = GAME_CONFIG[gameKey];
       let minPlayers = config?.minPlayers ?? 2;
-      if (gameKey === "chess" && room.currentGame.mode === "AI") {
+      // A game against the computer needs one human, whichever game it is.
+      // This was hardcoded to chess, so picking "vs Computer" for reversi or
+      // connect4 sat on "Need at least 2 players" forever.
+      if (room.currentGame.mode === "AI") {
         minPlayers = 1;
       }
       if (room.players.length < minPlayers) {
