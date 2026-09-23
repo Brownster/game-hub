@@ -1,1 +1,20 @@
+# Dependencies
+node_modules/
+
+# Build output
+services/web/dist/
+
+# Test artifacts
+test-results/
+playwright-report/
+playwright/.cache/
+coverage/
+
+# Local scratch
 /examples/
+.ralph/.tmp/
+ralph projects/
+
+# Environment
+.env
+.env.local
