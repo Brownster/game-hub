@@ -78,3 +78,27 @@ test("chess: draw offer accept/decline", () => {
   assert.equal(state.phase, PHASES.FINISHED);
   assert.equal(state.drawReason, "draw_agreed");
 });
+
+// Regression guard: state.moves was rebuilt from a Chess instance loaded from
+// the FEN, which carries no history, so every move replaced the list with a
+// single entry and the move panel only ever showed the latest move — rendered
+// in White's column whoever had played it.
+test("chess: move history accumulates across turns", () => {
+  const state = createChessInitialState(createPlayers(), "PVP");
+  startChessGame(state);
+
+  const play = (playerId, from, to) => {
+    const result = processAction(state, playerId, { type: ACTIONS.MOVE, from, to });
+    assert.equal(result.ok, true, `${from}${to} should be legal: ${result.error || ""}`);
+  };
+
+  play("p1", "e2", "e4");
+  assert.deepEqual(state.moves, ["e4"], "white's first move");
+
+  play("p2", "b8", "c6");
+  assert.deepEqual(state.moves, ["e4", "Nc6"], "both moves, in order");
+
+  play("p1", "g1", "f3");
+  assert.deepEqual(state.moves, ["e4", "Nc6", "Nf3"], "history keeps growing");
+  assert.equal(state.phase, PHASES.TURN);
+});

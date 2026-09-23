@@ -204,7 +204,11 @@ export function processAction(state, playerId, action) {
 
   state.fen = chess.fen();
   state.turn = chess.turn();
-  state.moves = chess.history({ verbose: true }).map((m) => m.san);
+  // Append, do not rebuild from the instance: `chess` was loaded from a FEN, so
+  // it carries no history and chess.history() returns only the move just made.
+  // Rebuilding from it wiped the list on every move, leaving one entry that
+  // always rendered in White's column.
+  state.moves = [...(state.moves || []), move.san];
   state.lastMove = { from: move.from, to: move.to, san: move.san };
   state.drawOfferBy = null;
 
