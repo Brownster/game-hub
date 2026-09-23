@@ -1,9 +1,13 @@
 name: Build and Push Images
 
 on:
-  push:
-    branches:
-      - main
+  # Runs only after CI finishes on main, so a red build cannot publish an image.
+  # workflow_run fires regardless of CI's outcome, hence the conclusion check on
+  # the job below.
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
     inputs:
       tag:
@@ -19,6 +23,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # A manual run is always allowed; an automatic one only on green CI.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
     permissions:
       contents: read
       packages: write
@@ -26,6 +34,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.ref }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -44,6 +54,7 @@ jobs:
       - name: Set image variables
         run: |
           echo "IMAGE_REPO=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+          echo "IMAGE_SHA=${{ github.event.workflow_run.head_sha || github.sha }}" >> "$GITHUB_ENV"
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             echo "IMAGE_TAG=${{ inputs.tag }}" >> "$GITHUB_ENV"
             echo "SHOULD_PUSH=${{ inputs.push }}" >> "$GITHUB_ENV"
@@ -59,4 +70,4 @@ jobs:
           push: ${{ env.SHOULD_PUSH }}
           tags: |
             ${{ env.IMAGE_REPO }}/gamehub:${{ env.IMAGE_TAG }}
-            ${{ env.IMAGE_REPO }}/gamehub:${{ github.sha }}
+            ${{ env.IMAGE_REPO }}/gamehub:${{ env.IMAGE_SHA }}
